@@ -26,25 +26,65 @@ def out(net,activation):
 def error(target, output):
     return (target-output)**2
 
-def delta(error,x,net):
-    return (-2*x*error*sigmoid(net,True))
+''' MODIFICATO IL DELTA: 
+        - l'errore era (t-o)^2, ma nel delta serve solo (t-o), quindi ho messo la rad dell'errore
+        - avevamo messo x, ma così moltiplicavamo tutto il vettore x ogni volta, 
+            mentre nella formula dice di usare solo la feature in corrispondenza nel w che andavamo ad aggiornare
+              quindi ho aggiunto i, indice del peso che aggiorniamo per selezionare l'elemento di x corrispondente'''
+def delta(error,x,net,i):
+    return (-2*x[0][i]*np.sqrt(error)*sigmoid(net,True))
 
 
 eta = 0.02                          # per ora eta basso--> online
 
-#for i in range(10):
 
-err = 5
+err = [5]
+
+w_new = []                          # creo l'array di nuovi pesi
+
 
 y_train = out(net(x, weights), sigmoid)
-print(type(net(x,weights)))
+err = error(y, y_train[0])
 
-'''while err > 3:
-    y_train = out(net(x, weights), sigmoid)
-    print ("oooo", y_train)
-    err = error(y, y_train)
+print("***** PESI VECCHI ****")
+print(weights)
+print("**********************")
 
-    w_new = weights + eta*delta(err,x,net(x,weights))
-    weights = w_new
+'''contatore per gli indici dei pesi da modificare'''
+i = 0
 
-    #print(weights)'''
+'''scorro il vettore dei pesi'''
+for w in weights:
+    print(i,")")
+    '''aggiungo a w_new, volta volta, il risultato della formula con w_old, eta e delta
+            passando a delta anche l'indice del peso che stiamo aggiornando'''
+    w_new.append(weights[i] + eta * delta(err, x, net(x, weights), i))
+
+    #roba random per la stampa
+    net1 = net(x, weights)
+    print("net ", net1)
+
+    #altra roba random
+    d = delta(err, x, net(x, weights), i)
+    print("delta ", d)
+
+    # idem
+    print("w_old ", weights[i])
+    print("w_new ", w_new[i])
+
+    '''sostituisco al vecchio peso quello nuovo'''
+    weights[i] = w_new[i]
+
+    print("----")
+    i = i + 1
+
+print("**** pesi nuovi ****")
+print(weights)
+
+
+''' stampando i delta, mi veniva un array la cui len era 1, ma di fatto conteneva 6 numeri, ex:
+    [4  8   15  16  23  42]
+    questo forse perchè aveva nella formula tutto il vettore x, anzichè la feature j-esima
+    
+    Nell'aggiornamento dei pesi, veniva fuori che w_new, che si riversava poi in weights, fosse un array di 6 elementi
+    ma ognuno dei quali composto da 6 numeri, come il delta'''
