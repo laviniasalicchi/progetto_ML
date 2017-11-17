@@ -24,6 +24,16 @@ def update_weights(weights, train, target):
     else:
         return weights + eta * target * train
         
+def training(train, target, weights):
+    
+    for i in range(0,len(train[:,0])):
+        print(train[i])
+        net = net_func(train[i], weights)
+        if (net >= 0 and target[i] == 1):
+            
+            
+            
+        #net = net_func(train[i], weights)
 
 train = np.array([[0, 0, 1],
                   [1, 0, 1],
@@ -35,7 +45,7 @@ target_or = np.array([0, 1, 1, 1])
 weights = np.random.rand(1,3).T
 eta = 0.02 #oracolo lavinia 
 
-weights_new = update_weights(weights,train,target)
+training(train,target_and,weights)
 
 
 
