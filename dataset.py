@@ -8,19 +8,28 @@ raw_data = open(filename, 'r')
 
 data = np.loadtxt(raw_data, delimiter=",")
 
-x = [[],[]]
-target_x = []
-target_y = []
+x = np.empty([1016,10])
+target_x = np.empty([1016,1])
+target_y = np.empty([1016,1])
+
+print(type(x))
 
 for i in range(0, len(data[:, 0])):
     print("** ",i," **")
     k = 0
     for j in range(1,11):
         print(j," - ", data[i][j])
-        #x[i][k] = data[i][j]
+        x[i][k] = data[i][j]
         k = k+1
     target_x[i][0] = data[i][11]
     target_y[i][0] = data[i][12]
+
+print("___________X__________")
+print(x)
+print("___________TARGET_X__________")
+print(target_x)
+print("___________TARGET_Y__________")
+print(target_y)
 
 
 
