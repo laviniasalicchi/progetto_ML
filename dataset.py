@@ -8,11 +8,11 @@ raw_data = open(filename, 'r')
 
 data = np.loadtxt(raw_data, delimiter=",")
 
-x = np.empty([1016,10])
-target_x = np.empty([1016,1])
-target_y = np.empty([1016,1])
+#print(data.shape[1])
 
-print(type(x))
+x = np.empty([data.shape[0],data.shape[1]-3])
+target_x = np.empty([data.shape[0],1])
+target_y = np.empty([data.shape[0],1])
 
 for i in range(0, len(data[:, 0])):
     print("** ",i," **")
@@ -30,7 +30,6 @@ print("___________TARGET_X__________")
 print(target_x)
 print("___________TARGET_Y__________")
 print(target_y)
-
 
 
 '''pandas
