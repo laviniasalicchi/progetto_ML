@@ -1,7 +1,7 @@
 # ==============================================================================
 # E' un Perceptron, che cazzo ti aspettavi.
 #
-# © 2017 Michele Resta & Lavinia Salicchi
+# © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
 
 import numpy as np
