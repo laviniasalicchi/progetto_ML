@@ -10,9 +10,9 @@ data = np.loadtxt(raw_data, delimiter=",")
 
 #print(data.shape[1])
 
-x = np.empty([data.shape[0],data.shape[1]-3])
-target_x = np.empty([data.shape[0],1])
-target_y = np.empty([data.shape[0],1])
+x = np.empty([data.shape[0], data.shape[1] - 3])
+target_x = np.empty([data.shape[0], 1])
+target_y = np.empty([data.shape[0], 1])
 
 for i in range(0, len(data[:, 0])):
     print("** ",i," **")

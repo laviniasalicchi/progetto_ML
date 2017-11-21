@@ -1,5 +1,5 @@
 # ==============================================================================
-# E' un Perceptron, che cazzo ti aspettavi.
+# E' un Perceptron, che ti aspettavi?
 #
 # © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
