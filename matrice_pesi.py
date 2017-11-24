@@ -103,3 +103,9 @@ for row in range(weights_matrix.shape[0]):
 
 print(weights_matrix)
 print(weights_matrix_mask)
+
+'''
+    to do:
+        - trasferire tutto questo nelle classi
+        - adattare per def delle classi 
+'''
