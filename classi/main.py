@@ -29,7 +29,41 @@ class Network:
 
 
 class NeuronUnit:
-    a = 1
+    def __init__(self, x, weights, y):
+        self.x = x
+        self.weights = weights
+        self.y = y
+        self.net = NeuronUnit.net_func(self)
+        self.out = NeuronUnit.out_func(self)
+        self.error = NeuronUnit.error_func(self)
+
+    def sigmoid(self):
+        a = 1
+        #if (deriv == True):
+        #    return self.x * (1 - self.x)
+        return 1 / (1 + np.exp(-self.net))
+
+    def net_func(self):
+        result = np.dot(x, weights)
+        return result[0][0]
+
+    def out_func(self):
+        return NeuronUnit.sigmoid(self)
+
+    def error_func(self):
+        return y - NeuronUnit.out_func(self)
+
+    #def delta(self):
+    #    return -2 * NeuronUnit.error * NeuronUnit.sigmoid(NeuronUnit.net_func, True)
+
+x = np.array([[1,2,3,4,5,6]])
+y = 1
+#weights = np.random.rand(1,6).T
+weights = [[ 0.31852429],[ 0.8763374 ],[ 0.01358744],[ 0.55160163],[ 0.51340143],[ 0.27862657]]
+
+neu = NeuronUnit(x,weights,y)
+print(neu.error_func())
+
 
 
 class Layer:
@@ -55,7 +89,8 @@ class Layer:
 
 '''inp = Layer(3, 0, 0)
 hid = Layer(3, 0, inp.n_units)
-out = Layer(1, 0, inp.n_units+hid.n_units)'''
+out = Layer(1, 0, inp.n_units+hid.n_units)
+print(out.create_array_ids()'''
 
 class InputLayer(Layer):
     a=1
