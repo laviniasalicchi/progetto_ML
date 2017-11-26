@@ -2,6 +2,9 @@
 
 
 import numpy as np
+from classi import NeuronUnit
+import classi.OutputLayer
+
 
 def __main__():
     ''' ---- parte per importare il dataset esterno ---- '''
@@ -101,4 +104,3 @@ class HiddenLayer(Layer):
 
 class OutputLayer(Layer):
     a = 1
-
