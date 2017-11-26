@@ -30,7 +30,7 @@ x = np.array([[1,2,3,4,5,6]])
 #print('x+y',x+y)
 weights = np.random.rand(1,6).T     #T = trasposta
 print('weights',weights)
-y = 8
+y = 1
 eta = 0.02
 err = [5.0]
 i = 0
@@ -39,23 +39,26 @@ net = net_func(x, weights)
 print(net)
 print(type(sigmoid(net,True)))
 print(type(err[0]))
-for i in range(2):
+print("")
+for i in range(3):
     i = i+1
     print('iterazione ', i)
     net = net_func(x, weights)
-    #print('net', net)
+    print('net', net, " - ", type(net))
     output = out(net, sigmoid)
-    err = error(y , output)**2
-    #print('err',err)
+    print('out', output)
+    err = error(y, output)**2
+    print('err',err)
     delt = delta(error(y,output), net)
     print('delta',delt)
     #print('old', weights)
-    weights = weights  + eta*delt*x
-    print('error', err)
-    #print(eta*delt)
-    #print(eta*delt*x)
+    weights = weights + eta*delt*x
+    print('--------------------')
+    print(eta*delt, " - ", type(eta*delt))
+    print(eta*delt*x," - ", type(eta*delt*x))
+    print("*****")
 #print('new',weights)
-print('weights',weights)
-print()
+print('weights',weights, " - ", len(weights))
+
 
 
