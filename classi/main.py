@@ -147,8 +147,15 @@ class HiddenLayer(Layer):
 class OutputLayer(Layer):
     a = 1
 
-
-hid_lay = HiddenLayer(3,"hidden", 0)
-print(hid_lay.create_array_ids())
-
 __main__()
+
+
+'''
+    da fare:
+        - propagare in avanti l'input: l'output di un'unità deve diventare input della successiva
+        - calcolare errore della rete
+        - creare formule di backprop. personalizzate per ogni layer
+            - aggiornare conseguentemente i pesi
+        - al momento ogni unità è collegata con le altre. Bisogna trovare il modo di non inizializzare con tutti quei collegamenti
+            - o lasciare così e implementare un pruning per sfoltire i collegamenti tra unità 
+'''
