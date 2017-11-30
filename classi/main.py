@@ -33,8 +33,8 @@ def __main__():
     # weights = np.random.rand(1,6).T
     weights = [[0.31852429], [0.8763374], [0.01358744], [0.55160163], [0.51340143], [0.27862657]]
 
-    neu = NeuronUnit(x, weights, y)
-    print(neu.error_func())
+    #neu = NeuronUnit(x, weights, y)
+    #print(neu.error_func())
 
 
 class Network:
@@ -49,11 +49,13 @@ class Network:
 
         # array che "riassume" gli id per ogni layer --> potrebbe non servire a un cazzo, o forse si... boh
         self.total_units_index = {'input': self.input_units, 'hide': self.hidden_units, 'output': self.output_units}
+        self.weights = Network.create_weights_matrix(self)
 
     def create_weights_matrix(self):
         # matrice per incrociare le unit e indicarne i collegamenti pesati
         weights_matrix = np.empty([len(self.total_units), len(self.total_units)])
 
+        i=1
         # scorro la matrice e metto 0 al collegamento tra un'unità e se stessa, numero random tra 0 e 1 per gli altri
         for row in range(weights_matrix.shape[0]):
             for col in range(weights_matrix.shape[1]):
@@ -61,13 +63,14 @@ class Network:
                     weights_matrix[row][col] = 0
                 else:
                     weights_matrix[row][col] = np.random.random_sample()
+                i=i+1
         return weights_matrix
 
     def create_weights_matrix_mask(self):
         # creazione maschera - ma messa così è ancora soggetta alle modifiche dei pesi
         weights_matrix_mask = np.empty([len(self.total_units), len(self.total_units)])
 
-        weights_matrix = Network.create_weights_matrix(self)
+        weights_matrix = self.weights
 
         for row in range(weights_matrix.shape[0]):
             for col in range(weights_matrix.shape[1]):
@@ -75,6 +78,18 @@ class Network:
                     weights_matrix_mask[row][col] = 0
                 else:
                     weights_matrix_mask[row][col] = 1
+        return weights_matrix_mask
+
+    def forward_propagation(self):
+        for lay_dest in self.total_units_index:
+            if lay_dest == "hide":
+                for unit in self.total_units_index[lay_dest]:
+                    print(unit," - ", self.weights[unit-1])
+                    ''' PROBLEMA: ogni volta che chiamo self.weights riparte la creazione della matrice dei pesi
+                                    con numeri random ogni volta'''
+
+
+
 
 
 
@@ -128,12 +143,16 @@ class Layer:
 
 
 inp = Layer(3, 0, 0)
-hid = Layer(3, 0, inp.n_units)
+hid = Layer(2, 0, inp.n_units)
 out = Layer(1, 0, inp.n_units+hid.n_units)
-print(type(out.array))
+
 
 network = Network(inp.array,hid.array,out.array)
+print(network.total_units_index)
+print(network.total_units)
 print(network.create_weights_matrix())
+print(network.create_weights_matrix_mask())
+print(network.forward_propagation())
 
 
 class InputLayer(Layer):
@@ -147,7 +166,7 @@ class HiddenLayer(Layer):
 class OutputLayer(Layer):
     a = 1
 
-__main__()
+#__main__()
 
 
 '''
