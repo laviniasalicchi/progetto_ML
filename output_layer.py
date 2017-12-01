@@ -4,4 +4,4 @@
 # © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
 
-class OutputLayer(NeuronUnit):
+class OutputLayer(Layer):

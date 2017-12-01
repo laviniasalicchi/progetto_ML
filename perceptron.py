@@ -46,6 +46,9 @@ w_new = []                          # creo l'array di nuovi pesi
 y_train = out(net(x, weights), sigmoid)
 err = error(y, y_train[0])
 
+sig = sigmoid(net(x,weights), deriv=True)
+print (sig[0])
+
 print("***** PESI VECCHI ****")
 print(weights)
 print("**********************")
@@ -60,11 +63,11 @@ for w in weights:
             passando a delta anche l'indice del peso che stiamo aggiornando'''
     w_new.append(weights[i] + eta * delta(err, x, net(x, weights), i))
 
-    #roba random per la stampa
+    # roba random per la stampa
     net1 = net(x, weights)
     print("net ", net1)
 
-    #altra roba random
+    # altra roba random
     d = delta(err, x, net(x, weights), i)
     print("delta ", d)
 
@@ -72,7 +75,7 @@ for w in weights:
     print("w_old ", weights[i])
     print("w_new ", w_new[i])
 
-    '''sostituisco al vecchio peso quello nuovo'''
+    ''' sostituisco al vecchio peso quello nuovo '''
     weights[i] = w_new[i]
 
     print("----")

@@ -4,4 +4,4 @@
 # © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
 
-class InputLayer(NeuronUnit):
+class InputLayer(Layer):

@@ -5,3 +5,12 @@
 # ==============================================================================
 
 class NeuronUnit:
+
+
+
+
+    def __init__(self, activation_function):
+
+
+
+    def sigmoid()
