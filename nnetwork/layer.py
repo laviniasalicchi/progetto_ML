@@ -36,7 +36,7 @@ class Layer:
     """
     applica la funzione di attivazione a un vettore x
     ritorna un vettore x
-    WARNING: RITORNA UNA MATRICE con ultimo elemento = 1 (bias)
+    WARNING: RITORNA UNA MATRICE
     """
     def layer_output(self):
         v_activation = np.vectorize(self.activation_function)  # applica la funzione di attivazione al vettore della net dei singoli neuroni

@@ -1,9 +1,10 @@
-'''essendo momentaneamente incapace a richiamare classi da file esterni, piazzo tutto qui'''
-
+# -*- coding: utf-8 -*-
 
 import numpy as np
 #from classi import NeuronUnit
 #import classi.OutputLayer
+from layer import Layer
+
 
 
 def __main__():
@@ -28,16 +29,26 @@ def __main__():
         target_y[i][0] = data[i][12]
     ''' ---- parte per importare il dataset esterno ---- '''
 
-    x = np.array([[1, 2, 3, 4, 5, 6]])
-    y = 1
-    # weights = np.random.rand(1,6).T
-    weights = [[0.31852429], [0.8763374], [0.01358744], [0.55160163], [0.51340143], [0.27862657]]
 
-    #neu = NeuronUnit(x, weights, y)
-    #print(neu.error_func())
+    layer = Layer(13)
+    print(type(Layer.sigmoid))
+    layer.set_activation_function('sigmoid')
+    layer.create_weights(10)
+    random_int = np.random.rand(10, 1)
+    layer.net_function(random_int)
+    output = layer.layer_output()
+    print(output.shape)
+    print(output)
+    print('lavinia pappapero')
+
+__main__()
 
 
-class Network:
+
+
+
+
+"""class Network:
 
     def __init__(self,i_uni, h_uni, o_uni):
         self.input_units = i_uni
@@ -58,12 +69,6 @@ class Network:
         i=1
         # scorro la matrice e metto 0 al collegamento tra un'unità e se stessa, numero random tra 0 e 1 per gli altri
         for row in range(weights_matrix.shape[0]):
-            for col in range(weights_matrix.shape[1]):
-                if (row == col):
-                    weights_matrix[row][col] = 0
-                else:
-                    weights_matrix[row][col] = np.random.random_sample()
-                i=i+1
         return weights_matrix
 
     def create_weights_matrix_mask(self):
@@ -176,5 +181,6 @@ class OutputLayer(Layer):
         - creare formule di backprop. personalizzate per ogni layer
             - aggiornare conseguentemente i pesi
         - al momento ogni unità è collegata con le altre. Bisogna trovare il modo di non inizializzare con tutti quei collegamenti
-            - o lasciare così e implementare un pruning per sfoltire i collegamenti tra unità 
+            - o lasciare così e implementare un pruning per sfoltire i collegamenti tra unità
 '''
+"""
