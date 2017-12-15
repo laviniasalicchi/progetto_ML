@@ -7,6 +7,8 @@
 # ==============================================================================
 
 import numpy as np
+#from layer import Layer
+
 
 class InputLayer(Layer):
 
@@ -19,7 +21,7 @@ class InputLayer(Layer):
         self.weights = np.ones(self.n_units)
 
     """
-    Cla ten function nell'input non c'è
+    La net function nell'input non c'è
     ritorna l'input output_vector
     """
     def net_function(self, input_vector):

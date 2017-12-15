@@ -10,13 +10,14 @@ import numpy as np
 
 class Layer:
 
-
     def __init__(self, n_units):
         self.weights = []
         self.net = []
         self.activation_function = []
-        self.output_vector = []  # output del layer
+        self.output = []  # output del layer: può essere una matrice
         self.n_units = n_units
+        self.deltas = []  # vettore di delta associato con il layer
+
 
     """
     n_units = numero di unità del layers
@@ -57,6 +58,17 @@ class Layer:
         else:
             self.activation_function = Layer.sigmoid
             print('WARNING:\tf_name not recognized. Using sigmoid as activation function')
+
+    def activation_function_derivative(x):
+        if self.activation_function == Layer.sigmoid:
+            #deriv = (1 / (1 + np.exp(-x))) * (1 - (1 / (1 + np.exp(-x))))
+            deriv = self.activation_function * (1 - self.activation_function)
+            vectorized = np.vectorize(deriv)
+            return vectorized(x)
+        if self.activation_function == Layer.tanh:
+            print("ERROR derivative not defined")
+            return 0
+
 
     """
     Sigmoid function
