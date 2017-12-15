@@ -15,6 +15,7 @@ class NeuralNetwork:
         self.input_layer = []
         self.hidden_layers = []
         self.output_layer = []
+        self.loss_func
 
     """
     Aggiunge un input layer alla rete,
@@ -64,48 +65,58 @@ class NeuralNetwork:
             for h_layer in self.hidden_layers:
                 h_layer.net_function(last_layer_out)
                 last_layer_out = h_layer.layer_output()
-            self.output_layer.net_function(h_layer_out)
+            self.output_layer.net_function(last_layer_out)
             out_layer_out = self.output_layer.layer_output()
 
-
-    def backpropagation(self, input_vector, err_func):
+    def backpropagation(self, input_vector, err_func, eta):
         layers = list()
         list.append(hidden_layers)
         # delt = deriv(E/out) * f'(net)
-        err_deriv = mean_euclidean_err(target_value, self.output_layer.output, True)
+        err_deriv = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output, True)
         out_net = self.output_layer.net
         f_prime = self.output_layer.activation_function_derivative(out_net)
         delta_out = err_deriv * f_prime  # dovrebbe essere una matrice con colonne = numero di pattern
-        self.output_layer.delta = delta_out
+        self.output_layer.deltas = delta_out
         prev_layer_delta = delta_out
         prev_layer_weights = self.output_layer.weights  # prev layer weights sono i pesi del layer precedente (quindi quello a destra quando si fa la backprop)
         for layer in reversed(layers):
             layer_net = layer.net
             f_prime = layer.activation_function_derivative(layer_net)
             delta = np.dot(prev_layer_weights, prev_layer_delta) * f_prime
-            layer.delta = delta
+            layer.deltas = delta
             prev_layer_delta = delta
+            prev_layer_weights = layer.weights
 
-        # update weights 
+        # update weights
+        for layer in reversed(layers):
+            delta_w = layer.weights + np.dot(layer.deltas, input_vector.T)
+            weights = weights + eta * delta_w
+
+        return err_func(target_value, self.output_layer.output)
 
 
+    def train_network(self, input_vector, epochs, threshold, loss_func, eta):
+        loss = NeuralNetwork.mean_euclidean_err
+        if loss_func == 'mean_euclidean':
+            loss = NeuralNetwork.mean_euclidean_err
+        elif loss_func == 'squared_err':
+            loss = NeuralNetwork.squared_err
+        else:
+            print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
+        for epoch in epochs:
+            forward_propagation(input_vector)
+            err = backpropagation(input_vector, loss, eta)
+            if err < threshold:
+                print('lavinia puzzecchia! trallallero taralli e vino')
+                break
+        # todo ritornare il modello allenato sennò stiamo usando il computer come termosifone 
 
 
-
-        # compute delta for output layer
-        delta = mean_euclidean_err(input_vector, self.output_layer, True)
-        * self.output_layer.activation_function_derivative(self.output_layer.net)
-        * input_vector
-
-        delta_h = np.multiply(self.output_layer.weights, delta)
-        for layer in reverse(self.hidden_layers):
-            layer.deltas = delta_h * layer.activation_function_derivative(layer)
-            # aggiormna delta_h
-            delta_h = np.multiply(layer.weights, delta_h)
 
     """
     Funzione di errore
     """
+    @staticmethod
     def squared_err(target_value, neuron_out, deriv=False):
         if deriv:
             return -(target_value - neuron_out)  # segno meno? 
@@ -117,11 +128,13 @@ class NeuralNetwork:
     neurons_out = matrice che ha per righe gli output e come colonne i pattern
     divide il risultato per il numero di colonne di target value che dovrebbe
     """
+    @staticmethod
     def mean_euclidean_err(target_value, neurons_out, deriv=False):
         if deriv:
-            err = mean_euclidean_err(target_value, neurons_out)
+            err = NeuralNetwork.mean_euclidean_err(target_value, neurons_out)
             return numpy.subtract(neurons_out, target_value) * (1 / err)
         res = (target_value - neurons_out)**2  # matrice con righe = numero neuroni e colonne = numero di pattern
+        res = numpy.sqrt(res)
         res = np.sum(res, axis=0)  # somma sulle colonne. ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
         res = np.sum(res, axis=0)  # somma sulle righe
         return (res / target_value.shape[1])

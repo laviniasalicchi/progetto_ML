@@ -59,7 +59,7 @@ class Layer:
             self.activation_function = Layer.sigmoid
             print('WARNING:\tf_name not recognized. Using sigmoid as activation function')
 
-    def activation_function_derivative(x):
+    def activation_function_derivative(self, x):
         if self.activation_function == Layer.sigmoid:
             #deriv = (1 / (1 + np.exp(-x))) * (1 - (1 / (1 + np.exp(-x))))
             deriv = self.activation_function * (1 - self.activation_function)
