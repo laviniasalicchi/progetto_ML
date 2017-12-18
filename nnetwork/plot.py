@@ -1,18 +1,24 @@
-from laplotter import LossAccPlotter
+import matplotlib.pyplot as plt
+import numpy as np
 
-plotter = LossAccPlotter()
+# array con il numero di ogni epoca
+epochs = 5
+epoch = []
+for ep in range(epochs):
+    epoch.append(ep+1)
 
-for epoch in range(100):
-    # somehow generate loss and accuracy with your model
-    loss_train, acc_train = your_model.train()
-    loss_val, acc_val = your_model.validate()
 
-    # plot the last values
-    plotter.add_values(epoch,
-                       loss_train=loss_train, acc_train=acc_train,
-                       loss_val=loss_val, acc_val=acc_val)
+#array con valori degli errori per ogni epoca
+err_training = [2, 3, 4.5, 1, 0.5]
+err_test = [2, 3.5, 5, 2, 1]
 
-# As the plot is non-blocking, we should call plotter.block() at the end, to
-# change it to the blocking-mode. Otherwise the program would instantly end
-# and thereby close the plot.
-plotter.block()
+# plot con x =  epoche ; y = val errore
+plt.plot(epoch, err_training, color = "blue", label = "training error")
+plt.plot(epoch, err_test, color = "red", label = "test error", linestyle = "-.")
+
+plt.xlabel("epochs")
+plt.ylabel("error")
+
+plt.legend(loc='upper left', frameon=False)
+
+plt.show()
