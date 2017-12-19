@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-#from classi import NeuronUnit
-#import classi.OutputLayer
+
 from layer import Layer
+from input_layer import InputLayer
+from hidden_layer import HiddenLayer
+from output_layer import OutputLayer
+from neural_net import NeuralNetwork
 
 
 
@@ -29,15 +32,29 @@ def __main__():
         target_y[i][0] = data[i][12]
     ''' ---- parte per importare il dataset esterno ---- '''
 
-    neural_net = NeuralNet()
     input_layer = InputLayer(x.shape)
     input_layer.create_weights(x.shape)  # questo è da cambiare perchè probabilmente non funziona con una matrice
-    neural_net.add_input_layer(input_layer)
+    #print(input_layer.weights)
+    input = input_layer.net_function(x)
+
+    print(input_layer.output)                       # restituisce []
+    inputOut = input_layer.layer_output()
+    print(input_layer.layer_output())               # restituisce matrice con righe = pattern / colonne = feature
+
+    print("-----------------------------------------------")
     hidden_layer = HiddenLayer(input_layer.n_units)
-    neural_net.add_hidden_layer(hidden_layer)
+    print(hidden_layer.n_units)
+    print(inputOut.shape)
+    hidden_layer.create_weights(inputOut.shape)
+    hids = hidden_layer.net_function(input_layer)
+    #print(hids)
+
     output_layer = OutputLayer(2)
+
+    neural_net = NeuralNetwork()
+    neural_net.define_loss('mean_euclidean')
+    neural_net.add_input_layer(input_layer)
+    neural_net.add_hidden_layer(hidden_layer)
     neural_net.add_output_layer(output_layer)
 
-
-
-    __main__()
+__main__()

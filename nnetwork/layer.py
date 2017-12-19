@@ -14,14 +14,15 @@ class Layer:
         self.weights = []
         self.net = []
         self.activation_function = []
-        self.output = []  # output del layer: può essere una matrice
+        self.output = []  # output del layer: può essere una matrice // non lo usiamo mai?
         self.n_units = n_units
         self.deltas = []  # vettore di delta associato con il layer
 
 
     """
     n_units = numero di unità del layers
-    unit_previous_layer = unità del layer precedente
+    unit_previous_layer = unità del layer precedente 
+    // non manca il bias così? Non dovremmo usare la matrice che è output del layer precedente?
     """
     def create_weights(self, unit_previous_layer):
         self.weights = np.random.rand(unit_previous_layer, self.n_units)

@@ -35,5 +35,8 @@ class InputLayer(Layer):
     def layer_output(self):
         self.output_vector = self.net
         # aggiungiamo il bias
-        self.output_vector = np.append(self.output_vector, [[1]], axis=0)
-        return self.output_vector
+        bias = np.ones((self.output_vector.shape[0], self.output_vector.shape[1] + 1))
+        bias[:, :-1] = self.output_vector
+        #self.output_vector = np.append(self.output_vector, [[1]], axis=0)
+        #return self.output_vector
+        return bias

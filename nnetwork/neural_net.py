@@ -6,7 +6,8 @@
 # © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
 from input_layer import InputLayer
-import numpy as numpy
+#from save-load modello import Save, Load
+import numpy as np
 
 
 class NeuralNetwork:
@@ -15,7 +16,7 @@ class NeuralNetwork:
         self.input_layer = []
         self.hidden_layers = []
         self.output_layer = []
-        self.loss_func
+        #self.loss_func
 
     """
     Aggiunge un input layer alla rete,
@@ -47,6 +48,13 @@ class NeuralNetwork:
     def add_output_layer(self, output_layer):
         self.output_layer = output_layer
 
+    '''
+    Per specificare quale loss function utilizzare
+    '''
+    def define_loss(self, loss_function):
+        self.loss_function = loss_function
+
+
     """
     Implementa la forward propagation calcolando l'output di ogni unità della
     Rete
@@ -70,8 +78,11 @@ class NeuralNetwork:
 
     def backpropagation(self, input_vector, err_func, eta):
         layers = list()
-        list.append(hidden_layers)
+        list.append(self.hidden_layers)
         # delt = deriv(E/out) * f'(net)
+        '''
+            - da dove prendiamo il target value da passare alla funzione di errore?
+        '''
         err_deriv = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output, True)
         out_net = self.output_layer.net
         f_prime = self.output_layer.activation_function_derivative(out_net)
@@ -92,7 +103,7 @@ class NeuralNetwork:
             delta_w = layer.weights + np.dot(layer.deltas, input_vector.T)
             weights = weights + eta * delta_w
 
-        return err_func(target_value, self.output_layer.output)
+        return err_func(target_value, self.output_layer.output), weights
 
 
     def train_network(self, input_vector, epochs, threshold, loss_func, eta):
@@ -104,11 +115,15 @@ class NeuralNetwork:
         else:
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
         for epoch in epochs:
-            forward_propagation(input_vector)
-            err = backpropagation(input_vector, loss, eta)
+            NeuralNetwork.forward_propagation(input_vector)
+            back_prop = NeuralNetwork.backpropagation(input_vector, loss, eta)
+            err = back_prop[0]
+            weights = back_prop[1]
             if err < threshold:
                 print('lavinia puzzecchia! trallallero taralli e vino')
                 break
+        np.savez("model.npz", weights=weights)
+
         # todo ritornare il modello allenato sennò stiamo usando il computer come termosifone 
 
 
@@ -132,9 +147,9 @@ class NeuralNetwork:
     def mean_euclidean_err(target_value, neurons_out, deriv=False):
         if deriv:
             err = NeuralNetwork.mean_euclidean_err(target_value, neurons_out)
-            return numpy.subtract(neurons_out, target_value) * (1 / err)
+            return np.subtract(neurons_out, target_value) * (1 / err)
         res = (target_value - neurons_out)**2  # matrice con righe = numero neuroni e colonne = numero di pattern
-        res = numpy.sqrt(res)
+        res = np.sqrt(res)
         res = np.sum(res, axis=0)  # somma sulle colonne. ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
         res = np.sum(res, axis=0)  # somma sulle righe
         return (res / target_value.shape[1])
