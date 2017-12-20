@@ -30,9 +30,14 @@ class Layer:
     """
     Calcola la funzione di rete come W trasposta per x
     ritorna un vettore di dimensione len(x)
+    
+    input vector = matrice (pattern, feature+bias) = output del layer precedente
+    weights = matrice (feature+bias, n_units)
+        colonne prima matrice = righe della seconda
     """
     def net_function(self, input_vector):
-        self.net = np.dot(np.transpose(self.weights), input_vector)
+        #self.net = np.dot(np.transpose(self.weights), input_vector)
+        self.net = np.dot(input_vector, self.weights)
         return self.net
 
     """
@@ -44,8 +49,11 @@ class Layer:
         v_activation = np.vectorize(self.activation_function)  # applica la funzione di attivazione al vettore della net dei singoli neuroni
         self.output_vector = v_activation(self.net)
         # aggiungiamo il bias
-        self.output_vector = np.append(self.output_vector, [[1]], axis=0)
-        return self.output_vector
+        #self.output_vector = np.append(self.output_vector, [[1]], axis=0)
+        #return self.output_vector
+        bias = np.ones((self.output_vector.shape[0], self.output_vector.shape[1] + 1))
+        bias[:, :-1] = self.output_vector
+        return bias
 
     """
     f_name: nome della funzione di attivazione da usare per i neuroni del

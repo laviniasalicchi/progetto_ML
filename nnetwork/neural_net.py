@@ -75,10 +75,11 @@ class NeuralNetwork:
                 last_layer_out = h_layer.layer_output()
             self.output_layer.net_function(last_layer_out)
             out_layer_out = self.output_layer.layer_output()
+        return out_layer_out
 
-    def backpropagation(self, input_vector, err_func, eta):
-        layers = list()
-        list.append(self.hidden_layers)
+    def backpropagation(self, input_vector, target_value, err_func, eta):
+        layers = np.concatenate()
+        print(layers)
         # delt = deriv(E/out) * f'(net)
         '''
             - da dove prendiamo il target value da passare alla funzione di errore?
@@ -106,7 +107,7 @@ class NeuralNetwork:
         return err_func(target_value, self.output_layer.output), weights
 
 
-    def train_network(self, input_vector, epochs, threshold, loss_func, eta):
+    def train_network(self, input_vector, target_value, epochs, threshold, loss_func, eta): # // aggiunti i target_values
         loss = NeuralNetwork.mean_euclidean_err
         if loss_func == 'mean_euclidean':
             loss = NeuralNetwork.mean_euclidean_err
@@ -114,9 +115,9 @@ class NeuralNetwork:
             loss = NeuralNetwork.squared_err
         else:
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
-        for epoch in epochs:
-            NeuralNetwork.forward_propagation(input_vector)
-            back_prop = NeuralNetwork.backpropagation(input_vector, loss, eta)
+        for epoch in range(epochs):
+            forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
+            back_prop = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta)
             err = back_prop[0]
             weights = back_prop[1]
             if err < threshold:
@@ -124,7 +125,7 @@ class NeuralNetwork:
                 break
         np.savez("model.npz", weights=weights)
 
-        # todo ritornare il modello allenato sennò stiamo usando il computer come termosifone 
+        # to do ritornare il modello allenato sennò stiamo usando il computer come termosifone
 
 
 
