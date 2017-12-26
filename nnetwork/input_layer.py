@@ -30,7 +30,7 @@ class InputLayer(Layer):
 
     """
     il layer output per l'input layer consiste nel vettore di input con l'aggiunta del bias
-
+        // aggiunta del bias simile a quella in layer.py
     """
     def layer_output(self):
         self.output_vector = self.net

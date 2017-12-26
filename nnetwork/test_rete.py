@@ -20,17 +20,19 @@ def __main__():
     x = np.empty([data.shape[0], data.shape[1] - 3])
     target_x = np.empty([data.shape[0], 1])
     target_y = np.empty([data.shape[0], 1])
+    target_values = np.empty([data.shape[0],2])     # // target values = (pattern, target_x/y)
 
     for i in range(0, len(data[:, 0])):
-        #print("** ",i," **")
         k = 0
         for j in range(1,11):
-            #print(j," - ", data[i][j])
             x[i][k] = data[i][j]
             k = k+1
         target_x[i][0] = data[i][11]
         target_y[i][0] = data[i][12]
-    target_values = np.concatenate((target_x, target_y))
+        target_values[i][0] = data[i][11]
+        target_values[i][1] = data[i][12]
+
+
     ''' ---- parte per importare il dataset esterno ---- '''
 
     '''input_layer = InputLayer(x.shape)
@@ -65,16 +67,17 @@ def __main__():
     input_layer = InputLayer(x.shape)
     input_layer.create_weights(x.shape)
 
-    hidden_layer = HiddenLayer(input_layer.n_units[1])
-    hidden_layer.create_weights(x.shape[1] + 1)
+    #hidden_layer = HiddenLayer(input_layer.n_units[1])
+    hidden_layer = HiddenLayer(5)
+    hidden_layer.create_weights(input_layer.n_units[1] + 1)
     hidden_layer.set_activation_function('tanh')
 
-    hidden_layer2 = HiddenLayer(input_layer.n_units[1])
-    hidden_layer2.create_weights(x.shape[1] + 1)
+    hidden_layer2 = HiddenLayer(4)
+    hidden_layer2.create_weights(hidden_layer.n_units + 1)
     hidden_layer2.set_activation_function('tanh')
 
     output_layer = OutputLayer(2)
-    output_layer.create_weights(x.shape[1] + 1)
+    output_layer.create_weights(hidden_layer2.n_units+1)
     output_layer.set_activation_function('tanh')
 
     neural_net = NeuralNetwork()
@@ -84,7 +87,7 @@ def __main__():
     neural_net.add_hidden_layer(hidden_layer2)
     neural_net.add_output_layer(output_layer)
 
-    print(neural_net.forward_propagation(x))
+    neural_net.forward_propagation(x)
     neural_net.train_network(x, target_values, 100, 10, 'mean_euclidean', 0.07)
 
 

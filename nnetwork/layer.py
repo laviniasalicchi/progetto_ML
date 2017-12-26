@@ -31,9 +31,10 @@ class Layer:
     Calcola la funzione di rete come W trasposta per x
     ritorna un vettore di dimensione len(x)
     
-    input vector = matrice (pattern, feature+bias) = output del layer precedente
-    weights = matrice (feature+bias, n_units)
-        colonne prima matrice = righe della seconda
+    // tolta la trasposta, in quanto:
+        input vector = matrice (pattern, feature+bias) OPPURE output del layer precedente = (pattern, unit_previous_layer+bias)
+        weights = matrice (feature+bias, n_units) OPPURE (unit_previous_layer, n_units)
+            colonne prima matrice = righe della seconda
     """
     def net_function(self, input_vector):
         #self.net = np.dot(np.transpose(self.weights), input_vector)
@@ -44,6 +45,11 @@ class Layer:
     applica la funzione di attivazione a un vettore x
     ritorna un vettore x
     WARNING: RITORNA UNA MATRICE
+    
+    // per il bias:
+        self.output inizializzato come matrice di 1 con stesse righe dell'output_vector, ma una colonna in più
+        i valori di self.out per tutte le righe e per le colonne dalla prima alla penultima sono gli stessi di output_vector
+        return matrice come output_vector, ma una colonna in più di 1
     """
     def layer_output(self):
         v_activation = np.vectorize(self.activation_function)  # applica la funzione di attivazione al vettore della net dei singoli neuroni
@@ -51,9 +57,9 @@ class Layer:
         # aggiungiamo il bias
         #self.output_vector = np.append(self.output_vector, [[1]], axis=0)
         #return self.output_vector
-        bias = np.ones((self.output_vector.shape[0], self.output_vector.shape[1] + 1))
-        bias[:, :-1] = self.output_vector
-        return bias
+        self.output = np.ones((self.output_vector.shape[0], self.output_vector.shape[1] + 1))
+        self.output[:, :-1] = self.output_vector
+        return self.output
 
     """
     f_name: nome della funzione di attivazione da usare per i neuroni del
@@ -68,6 +74,13 @@ class Layer:
             self.activation_function = Layer.sigmoid
             print('WARNING:\tf_name not recognized. Using sigmoid as activation function')
 
+    ''' //
+        WARNING: la parte della sigmoid non ha subito modifiche
+        usando la tanh ho visto che fare operazioni con self.activation_function senza argomento dava errore:
+            unsupported operand type(s) for -: 'int' and 'function'
+        vectorize pare non essere indispensabile
+    '''
+
     def activation_function_derivative(self, x):
         if self.activation_function == Layer.sigmoid:
             #deriv = (1 / (1 + np.exp(-x))) * (1 - (1 / (1 + np.exp(-x))))
@@ -75,8 +88,10 @@ class Layer:
             vectorized = np.vectorize(deriv)
             return vectorized(x)
         if self.activation_function == Layer.tanh:
-            print("ERROR derivative not defined")
-            return 0
+            #deriv = 1 - self.activation_function**2
+            #vectorized = np.vectorize(deriv)
+            #return vectorized(x)
+            return 1 - (self.activation_function(x))**2
 
 
     """
