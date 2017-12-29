@@ -8,6 +8,9 @@
 from input_layer import InputLayer
 #from save-load modello import Save, Load
 import numpy as np
+import os
+from datetime import datetime
+import matplotlib.pyplot as plt
 
 
 class NeuralNetwork:
@@ -153,34 +156,30 @@ class NeuralNetwork:
             loss = NeuralNetwork.squared_err
         else:
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
-        for epoch in range(epochs):
+        errors = []
+        epochs_plot = []
+        for epoch in range(2):
+            print("EPOCH", epoch)
             forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
+            for h in self.hidden_layers:
+                print("h_wei", h.weights)
+            print("out_wei", self.output_layer.weights)
+            print("***********")
             back_prop = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta)
+            for h in self.hidden_layers:
+                print("h_wei", h.weights)
+            print("out_wei", self.output_layer.weights)
             err = back_prop[0]
             weights = back_prop[1]
+            print(err)
+            errors.append(err)
+            epochs_plot.append(epoch)
             if err < threshold:
                 print('lavinia puzzecchia! trallallero taralli e vino')
                 break
-        keywords = ""
-        for k in weights:
-            key = str(k)
-            keywords = keywords+key+"=weights['"+key+"'],"
-        print(keywords[:-1])    # [:-1] per togliere l'ultima virgola
-        print(weights['output'])
-        '''
-            da keywords in poi: costruzione di una stringa che abbia key = porzione dizionario weights
-            per poter poi accedere ai singoli indici al momento del load
-                np.savez("model.npz", hidden0=weights['hidden0'], hidden1=weights['hidden1'], output=weights['output'])
-                funziona, ma volevo trovare un modo di non dovere scrivere a mano tutto
-                
-                np.savez("model.npz", keywords[:-1])  (vedi sotto) 
-                si è rivelato fallimentare
-        '''
-        np.savez("model.npz", keywords[:-1])
 
-
-        # to do ritornare il modello allenato sennò stiamo usando il computer come termosifone
-
+        NeuralNetwork.saveModel(self, weights)
+        NeuralNetwork.plotError(self, epochs_plot,errors)
 
 
     """
@@ -207,4 +206,25 @@ class NeuralNetwork:
         res = np.sqrt(res)
         res = np.sum(res, axis=0)  # somma sulle colonne. ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
         res = np.sum(res, axis=0)  # somma sulle righe
-        return (res / target_value.shape[1])
+        return (res / target_value.shape[0])
+
+
+    def saveModel(self, weights):
+        now = (datetime.now().isoformat()).replace(":", "")
+        print(now)
+        folder = "models/Model_2_"+now+"/"
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+        for k in weights:
+            path = folder+k
+            data = weights[k]
+            np.savez(path, weights = data)
+
+    def plotError(self, epochs_plot, errors):
+        plt.plot(epochs_plot, errors, color="blue", label="training error")
+        plt.xlabel("epochs")
+        plt.ylabel("error")
+        plt.legend(loc='upper left', frameon=False)
+
+        plt.show()

@@ -70,6 +70,8 @@ class Layer:
             self.activation_function = Layer.sigmoid
         elif f_name is 'tanh':
             self.activation_function = Layer.tanh
+        elif f_name is 'bentindentity':
+            self.activation_function = Layer.bentindentity
         else:
             self.activation_function = Layer.sigmoid
             print('WARNING:\tf_name not recognized. Using sigmoid as activation function')
@@ -92,6 +94,8 @@ class Layer:
             #vectorized = np.vectorize(deriv)
             #return vectorized(x)
             return 1 - (self.activation_function(x))**2
+        if self.activation_function == Layer.bentindentity:
+            return (x / 2*np.sqrt((x**2)+1)) + 1
 
 
     """
@@ -107,3 +111,11 @@ class Layer:
     @staticmethod
     def tanh(x):
         return np.tanh(x)
+
+
+    '''
+    Bent identity function
+    '''
+    @staticmethod
+    def bentindentity(x):
+        return ((np.sqrt((x**2)+1)-1) / 2)+ x
