@@ -61,13 +61,15 @@ class NeuralNetwork:
     """
     Implementa la forward propagation calcolando l'output di ogni unità della
     Rete
-    
+
     // aggiunti i vari .net e .output per poter richiamare le matrici dall'oggetto
     """
     def forward_propagation(self, input_vector):
         net = self.input_layer.net_function(input_vector)
         input_layer_out = self.input_layer.layer_output()
         self.input_layer.output = input_layer_out   # // aggiunto il.output
+        print('debug\t:inout_layer_out', self.input_layer.output.shape)
+
 
         if len(self.hidden_layers) <= 1:
             h_layer = self.hidden_layers[0]
@@ -95,25 +97,46 @@ class NeuralNetwork:
     def backpropagation(self, input_vector, target_value, err_func, eta):
         # delt = deriv(E/out) * f'(net)
         err_deriv = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output, True)
+        print("DEBUG:err_deriv shape", err_deriv.shape)
+
         out_net = self.output_layer.net
+        print("DEBUG:out_net shape", out_net.shape)
+
         f_prime = self.output_layer.activation_function_derivative(out_net)
+        print("DEBUG:f_prime shape", f_prime.shape)
+
         delta_out = err_deriv * f_prime  # dovrebbe essere una matrice con colonne = numero di pattern // è pattern x n output units
         self.output_layer.deltas = delta_out
         prev_layer_delta = delta_out
         prev_layer_weights = self.output_layer.weights  # prev layer weights sono i pesi del layer precedente (quindi quello a destra quando si fa la backprop)
+        print("DEBUG:deltaout shape", delta_out.shape)
+
         for layer in reversed(self.hidden_layers):
             layer_net = layer.net
+            print("DEBUG:layer_net shape", layer_net.shape)
+
+
             f_prime = layer.activation_function_derivative(layer_net)
             ''' //
-                tolta l'ultima riga dei weights, quella che - a regola - conteneva il bias 
+                tolta l'ultima riga dei weights, quella che - a regola - conteneva il bias
                     guarda un po' se ha senso questa cosa e se era proprio quella riga
             '''
-            prev_layer_weights = np.delete(prev_layer_weights, -1,0)
+            prev_layer_weights = np.delete(prev_layer_weights, -1, 0)
             transpose_weights = np.transpose(prev_layer_weights)    # // trasposta fatta a parte senza motivo
             #delta = np.dot(prev_layer_weights, prev_layer_delta) * f_prime
             #delta = np.dot(prev_layer_delta, np.transpose(prev_layer_weights)) * f_prime
-            delta = np.dot(prev_layer_delta, transpose_weights) * f_prime
+            print("DEBUG:layer_weights shape", prev_layer_weights.shape)
+            print("DEBUG:prev_layer_delta shape", prev_layer_delta.shape)
+            print("DEBUG:fprime shape", f_prime.shape)
+
+
+            delta = np.dot(prev_layer_weights, prev_layer_delta) * f_prime
+
             layer.deltas = delta
+
+            print("DEBUG:layer_delta shape", layer.deltas.shape)
+
+
             prev_layer_delta = delta
             prev_layer_weights = layer.weights
 
@@ -122,17 +145,17 @@ class NeuralNetwork:
             prodotto tra delta e output del layer precedente e moltiplicazione con eta fatti a parte per comodità, non c'era particolare motivo
             le trasposte sono fatte giusto per farmi tornare la dimensione delle varie matrici
         '''
-        dot_prod = np.dot(self.output_layer.deltas.T, self.hidden_layers[-1].output)    # //trasposta a caso
-        eta_dot = eta * dot_prod
-        self.output_layer.weights = self.output_layer.weights + eta_dot.T   # // altra trasposta a caso
+        #dot_prod = np.dot(self.output_layer.deltas.T, self.hidden_layers[-1].output)    # //trasposta a caso
+        #eta_dot = eta * dot_prod
+        #self.output_layer.weights = self.output_layer.weights + eta_dot.T   # // altra trasposta a caso
         #i = -2
-        for i in range(len(self.hidden_layers)):    # // prima era for layer in reverse(self.hidden_layers), così mi tornava meglio
+        '''for i in range(len(self.hidden_layers)):    # // prima era for layer in reverse(self.hidden_layers), così mi tornava meglio
             layer = self.hidden_layers[i]
             if i==0:
                 dot_prod = np.dot(layer.deltas.T, self.input_layer.output)
                 eta_dot = eta * dot_prod
                 layer.weights = layer.weights + eta_dot.T
-                ''' // weights è un dizionario per poter avere i pesi aggiornati raggiungibili dal nome del layer'''
+                #// weights è un dizionario per poter avere i pesi aggiornati raggiungibili dal nome del layer
                 key = "hidden"+str(i)   # // in questo caso hidden0
                 weights = ({key:layer.weights})
             else:
@@ -141,12 +164,57 @@ class NeuralNetwork:
                 layer.weights = layer.weights + eta_dot.T
                 key = "hidden" + str(i)     # // key: hidden1
                 weights.update({key: layer.weights})
-                #i = i-1
+                #i = i-1'''
+        print('debug:layerweights', layer.weights.shape)
+        ones_row = np.ones((1, layer.deltas.shape[1]))
 
-            # delta_w = layer.weights + np.dot(layer.deltas, input_vector.T)    // questo delta_w non l'avevo capito
-            # weights = weights + eta * delta_w
-        weights.update({'output': self.output_layer.weights})   # // key: output
-        return err_func(target_value, self.output_layer.output), weights
+        # update weights
+        # d(E)/d(w_ji) = sum_p(delta_j * out_i)
+        last_layer_out = self.input_layer.output
+        net_layers = []
+        for h_layer in self.hidden_layers:
+            net_layers.append(h_layer)
+        net_layers.append(self.output_layer)
+        for layer in net_layers:
+
+            delta_sum = np.ones(shape=(layer.weights.shape[0] - 1, 1))  # riga di uno, la cancelleremo alla fine, ci serve solo per poter concatenare i risultati
+            print("delta_sum", delta_sum, delta_sum.shape)
+            last_layer_out = np.delete(last_layer_out, -1, 0) # togliamo il bias
+
+            for deltas_row in layer.deltas:
+
+                print('row:', deltas_row)
+                print('delta shape', deltas_row.shape)
+                deltas_p = np.reshape(deltas_row, (1, -1)) # -1 fa fare inferenza. serve solo per evitare che la shape della matrice sia una tupla del tipo (dim,)
+                print('delta shape', deltas_p.shape)
+                print('last_layer_out', last_layer_out.shape)
+                '''
+                # come risultato dovrebbe dare una colonna che rappresenta
+                 il delta_w dell'unità a cui è associato il delta.
+                 stiamo sommando i delta dell'unità con gli input che gli arrivano per ogni pattern
+                '''
+                delta_w_j = np.dot(last_layer_out, deltas_p.T)
+
+                delta_sum = np.concatenate((delta_sum, delta_w_j), axis=1) # concateniamo in modo da formare una matrice con dimensioni uguali a quelle dei pesi per poi sommarle
+
+            print('delta_sum.sahpe:', delta_sum.shape)
+            #print('delta_sum:', delta_sum)
+            delta_sum = np.delete(delta_sum, 0, 1) # cancello la prima colonna che era fatta di 1
+            print('delta_sum.sahpe_after_delete:', delta_sum.shape)
+            #print('delta_sum:', delta_sum)
+            delta_weights = eta * delta_sum
+            zero_row = np.zeros((1, delta_weights.shape[1]))
+            delta_weights = np.concatenate((delta_weights, zero_row), axis=0)  # concateniamo una riga di zeri in modo che quando si somma non vengano influenzati i pesi del bias
+            print("delta_weights;", delta_weights, delta_weights.shape)
+            print("layer_weights;", layer.weights, layer.weights.shape)
+
+            layer.weights = layer.weights - delta_weights
+
+            last_layer_out = layer.output
+            print("deltasum_fine.shape", delta_sum.shape)
+
+
+        return err_func(target_value, self.output_layer.output)
 
     def train_network(self, input_vector, target_value, epochs, threshold, loss_func, eta): # // aggiunti i target_values
         loss = NeuralNetwork.mean_euclidean_err
@@ -158,28 +226,50 @@ class NeuralNetwork:
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
         errors = []
         epochs_plot = []
-        for epoch in range(2):
+        for epoch in range(epochs):
             print("EPOCH", epoch)
             forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
-            for h in self.hidden_layers:
-                print("h_wei", h.weights)
-            print("out_wei", self.output_layer.weights)
-            print("***********")
-            back_prop = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta)
-            for h in self.hidden_layers:
-                print("h_wei", h.weights)
-            print("out_wei", self.output_layer.weights)
-            err = back_prop[0]
-            weights = back_prop[1]
+            #for h in self.hidden_layers:
+            #print("h_wei", h.weights)
+            #print("out_wei", self.output_layer.weights)
+            #print("***********")
+            err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta)
+            #for h in self.hidden_layers:
+            #print("h_wei", h.weights)
+            #print("out_wei", self.output_layer.weights)
+            #err = back_prop[0]   /// commentato
+            #weights = back_prop[1]  /// commentato
             print(err)
             errors.append(err)
             epochs_plot.append(epoch)
             if err < threshold:
                 print('lavinia puzzecchia! trallallero taralli e vino')
                 break
+        keywords = ""
+        NeuralNetwork.plotError(self, epochs_plot, errors)
+        print(err[len(err)-1])
+        for k in weights:
+            key = str(k)
+            keywords = keywords+key+"=weights['"+key+"'],"
+        print(keywords[:-1])    # [:-1] per togliere l'ultima virgola
+        print(weights['output'])
+        '''
+            da keywords in poi: costruzione di una stringa che abbia key = porzione dizionario weights
+            per poter poi accedere ai singoli indici al momento del load
+                np.savez("model.npz", hidden0=weights['hidden0'], hidden1=weights['hidden1'], output=weights['output'])
+                funziona, ma volevo trovare un modo di non dovere scrivere a mano tutto
 
-        NeuralNetwork.saveModel(self, weights)
-        NeuralNetwork.plotError(self, epochs_plot,errors)
+                np.savez("model.npz", keywords[:-1])  (vedi sotto)
+                si è rivelato fallimentare
+        '''
+        np.savez("model.npz", keywords[:-1])
+
+
+        # to do ritornare il modello allenato sennò stiamo usando il computer come termosifone
+
+
+        #NeuralNetwork.saveModel(self, weights)
+        NeuralNetwork.plotError(self, epochs_plot, errors)
 
 
     """
