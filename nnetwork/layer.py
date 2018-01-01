@@ -21,45 +21,53 @@ class Layer:
 
     """
     n_units = numero di unità del layers
-    unit_previous_layer = unità del layer precedente 
+    unit_previous_layer = unità del layer precedente
     // non manca il bias così? Non dovremmo usare la matrice che è output del layer precedente?
     """
     def create_weights(self, unit_previous_layer):
         self.weights = np.random.rand(unit_previous_layer, self.n_units)
+        print('DEBUG:weights.shape:',self.weights.shape)
+        ones_row = np.ones((1, self.weights.shape[1]))
+        print('DEBUG:ones.shape:', ones_row.shape)
+
+        self.weights = np.concatenate((self.weights, ones_row), axis=0)
 
     """
     Calcola la funzione di rete come W trasposta per x
     ritorna un vettore di dimensione len(x)
-    
+
     // tolta la trasposta, in quanto:
         input vector = matrice (pattern, feature+bias) OPPURE output del layer precedente = (pattern, unit_previous_layer+bias)
         weights = matrice (feature+bias, n_units) OPPURE (unit_previous_layer, n_units)
             colonne prima matrice = righe della seconda
     """
     def net_function(self, input_vector):
-        #self.net = np.dot(np.transpose(self.weights), input_vector)
-        self.net = np.dot(input_vector, self.weights)
+        self.net = np.dot(np.transpose(self.weights), input_vector)
+        #self.net = np.dot(input_vector, self.weights)
         return self.net
 
     """
     applica la funzione di attivazione a un vettore x
     ritorna un vettore x
     WARNING: RITORNA UNA MATRICE
-    
+
     // per il bias:
         self.output inizializzato come matrice di 1 con stesse righe dell'output_vector, ma una colonna in più
         i valori di self.out per tutte le righe e per le colonne dalla prima alla penultima sono gli stessi di output_vector
         return matrice come output_vector, ma una colonna in più di 1
     """
     def layer_output(self):
-        v_activation = np.vectorize(self.activation_function)  # applica la funzione di attivazione al vettore della net dei singoli neuroni
-        self.output_vector = v_activation(self.net)
+        if self.activation_function is 'sigmoid':
+            self.output = Layer.sigmoid(self.net)
+        elif self.activation_function is 'tanh':
+            self.output = Layer.tanh(self.net)
         # aggiungiamo il bias
-        #self.output_vector = np.append(self.output_vector, [[1]], axis=0)
-        #return self.output_vector
-        self.output = np.ones((self.output_vector.shape[0], self.output_vector.shape[1] + 1))
-        self.output[:, :-1] = self.output_vector
+        ones_row = np.ones((1, self.output.shape[1]))
+        self.output = np.concatenate((self.output, ones_row), axis=0)
         return self.output
+        #self.output = np.ones((self.output_vector.shape[0], self.output_vector.shape[1] + 1))
+        #self.output[:, :-1] = self.output_vector
+        #return self.output
 
     """
     f_name: nome della funzione di attivazione da usare per i neuroni del
@@ -67,13 +75,11 @@ class Layer:
     """
     def set_activation_function(self, f_name):
         if f_name is 'sigmoid':
-            self.activation_function = Layer.sigmoid
+            self.activation_function = 'sigmoid'
         elif f_name is 'tanh':
-            self.activation_function = Layer.tanh
-        elif f_name is 'bentindentity':
-            self.activation_function = Layer.bentindentity
+            self.activation_function = 'tanh'
         else:
-            self.activation_function = Layer.sigmoid
+            self.activation_function = 'sigmoid'
             print('WARNING:\tf_name not recognized. Using sigmoid as activation function')
 
     ''' //
@@ -84,18 +90,14 @@ class Layer:
     '''
 
     def activation_function_derivative(self, x):
-        if self.activation_function == Layer.sigmoid:
-            #deriv = (1 / (1 + np.exp(-x))) * (1 - (1 / (1 + np.exp(-x))))
-            deriv = self.activation_function * (1 - self.activation_function)
-            vectorized = np.vectorize(deriv)
-            return vectorized(x)
-        if self.activation_function == Layer.tanh:
+        if self.activation_function == 'sigmoid':
+            deriv = (1 / (1 + np.exp(-x))) * (1 - (1 / (1 + np.exp(-x))))
+            return deriv
+        if self.activation_function == 'tanh':
             #deriv = 1 - self.activation_function**2
             #vectorized = np.vectorize(deriv)
             #return vectorized(x)
-            return 1 - (self.activation_function(x))**2
-        if self.activation_function == Layer.bentindentity:
-            return (x / 2*np.sqrt((x**2)+1)) + 1
+            return 1 - (np.tanh(x))**2
 
 
     """
@@ -111,11 +113,3 @@ class Layer:
     @staticmethod
     def tanh(x):
         return np.tanh(x)
-
-
-    '''
-    Bent identity function
-    '''
-    @staticmethod
-    def bentindentity(x):
-        return ((np.sqrt((x**2)+1)-1) / 2)+ x

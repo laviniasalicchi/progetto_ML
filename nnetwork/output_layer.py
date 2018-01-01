@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # ==============================================================================
 # E' un Perceptron, che ti aspettavi?
 #
@@ -7,7 +9,9 @@ from layer import Layer
 import numpy as np
 
 class OutputLayer(Layer):
+
     def layer_output(self):
-        v_activation = np.vectorize(self.activation_function)  # applica la funzione di attivazione al vettore della net dei singoli neuroni
-        self.output_vector = v_activation(self.net)
-        return self.output_vector
+        Layer.layer_output(self)
+        last_row_idx = self.output.shape[0] - 1
+        self.output = np.delete(self.output, last_row_idx, axis=0)
+        return self.output

@@ -26,6 +26,7 @@ class InputLayer(Layer):
     """
     def net_function(self, input_vector):
         self.net = input_vector
+
         return self.net
 
     """
@@ -34,9 +35,8 @@ class InputLayer(Layer):
     """
     def layer_output(self):
         self.output_vector = self.net
-        # aggiungiamo il bias
-        bias = np.ones((self.output_vector.shape[0], self.output_vector.shape[1] + 1))
-        bias[:, :-1] = self.output_vector
-        #self.output_vector = np.append(self.output_vector, [[1]], axis=0)
-        #return self.output_vector
-        return bias
+
+        ones_row = np.ones((1, self.net.shape[1]))
+
+        self.output_vector = np.concatenate((self.net, ones_row), axis=0)
+        return self.output_vector
