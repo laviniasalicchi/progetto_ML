@@ -296,7 +296,7 @@ class NeuralNetwork:
         res = np.sqrt(res)
         res = np.sum(res, axis=0)  # somma sulle colonne. ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
         res = np.sum(res, axis=0)  # somma sulle righe
-        return (res / target_value.shape[0])
+        return (res / target_value.shape[1])
 
 
     def saveModel(self, weights):
