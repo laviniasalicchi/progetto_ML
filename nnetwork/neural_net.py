@@ -226,6 +226,8 @@ class NeuralNetwork:
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
         errors = []
         epochs_plot = []
+        weights_BT = {}     # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
+        err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
         for epoch in range(epochs):
             print("EPOCH", epoch)
             forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
@@ -242,33 +244,42 @@ class NeuralNetwork:
             print(err)
             errors.append(err)
             epochs_plot.append(epoch)
+            # // creazione dizionario {nomelayer : pesi}
+            for i in range(len(self.hidden_layers)):
+                layer = self.hidden_layers[i]
+                if i==0:
+                    #// weights è un dizionario per poter avere i pesi aggiornati raggiungibili dal nome del layer
+                    key = "hidden"+str(i)
+                    weights = ({key:layer.weights})
+                else:
+                    key = "hidden" + str(i)
+                    weights.update({key: layer.weights})
+            weights.update({'output': self.output_layer.weights})
+
+            # // se l'errore scende sotto la soglia, si salva il modello che lo produce
             if err < threshold:
                 print('lavinia puzzecchia! trallallero taralli e vino')
+                NeuralNetwork.saveModel(self, weights)
                 break
-        keywords = ""
-        NeuralNetwork.plotError(self, epochs_plot, errors)
-        print(err[len(err)-1])
-        for k in weights:
-            key = str(k)
-            keywords = keywords+key+"=weights['"+key+"'],"
-        print(keywords[:-1])    # [:-1] per togliere l'ultima virgola
-        print(weights['output'])
-        '''
-            da keywords in poi: costruzione di una stringa che abbia key = porzione dizionario weights
-            per poter poi accedere ai singoli indici al momento del load
-                np.savez("model.npz", hidden0=weights['hidden0'], hidden1=weights['hidden1'], output=weights['output'])
-                funziona, ma volevo trovare un modo di non dovere scrivere a mano tutto
+            # // se l'errore del modello di turno supera il precedente, si sovrascrive a weights il modello precedente e si salva
+            # WARNING: l'errore può avere minimi locali, più avanti definiremo meglio questo if
+            elif err > err_BT:
+                weights = weights_BT
+                NeuralNetwork.saveModel(self, weights)
+            # // altrimenti, se l'errore continua a decrescere, si sovrascrive a weights_BT il modello corrente, si salva e si sovrascrive a error_BT l'errore del modello corrente
+            else:
+                weights_BT = weights
+                NeuralNetwork.saveModel(self, weights)
+                err_BT = err
 
-                np.savez("model.npz", keywords[:-1])  (vedi sotto)
-                si è rivelato fallimentare
-        '''
-        np.savez("model.npz", keywords[:-1])
-
-
-        # to do ritornare il modello allenato sennò stiamo usando il computer come termosifone
+            '''
+            NB: l'errore nel training non dovrebbe mai aumentare col passare delle epoch
+            la precedente serie di if è però riutilizzabile quando guardiamo l'errore sul test set
+            '''
 
 
         #NeuralNetwork.saveModel(self, weights)
+        # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
         NeuralNetwork.plotError(self, epochs_plot, errors)
 
 
