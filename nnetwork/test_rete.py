@@ -103,7 +103,7 @@ def __main__():
     print('Debug:\thlayer1.net', hidden_layer.net.shape)
     #print('Debug:\tlayer2.net', hidden_layer2.net.shape)
 
-    neural_net.train_network(x, target_values, 100000, 10, 'mean_euclidean', 0.01)
+    neural_net.train_network(x, target_values, 10, 10, 'mean_euclidean', 0.01)
 
 
 __main__()
