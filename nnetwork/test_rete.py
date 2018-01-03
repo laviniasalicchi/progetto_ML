@@ -20,7 +20,7 @@ def __main__():
     x = np.empty([data.shape[0], data.shape[1] - 3])
     target_x = np.empty([data.shape[0], 1])
     target_y = np.empty([data.shape[0], 1])
-    target_values = np.empty([data.shape[0],2])   # // target values = (pattern, target_x/y)
+    target_values = np.empty([data.shape[0],    2])   # // target values = (pattern, target_x/y)
 
 
 
