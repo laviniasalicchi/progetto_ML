@@ -37,6 +37,8 @@
 import numpy as np
 import csv
 
+#filename = '../datasets/monks-1.train'
+
 '''
 Funzione per leggere e fare l'encoding del monk,
 ritorna un vettore con i valori della classe,
@@ -45,6 +47,7 @@ salva su disco la versione codificata del file
 '''
 def load_encode_monk(filename):
     fields = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'id']
+    print(len(fields))
     raw_data = open(filename, 'r')
     data = np.loadtxt(raw_data, delimiter=" ", dtype='str')
     data = np.delete(data, 0, axis=1)  # siccome è in un formato pessimo occorre togliere la prima colonna in quanto legge gli spazi come se fossero valori
@@ -52,14 +55,15 @@ def load_encode_monk(filename):
     target_x = np.empty((data.shape[0], 1))
     encoded_datas = np.zeros((data.shape[0], 17))
     counter = 0  # righe
+
     for counter in range(data.shape[0]):
         target_x[counter][0] = data[counter][0]
 
         for i in range(1, 7):
             # attributo a1
             if i is 1:
-                #print(' i is ', i)
-                if np.equal(int(int(data[counter][i])), 1):
+                print(' i is ', i)
+                if np.equal(int(data[counter][i]), 1):
                     print('a1_value=1', int(data[counter][i]))
                     encoded_datas[counter][0] = 1
                     encoded_datas[counter][6] = 0
@@ -143,5 +147,5 @@ def load_encode_monk(filename):
                     encoded_datas[counter][5] = 0
                     encoded_datas[counter][16] = 1
 
-        np.savetxt(filename.replace('.', '_encoded.'), encoded_datas.astype(np.int64), delimiter=',', fmt='%2.1d')
-        return target_x, encoded_datas
+    np.savetxt(filename.replace('.train', '_encoded.train'), encoded_datas.astype(np.int64), delimiter=',', fmt='%2.1d')
+    return target_x, encoded_datas
