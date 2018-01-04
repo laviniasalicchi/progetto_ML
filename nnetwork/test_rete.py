@@ -37,34 +37,6 @@ def __main__():
 
     ''' ---- parte per importare il dataset esterno ---- '''
 
-    '''input_layer = InputLayer(x.shape)
-    input_layer.create_weights(x.shape)  # questo è da cambiare perchè probabilmente non funziona con una matrice
-    #print(input_layer.weights)
-    input = input_layer.net_function(x)
-
-    print(input_layer.output)                       # restituisce []
-    input_out = input_layer.layer_output()
-    print(input_layer.layer_output())               # restituisce matrice con righe = pattern / colonne = feature
-    print(input_layer.n_units[1])
-
-    print("--------------------- HIDDEN LAYER --------------------------")
-    hidden_layer = HiddenLayer(input_layer.n_units[1])  #   creazione hidden layer con n unità = n feature
-    hidden_layer.create_weights(x.shape[1]+1)             #   creazione matrice pesi: righe = n feature + 1 (per bias)  colonne = n hidden units
-    hidden_net = hidden_layer.net_function(input_out)  # net hidden layer: ha come input l'output dell'input layer
-    print("HIDDEN NET: ", hidden_net.shape)
-    hidden_layer.set_activation_function('tanh')            #   set dell'activation function
-    hidden_out = hidden_layer.layer_output()                # output dell'hidden layer
-    print("---- HIDDEN OUTPUT ----{", hidden_out.shape,"}\n", hidden_out)
-
-    print("------------------- OUTPUT LAYER --------------------------")
-    output_layer = OutputLayer(2)
-    output_layer.create_weights(x.shape[1]+1)
-    output_net = output_layer.net_function(hidden_out)
-    output_layer.set_activation_function('tanh')
-    output_out = output_layer.layer_output()
-    print("---- OUTPUT OUTPUT ----{", output_out.shape, "}\n", output_out)
-
-    print("**************** N E T W O R K ****************")'''
 
     target_values = np.transpose(target_values)
     print('target_values.shape', target_values.shape)
@@ -103,7 +75,7 @@ def __main__():
     print('Debug:\thlayer1.net', hidden_layer.net.shape)
     #print('Debug:\tlayer2.net', hidden_layer2.net.shape)
 
-    neural_net.train_network(x, target_values, 100, 10, 'mean_euclidean', 0.01)
+    neural_net.train_network(x, target_values, 100, 10, 'mean_euclidean', 0.5)
 
 
 __main__()
