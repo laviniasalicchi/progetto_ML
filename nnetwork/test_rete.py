@@ -7,41 +7,19 @@ from input_layer import InputLayer
 from hidden_layer import HiddenLayer
 from output_layer import OutputLayer
 from neural_net import NeuralNetwork
-
+from cross_validation import kfold_cv
+from monk_dataset import Monk_Dataset
+from ML_CUP_dataset import ML_CUP_Dataset
 
 
 def __main__():
-    ''' ---- parte per importare il dataset esterno ---- '''
+
     filename = 'ML-CUP17-TR.csv'
-    raw_data = open(filename, 'r')
+    x = ML_CUP_Dataset.load_ML_dataset(filename)[0]
+    target_values = ML_CUP_Dataset.load_ML_dataset(filename)[1]
 
-    data = np.loadtxt(raw_data, delimiter=",")
+    print(target_values.shape)
 
-    x = np.empty([data.shape[0], data.shape[1] - 3])
-    target_x = np.empty([data.shape[0], 1])
-    target_y = np.empty([data.shape[0], 1])
-    target_values = np.empty([data.shape[0],    2])   # // target values = (pattern, target_x/y)
-
-
-
-    for i in range(0, len(data[:, 0])):
-        k = 0
-        for j in range(1,11):
-            x[i][k] = data[i][j]
-            k = k+1
-        target_x[i][0] = data[i][11]
-        target_y[i][0] = data[i][12]
-        target_values[i][0] = data[i][11]
-        target_values[i][1] = data[i][12]
-
-
-    ''' ---- parte per importare il dataset esterno ---- '''
-
-
-    target_values = np.transpose(target_values)
-    print('target_values.shape', target_values.shape)
-
-    x = np.transpose(x)
     input_layer = InputLayer(x.shape[0])
     input_layer.create_weights(x.shape[0])
     print('x shape', x.shape)
@@ -75,7 +53,11 @@ def __main__():
     print('Debug:\thlayer1.net', hidden_layer.net.shape)
     #print('Debug:\tlayer2.net', hidden_layer2.net.shape)
 
-    neural_net.train_network(x, target_values, 100, 10, 'mean_euclidean', 0.5)
+    #neural_net.train_network(x, target_values, 100, 10, 'mean_euclidean', 0.5)
 
+    kfold_cv(x, target_values, 5, 10, 'mean_euclidean', 0.5)
+
+
+    # to do: scommentare la chiamata di train_network
 
 __main__()

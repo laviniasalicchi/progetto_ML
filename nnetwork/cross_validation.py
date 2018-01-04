@@ -32,10 +32,40 @@ from ML_CUP_dataset import ML_CUP_Dataset
 target_x = Monk_Dataset.load_encode_monk(filename)[0]
 encoded_datas = Monk_Dataset.load_encode_monk(filename)[1]'''
 
-filename = 'ML-CUP17-TR.csv'
-x = ML_CUP_Dataset.load_ML_dataset(filename)[0]
-target = ML_CUP_Dataset.load_ML_dataset(filename)[1]
+# a= np.delete(a, np.s_[0:2], 1)
 
-k = 8
-slice = x.shape[1] / k
-print(slice)
+
+def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta):
+
+    k = 8
+    slice = int(input_vector.shape[1] / k)
+
+    begin = 0
+    for i in np.arange(0, input_vector.shape[1]+1, slice):
+        if i!=0:
+            test = input_vector[:, begin:i]
+            train = np.delete(input_vector, np.s_[begin:i], 1)
+            train_target_value = np.delete(target_value, np.s_[begin:i], 1)
+
+            input_layer = InputLayer(train.shape[0])
+            input_layer.create_weights(train.shape[0])
+
+            hidden_layer = HiddenLayer(5)
+            hidden_layer.create_weights(input_layer.n_units)
+            hidden_layer.set_activation_function('sigmoid')
+
+            output_layer = OutputLayer(2)
+            output_layer.create_weights(hidden_layer.n_units)
+            output_layer.set_activation_function('sigmoid')
+
+            neural_net = NeuralNetwork()
+            neural_net.define_loss('mean_euclidean')
+            neural_net.add_input_layer(input_layer)
+            neural_net.add_hidden_layer(hidden_layer)
+            neural_net.add_output_layer(output_layer)
+
+            neural_net.forward_propagation(train)
+
+            neural_net.train_network(train, train_target_value, 5, 10, 'mean_euclidean', 0.5)
+
+            begin = i
