@@ -259,13 +259,13 @@ class NeuralNetwork:
             # // se l'errore scende sotto la soglia, si salva il modello che lo produce
             if err < threshold:
                 print('lavinia puzzecchia! trallallero taralli e vino')
-                NeuralNetwork.saveModel(self, weights)
+                #   NeuralNetwork.saveModel(self, weights)
                 break
             # // se l'errore del modello di turno supera il precedente, si sovrascrive a weights il modello precedente
             # WARNING: l'errore può avere minimi locali, più avanti definiremo meglio questo if
             elif err > err_BT:
                 weights = weights_BT
-                NeuralNetwork.saveModel(self, weights)
+                #   NeuralNetwork.saveModel(self, weights)
             # // altrimenti, se l'errore continua a decrescere, si sovrascrive a weights_BT il modello corrente, si salva e si sovrascrive a error_BT l'errore del modello corrente
             else:
                 weights_BT = weights
@@ -280,8 +280,10 @@ class NeuralNetwork:
         #NeuralNetwork.saveModel(self, weights)
         # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
         NeuralNetwork.plotError(self, epochs_plot, errors)
+        return weights
 
     def test_network(self):
+        # solo foward + calcolo dell'errore
         a=1
 
     """

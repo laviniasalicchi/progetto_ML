@@ -66,7 +66,16 @@ def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta):
 
             neural_net.forward_propagation(train)
 
-            neural_net.train_network(train, train_target_value, 5, 10, 'mean_euclidean', 0.5)
+            weights = neural_net.train_network(train, train_target_value, epochs, threshold, loss_func, eta)
+            print(weights)
+
+            '''
+            **************
+                - mettere in output_weights i pesi dell'output presenti nel dizionario weights
+                - eliminare output dal dizionario
+                - ciclare sugli indici rimasti (tutti hidden layers) e creare, assegnando i pesi, hidden layers di neural_net_test
+            '''
+            
             neural_net.test_network()
 
             begin = i
