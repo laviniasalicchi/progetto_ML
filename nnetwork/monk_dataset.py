@@ -37,7 +37,7 @@
 import numpy as np
 import csv
 
-class Monk_Dataset:
+class MonkDataset:
 
 
     #filename = '../datasets/monks-1.train'
@@ -48,6 +48,7 @@ class Monk_Dataset:
     e una matrice con i valori degli attributi
     salva su disco la versione codificata del file
     '''
+    @staticmethod
     def load_encode_monk(filename):
         fields = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'id']
         print(len(fields))

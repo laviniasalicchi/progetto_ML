@@ -7,6 +7,7 @@ from input_layer import InputLayer
 from hidden_layer import HiddenLayer
 from output_layer import OutputLayer
 from neural_net import NeuralNetwork
+from monk_dataset import *
 
 
 
@@ -28,7 +29,7 @@ def __main__():
         k = 0
         for j in range(1,11):
             x[i][k] = data[i][j]
-            k = k+1
+            k = k + 1
         target_x[i][0] = data[i][11]
         target_y[i][0] = data[i][12]
         target_values[i][0] = data[i][11]
@@ -37,13 +38,51 @@ def __main__():
 
     ''' ---- parte per importare il dataset esterno ---- '''
 
+    '''input_layer = InputLayer(x.shape)
+    input_layer.create_weights(x.shape)  # questo è da cambiare perchè probabilmente non funziona con una matrice
+    #print(input_layer.weights)
+    input = input_layer.net_function(x)
+
+    print(input_layer.output)                       # restituisce []
+    input_out = input_layer.layer_output()
+    print(input_layer.layer_output())               # restituisce matrice con righe = pattern / colonne = feature
+    print(input_layer.n_units[1])
+
+    print("--------------------- HIDDEN LAYER --------------------------")
+    hidden_layer = HiddenLayer(input_layer.n_units[1])  #   creazione hidden layer con n unità = n feature
+    hidden_layer.create_weights(x.shape[1]+1)             #   creazione matrice pesi: righe = n feature + 1 (per bias)  colonne = n hidden units
+    hidden_net = hidden_layer.net_function(input_out)  # net hidden layer: ha come input l'output dell'input layer
+    print("HIDDEN NET: ", hidden_net.shape)
+    hidden_layer.set_activation_function('tanh')            #   set dell'activation function
+    hidden_out = hidden_layer.layer_output()                # output dell'hidden layer
+    print("---- HIDDEN OUTPUT ----{", hidden_out.shape,"}\n", hidden_out)
+
+    print("------------------- OUTPUT LAYER --------------------------")
+    output_layer = OutputLayer(2)
+    output_layer.create_weights(x.shape[1]+1)
+    output_net = output_layer.net_function(hidden_out)
+    output_layer.set_activation_function('tanh')
+    output_out = output_layer.layer_output()
+    print("---- OUTPUT OUTPUT ----{", output_out.shape, "}\n", output_out)
+
+    print("**************** N E T W O R K ****************")'''
 
     target_values = np.transpose(target_values)
     print('target_values.shape', target_values.shape)
 
     x = np.transpose(x)
-    input_layer = InputLayer(x.shape[0])
-    input_layer.create_weights(x.shape[0])
+
+    monk_datas = MonkDataset.load_encode_monk('/Users/mick/Dati/Università/Pisa/Machine_learning/Prj_info/Progetto_ml/monks-1.train')
+    monk_targets = monk_datas[0]
+    monk_targets = monk_targets.T
+
+    monk_input = monk_datas[1]
+    monk_input = monk_input.T  # righe=features colonne=patterns
+
+
+
+    input_layer = InputLayer(monk_input.shape[0])
+    input_layer.create_weights(monk_input.shape[0])
     print('x shape', x.shape)
     print('input_layer', input_layer.weights.shape)
     print('input_layer n_units', input_layer.n_units)
@@ -60,7 +99,7 @@ def __main__():
     hidden_layer2.create_weights(hidden_layer.n_units)
     hidden_layer2.set_activation_function('sigmoid')'''
 
-    output_layer = OutputLayer(2)
+    output_layer = OutputLayer(1)
     output_layer.create_weights(hidden_layer.n_units)
     output_layer.set_activation_function('sigmoid')
 
@@ -71,11 +110,24 @@ def __main__():
     #neural_net.add_hidden_layer(hidden_layer2)
     neural_net.add_output_layer(output_layer)
 
-    neural_net.forward_propagation(x)
-    print('Debug:\thlayer1.net', hidden_layer.net.shape)
+    #neural_net.forward_propagation(x)
+    #print('Debug:\thlayer1.net', hidden_layer.net.shape)
     #print('Debug:\tlayer2.net', hidden_layer2.net.shape)
 
-    neural_net.train_network(x, target_values, 100, 10, 'mean_euclidean', 0.5)
+    neural_net.train_network(monk_input, monk_targets, 1000, 0.2, 'mean_euclidean', 0.05)
+
+    neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
+
+    monk_datas = MonkDataset.load_encode_monk('/Users/mick/Dati/Università/Pisa/Machine_learning/Prj_info/Progetto_ml/monks-1.train')
+    monk_targets = monk_datas[0]
+    monk_input = monk_datas[1]
+    print(type(monk_input))
+    print(type(monk_targets))
+    monk_input = monk_input.T # righe=features colonne=patterns
+    print(monk_input.shape)
+    print(monk_targets.shape)
+    neural_net.train_network(monk_input, monk_targets, 200, 10, 'mean_euclidean', 0.04)
+
 
 
 __main__()

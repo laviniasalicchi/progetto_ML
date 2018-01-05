@@ -10,6 +10,10 @@ from input_layer import InputLayer
 import numpy as np
 import os
 from datetime import datetime
+from layer import Layer
+from input_layer import InputLayer
+from hidden_layer import HiddenLayer
+from output_layer import OutputLayer
 import matplotlib.pyplot as plt
 
 
@@ -56,6 +60,40 @@ class NeuralNetwork:
     '''
     def define_loss(self, loss_function):
         self.loss_function = loss_function
+
+
+
+    """
+    Factory method per istanziare una rete.
+    total_layers = numero totale di layers
+    units_hidden = numero di unità per gli hidden layers
+    units_out = unità di output
+    units_in = unità input
+    activ_func = funzione di attivazione dei layers
+    """
+    @staticmethod
+    def create_network(total_layers, units_in, units_hidden, units_out, activ_func):
+        neural_network = NeuralNetwork()
+        hidden_num = total_layers - 2
+        input_layer = InputLayer(units_in)
+        input_layer.create_weights(units_in)
+        neural_network.add_input_layer(input_layer)
+        hidden_l = HiddenLayer(units_hidden)
+        hidden_l.create_weights(units_in)
+        neural_network.add_hidden_layer(hidden_l)
+
+        for i in range(1, hidden_num):
+            hidden_l = HiddenLayer(units_hidden)
+            hidden_l.create_weights(units_hidden)
+            neural_network.add_hidden_layer(hidden_l)
+
+        output_layer = OutputLayer(units_out)
+        output_layer.create_weights(units_hidden)
+        return neural_network
+
+    def predict(self, input_vector):
+        return forward_propagation(self, input_vector)
+
 
 
     """
@@ -310,8 +348,11 @@ class NeuralNetwork:
         return (res / target_value.shape[1])
 
 
+    """
+    TODO decommentare.
+    """
     def saveModel(self, weights):
-        now = (datetime.now().isoformat()).replace(":", "")
+        """now = (datetime.now().isoformat()).replace(":", "")
         print(now)
         folder = "models/Model_2_"+now+"/"
         if not os.path.exists(folder):
@@ -321,7 +362,7 @@ class NeuralNetwork:
             path = folder+k
             data = weights[k]
             np.savez(path, weights = data)
-
+"""
     def plotError(self, epochs_plot, errors):
         plt.plot(epochs_plot, errors, color="blue", label="training error")
         plt.xlabel("epochs")
