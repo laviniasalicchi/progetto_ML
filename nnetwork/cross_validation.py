@@ -67,5 +67,6 @@ def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta):
             neural_net.forward_propagation(train)
 
             neural_net.train_network(train, train_target_value, 5, 10, 'mean_euclidean', 0.5)
+            neural_net.test_network()
 
             begin = i
