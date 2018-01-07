@@ -77,22 +77,42 @@ class NeuralNetwork:
         hidden_num = total_layers - 2
         input_layer = InputLayer(units_in)
         input_layer.create_weights(units_in)
+        input_layer.set_activation_function(activ_func)
         neural_network.add_input_layer(input_layer)
         hidden_l = HiddenLayer(units_hidden)
         hidden_l.create_weights(units_in)
+        hidden_l.set_activation_function(activ_func)
         neural_network.add_hidden_layer(hidden_l)
 
         for i in range(1, hidden_num):
             hidden_l = HiddenLayer(units_hidden)
             hidden_l.create_weights(units_hidden)
+            hidden_l.set_activation_function(activ_func)
             neural_network.add_hidden_layer(hidden_l)
 
         output_layer = OutputLayer(units_out)
         output_layer.create_weights(units_hidden)
+        output_layer.set_activation_function(activ_func)
+        neural_network.add_output_layer(output_layer)
+        neural_network.print_net_info()
         return neural_network
 
     def predict(self, input_vector):
         return forward_propagation(self, input_vector)
+
+    def print_net_info(self):
+        print("**************** NETWORK ****************")
+        print("Input Layer: " + str(self.input_layer.n_units) + ' units')
+        i = 1
+        for h_layer in self.hidden_layers:
+            print("HiddenLayer " + str(i + 1) + ": " + str(self.hidden_layers[0].n_units) + " units")
+            i = i + 1
+        print("Output Layer: " + str(self.output_layer.n_units) + ' units')
+        print("**************** NETWORK ***************")
+
+
+
+
 
 
 
@@ -106,10 +126,11 @@ class NeuralNetwork:
         net = self.input_layer.net_function(input_vector)
         input_layer_out = self.input_layer.layer_output()
         self.input_layer.output = input_layer_out   # // aggiunto il.output
-        print('debug\t:inout_layer_out', self.input_layer.output.shape)
+        #print('debug\t:inout_layer_out', self.input_layer.output.shape)
 
 
         if len(self.hidden_layers) <= 1:
+
             h_layer = self.hidden_layers[0]
             h_layer.net = h_layer.net_function(input_layer_out) # // aggiunto hl.net
             h_layer_out = h_layer.layer_output()
@@ -155,9 +176,9 @@ class NeuralNetwork:
 
 
             f_prime = layer.activation_function_derivative(layer_net)
-            ''' //
-                tolta l'ultima riga dei weights, quella che - a regola - conteneva il bias
-                    guarda un po' se ha senso questa cosa e se era proprio quella riga
+            '''
+            tolta l'ultima riga dei weights, quella che - a regola - conteneva il bias
+            guarda un po' se ha senso questa cosa e se era proprio quella riga
             '''
             prev_layer_weights = np.delete(prev_layer_weights, -1, 0)
             transpose_weights = np.transpose(prev_layer_weights)    # // trasposta fatta a parte senza motivo
@@ -179,30 +200,6 @@ class NeuralNetwork:
             prev_layer_weights = layer.weights
 
         # update weights
-        ''' //
-            prodotto tra delta e output del layer precedente e moltiplicazione con eta fatti a parte per comodità, non c'era particolare motivo
-            le trasposte sono fatte giusto per farmi tornare la dimensione delle varie matrici
-        '''
-        #dot_prod = np.dot(self.output_layer.deltas.T, self.hidden_layers[-1].output)    # //trasposta a caso
-        #eta_dot = eta * dot_prod
-        #self.output_layer.weights = self.output_layer.weights + eta_dot.T   # // altra trasposta a caso
-        #i = -2
-        '''for i in range(len(self.hidden_layers)):    # // prima era for layer in reverse(self.hidden_layers), così mi tornava meglio
-            layer = self.hidden_layers[i]
-            if i==0:
-                dot_prod = np.dot(layer.deltas.T, self.input_layer.output)
-                eta_dot = eta * dot_prod
-                layer.weights = layer.weights + eta_dot.T
-                #// weights è un dizionario per poter avere i pesi aggiornati raggiungibili dal nome del layer
-                key = "hidden"+str(i)   # // in questo caso hidden0
-                weights = ({key:layer.weights})
-            else:
-                dot_prod = np.dot(layer.deltas.T, self.hidden_layers[i-1].output)
-                eta_dot = eta * dot_prod
-                layer.weights = layer.weights + eta_dot.T
-                key = "hidden" + str(i)     # // key: hidden1
-                weights.update({key: layer.weights})
-                #i = i-1'''
         print('debug:layerweights', layer.weights.shape)
         ones_row = np.ones((1, layer.deltas.shape[1]))
 
@@ -213,43 +210,19 @@ class NeuralNetwork:
         for h_layer in self.hidden_layers:
             net_layers.append(h_layer)
         net_layers.append(self.output_layer)
+
+        # TODO l'errore è qui : occorre moltiplicare l'input completo per il deltas
+        #  prev_layer in * layer_delta =
+
         for layer in net_layers:
 
-            delta_sum = np.ones(shape=(layer.weights.shape[0] - 1, 1))  # riga di uno, la cancelleremo alla fine, ci serve solo per poter concatenare i risultati
-            print("delta_sum", delta_sum, delta_sum.shape)
-            last_layer_out = np.delete(last_layer_out, -1, 0) # togliamo il bias
-
-            for deltas_row in layer.deltas:
-
-                print('row:', deltas_row)
-                print('delta shape', deltas_row.shape)
-                deltas_p = np.reshape(deltas_row, (1, -1)) # -1 fa fare inferenza. serve solo per evitare che la shape della matrice sia una tupla del tipo (dim,)
-                print('delta shape', deltas_p.shape)
-                print('last_layer_out', last_layer_out.shape)
-                '''
-                # come risultato dovrebbe dare una colonna che rappresenta
-                 il delta_w dell'unità a cui è associato il delta.
-                 stiamo sommando i delta dell'unità con gli input che gli arrivano per ogni pattern
-                '''
-                delta_w_j = np.dot(last_layer_out, deltas_p.T)
-
-                delta_sum = np.concatenate((delta_sum, delta_w_j), axis=1) # concateniamo in modo da formare una matrice con dimensioni uguali a quelle dei pesi per poi sommarle
-
-            print('delta_sum.sahpe:', delta_sum.shape)
-            #print('delta_sum:', delta_sum)
-            delta_sum = np.delete(delta_sum, 0, 1) # cancello la prima colonna che era fatta di 1
-            print('delta_sum.sahpe_after_delete:', delta_sum.shape)
-            #print('delta_sum:', delta_sum)
-            delta_weights = eta * delta_sum
-            zero_row = np.zeros((1, delta_weights.shape[1]))
-            delta_weights = np.concatenate((delta_weights, zero_row), axis=0)  # concateniamo una riga di zeri in modo che quando si somma non vengano influenzati i pesi del bias
-            print("delta_weights;", delta_weights, delta_weights.shape)
-            print("layer_weights;", layer.weights, layer.weights.shape)
-
-            layer.weights = layer.weights - delta_weights
-
+            dW = np.dot(last_layer_out, layer.deltas.T)
+            layer.weights = layer.weights - (eta * dW)
             last_layer_out = layer.output
-            print("deltasum_fine.shape", delta_sum.shape)
+            #print('abbdsda',layer.weights[-1][)
+
+
+
 
 
         return err_func(target_value, self.output_layer.output)

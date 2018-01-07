@@ -57,11 +57,13 @@ class Layer:
         return matrice come output_vector, ma una colonna in più di 1
     """
     def layer_output(self):
+        print(self.activation_function)
         if self.activation_function is 'sigmoid':
             self.output = Layer.sigmoid(self.net)
         elif self.activation_function is 'tanh':
             self.output = Layer.tanh(self.net)
         # aggiungiamo il bias
+
         ones_row = np.ones((1, self.output.shape[1]))
         self.output = np.concatenate((self.output, ones_row), axis=0)
         return self.output

@@ -47,6 +47,8 @@ class MonkDataset:
     ritorna un vettore con i valori della classe,
     e una matrice con i valori degli attributi
     salva su disco la versione codificata del file
+    target_x: righe=classe, colonne=patterns
+    encoded_datas: righe=features, colonne=patterns
     '''
     @staticmethod
     def load_encode_monk(filename):
@@ -66,27 +68,27 @@ class MonkDataset:
             for i in range(1, 7):
                 # attributo a1
                 if i is 1:
-                    print(' i is ', i)
+                    #print(' i is ', i)
                     if np.equal(int(data[counter][i]), 1):
-                        print('a1_value=1', int(data[counter][i]))
+                        #print('a1_value=1', int(data[counter][i]))
                         encoded_datas[counter][0] = 1
                         encoded_datas[counter][6] = 0
                         encoded_datas[counter][7] = 0
                     elif np.equal(int(data[counter][i]), 2):
-                        print('a1_value=2', int(data[counter][i]))
+                        #print('a1_value=2', int(data[counter][i]))
                         encoded_datas[counter][0] = 0
                         encoded_datas[counter][6] = 1
                         encoded_datas[counter][7] = 0
                     elif np.equal(int(data[counter][i]), 3):
-                        print('a1_value=3', int(data[counter][i]))
+                        #print('a1_value=3', int(data[counter][i]))
                         encoded_datas[counter][0] = 0
                         encoded_datas[counter][6] = 0
                         encoded_datas[counter][7] = 1
-                        print(encoded_datas[counter][7], 'should be 1')
+                        #print(encoded_datas[counter][7], 'should be 1')
                 # attributo a2
                 elif i is 2:
                     if np.equal(int(data[counter][i]), 1):
-                        print('a2_value=1', int(data[counter][i]))
+                        #print('a2_value=1', int(data[counter][i]))
                         encoded_datas[counter][1] = 1
                         encoded_datas[counter][8] = 0
                         encoded_datas[counter][9] = 0
@@ -151,5 +153,10 @@ class MonkDataset:
                         encoded_datas[counter][5] = 0
                         encoded_datas[counter][16] = 1
 
+        target_x = target_x.T
+        encoded_datas = encoded_datas.T
+
         np.savetxt(filename.replace('.train', '_encoded.train'), encoded_datas.astype(np.int64), delimiter=',', fmt='%2.1d')
+        print('MONK IMPORTED: target shape is:' + str(target_x.shape))
+        print('MONK IMPORTED: encoded data shape is:' + str(encoded_datas.shape))
         return target_x, encoded_datas
