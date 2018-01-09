@@ -60,6 +60,7 @@ class MonkDataset:
         data = np.delete(data, data.shape[1] - 1, axis=1)
         target_x = np.empty((data.shape[0], 1))
         encoded_datas = np.zeros((data.shape[0], 17))
+        print(encoded_datas.shape)
         counter = 0  # righe
 
         for counter in range(data.shape[0]):
@@ -153,10 +154,11 @@ class MonkDataset:
                         encoded_datas[counter][5] = 0
                         encoded_datas[counter][16] = 1
 
-        target_x = target_x.T
-        encoded_datas = encoded_datas.T
 
+        encoded_datas = encoded_datas.T
+        target_x = target_x.T
         np.savetxt(filename.replace('.train', '_encoded.train'), encoded_datas.astype(np.int64), delimiter=',', fmt='%2.1d')
+
         print('MONK IMPORTED: target shape is:' + str(target_x.shape))
         print('MONK IMPORTED: encoded data shape is:' + str(encoded_datas.shape))
         return target_x, encoded_datas

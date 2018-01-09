@@ -299,13 +299,17 @@ class NeuralNetwork:
         err = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
         return err
     """
-    Funzione di errore
+    MSE - sicuramente sbagliato
     """
     @staticmethod
     def squared_err(target_value, neuron_out, deriv=False):
         if deriv:
-            return -(target_value - neuron_out)  # segno meno? 
-        return (target_value - neuron_out)**2
+            return -(np.subtract(target_value,neuron_out))  # segno meno? 
+        res = np.subtract(target_value,neuron_out)**2
+        res = np.sum(res)
+        print(res.shape)
+        return res/target_value.shape[1]
+
 
     """
     Calcola il MEE
