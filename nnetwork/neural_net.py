@@ -291,7 +291,7 @@ class NeuralNetwork:
         #NeuralNetwork.saveModel(self, weights)
         # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
         NeuralNetwork.plotError(self, epochs_plot, errors)
-        return weights
+        return weights, err
 
     def test_network(self, x, target_value):
         # solo forward + calcolo dell'errore
