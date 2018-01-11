@@ -4,6 +4,7 @@ import numpy as np
 from monk_dataset import *
 from keras.models import *
 from keras.layers import *
+from keras.optimizers import *
 import matplotlib.pyplot as plt
 
 
@@ -26,12 +27,13 @@ neural_net.add(output_layer)
 #   configurazione learning process
 #       loss = MSE
 #       optimizer = stochastic gradient descent (learning rate, momentum, learning rate decay, Nesterov momentum)
-neural_net.compile(loss='mean_squared_error', optimizer='sgd', metrics = ['accuracy'])
+sgd_n = optimizers.SGD(lr=0.3, momentum=0.0, decay=0.0, nesterov=False)
+neural_net.compile(loss='mean_squared_error', optimizer=sgd_n, metrics = ['accuracy'])
 
 
 #   training della rete        fit(dati, targets, grandezza batch, epochs)
 training = neural_net.fit(monk_input, monk_targets, batch_size=124, epochs=1000)
-
+'''
 # plots
 # error
 plt.plot(training.history["loss"])
@@ -46,6 +48,8 @@ plt.title("accuracy")
 plt.ylabel("accuracy")
 plt.xlabel("epochs")
 plt.show()
+'''
 
-
-
+#   prove random
+print("HIDDEN", hidden_layer.get_weights())
+print("OUTPUT", output_layer.get_weights())

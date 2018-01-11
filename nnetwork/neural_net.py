@@ -217,7 +217,7 @@ class NeuralNetwork:
         for layer in net_layers:
 
             dW = np.dot(last_layer_out, layer.deltas.T)
-            layer.weights = layer.weights - (eta * dW)
+            layer.weights = layer.weights - (eta * dW) # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
             last_layer_out = layer.output
             #print('abbdsda',layer.weights[-1][)
 
@@ -300,11 +300,12 @@ class NeuralNetwork:
         return err
     """
     MSE - sicuramente sbagliato
+        per regolarizzazione: aggiungere +lambda*(weights)**2
     """
     @staticmethod
     def squared_err(target_value, neuron_out, deriv=False):
         if deriv:
-            return -(np.subtract(target_value,neuron_out))  # segno meno? 
+            return -(np.subtract(target_value,neuron_out))  # non bisognerebbe moltiplicare anche per l'input? 
         res = np.subtract(target_value,neuron_out)**2
         res = np.sum(res)
         print(res.shape)
