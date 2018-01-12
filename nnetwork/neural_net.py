@@ -222,7 +222,7 @@ class NeuralNetwork:
 
             momentum = layer.last_dW * alfa
 
-            layer.weights = layer.weights - (eta * dW) + momentum # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
+            layer.weights = layer.weights - (eta * dW) + momentum - (lambd * layer.weights)# +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
             #print("DW pre", layer.last_dW)
             layer.last_dW = - (eta * dW) + momentum
             #print("DW post", layer.last_dW)
@@ -246,7 +246,7 @@ class NeuralNetwork:
             print("EPOCH", epoch)
             forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
 
-            err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, 0.5, 0.1)
+            err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, 0.5, 0.01)
 
             print(err)
             errors.append(err)
