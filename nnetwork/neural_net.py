@@ -153,9 +153,15 @@ class NeuralNetwork:
 
         return self.output_layer.output
 
-    def backpropagation(self, input_vector, target_value, err_func, eta):
+
+    """
+    eta = learning rate
+    alfa = momentum
+    lambda = Tikhonov regularization
+    """
+    def backpropagation(self, input_vector, target_value, err_func, eta, alfa, lambd):
         # delt = deriv(E/out) * f'(net)
-        err_deriv = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output, True)
+        err_deriv = err_func(target_value, self.output_layer.output, True)
         print("DEBUG:err_deriv shape", err_deriv.shape)
 
         out_net = self.output_layer.net
@@ -182,8 +188,7 @@ class NeuralNetwork:
             '''
             prev_layer_weights = np.delete(prev_layer_weights, -1, 0)
             transpose_weights = np.transpose(prev_layer_weights)    # // trasposta fatta a parte senza motivo
-            #delta = np.dot(prev_layer_weights, prev_layer_delta) * f_prime
-            #delta = np.dot(prev_layer_delta, np.transpose(prev_layer_weights)) * f_prime
+
             print("DEBUG:layer_weights shape", prev_layer_weights.shape)
             print("DEBUG:prev_layer_delta shape", prev_layer_delta.shape)
             print("DEBUG:fprime shape", f_prime.shape)
@@ -211,19 +216,17 @@ class NeuralNetwork:
             net_layers.append(h_layer)
         net_layers.append(self.output_layer)
 
-        # TODO l'errore è qui : occorre moltiplicare l'input completo per il deltas
-        #  prev_layer in * layer_delta =
-
         for layer in net_layers:
 
             dW = np.dot(last_layer_out, layer.deltas.T)
-            layer.weights = layer.weights - (eta * dW) # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
+
+            momentum = layer.last_dW * alfa
+
+            layer.weights = layer.weights - (eta * dW) + momentum # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
+            #print("DW pre", layer.last_dW)
+            layer.last_dW = - (eta * dW) + momentum
+            #print("DW post", layer.last_dW)
             last_layer_out = layer.output
-            #print('abbdsda',layer.weights[-1][)
-
-
-
-
 
         return err_func(target_value, self.output_layer.output)
 
@@ -231,8 +234,8 @@ class NeuralNetwork:
         loss = NeuralNetwork.mean_euclidean_err
         if loss_func == 'mean_euclidean':
             loss = NeuralNetwork.mean_euclidean_err
-        elif loss_func == 'squared_err':
-            loss = NeuralNetwork.squared_err
+        elif loss_func == 'mean_squared_err':
+            loss = NeuralNetwork.mean_squared_err
         else:
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
         errors = []
@@ -242,16 +245,9 @@ class NeuralNetwork:
         for epoch in range(epochs):
             print("EPOCH", epoch)
             forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
-            #for h in self.hidden_layers:
-            #print("h_wei", h.weights)
-            #print("out_wei", self.output_layer.weights)
-            #print("***********")
-            err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta)
-            #for h in self.hidden_layers:
-            #print("h_wei", h.weights)
-            #print("out_wei", self.output_layer.weights)
-            #err = back_prop[0]   /// commentato
-            #weights = back_prop[1]  /// commentato
+
+            err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, 0.5, 0.1)
+
             print(err)
             errors.append(err)
             epochs_plot.append(epoch)
@@ -295,7 +291,7 @@ class NeuralNetwork:
 
     def test_network(self, x, target_value):
         # solo forward + calcolo dell'errore
-        NeuralNetwork.forward_propagation(self,x)
+        NeuralNetwork.forward_propagation(self, x)
         err = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
         return err
     """
@@ -303,12 +299,11 @@ class NeuralNetwork:
         per regolarizzazione: aggiungere +lambda*(weights)**2
     """
     @staticmethod
-    def squared_err(target_value, neuron_out, deriv=False):
+    def mean_squared_err(target_value, neuron_out, deriv=False):
         if deriv:
-            return -(np.subtract(target_value,neuron_out))  # non bisognerebbe moltiplicare anche per l'input? 
-        res = np.subtract(target_value,neuron_out)**2
-        res = np.sum(res)
-        print(res.shape)
+            return - (np.subtract(target_value, neuron_out))
+        res = np.subtract(target_value, neuron_out)**2
+        res = np.sum(res, axis=1)
         return res/target_value.shape[1]
 
 
