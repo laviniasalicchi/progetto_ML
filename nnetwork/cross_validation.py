@@ -46,10 +46,10 @@ encoded_datas = Monk_Dataset.load_encode_monk(filename)[1]'''
 
 #def grid_search(input_vector, target_value, epochs, threshold, loss_func):
 def grid_search():
-    eta = [0.07, 0.3, 0.5]
-    n_hiden_layers = [1,2,3]
+    eta = np.arange(0.01, 0.5, 0.05)
+    n_hidden_units = np.arange(2, 11, 2)
     for e in eta:
-        for h in n_hiden_layers:
+        for h in n_hidden_units:
             a=1
             '''
                si richiama volta volta kfold_cv 
