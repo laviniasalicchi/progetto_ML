@@ -23,7 +23,6 @@ class NeuralNetwork:
         self.input_layer = []
         self.hidden_layers = []
         self.output_layer = []
-        #self.loss_func
 
     """
     Aggiunge un input layer alla rete,
@@ -221,8 +220,9 @@ class NeuralNetwork:
             dW = np.dot(last_layer_out, layer.deltas.T)
 
             momentum = layer.last_dW * alfa
+            reg_term = (lambd * layer.weights)
 
-            layer.weights = layer.weights - (eta * dW) + momentum - (lambd * layer.weights)# +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
+            layer.weights = layer.weights - (eta * dW) + momentum - reg_term # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
             #print("DW pre", layer.last_dW)
             layer.last_dW = - (eta * dW) + momentum
             #print("DW post", layer.last_dW)
@@ -230,7 +230,7 @@ class NeuralNetwork:
 
         return err_func(target_value, self.output_layer.output)
 
-    def train_network(self, input_vector, target_value, epochs, threshold, loss_func, eta): # // aggiunti i target_values
+    def train_network(self, input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd): # // aggiunti i target_values
         loss = NeuralNetwork.mean_euclidean_err
         if loss_func == 'mean_euclidean':
             loss = NeuralNetwork.mean_euclidean_err
@@ -239,6 +239,7 @@ class NeuralNetwork:
         else:
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
         errors = []
+        accuracy = []
         epochs_plot = []
         weights_BT = {}     # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
@@ -246,7 +247,10 @@ class NeuralNetwork:
             print("EPOCH", epoch)
             forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
 
-            err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, 0.5, 0.01)
+            err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, alfa, lambd)
+            acc = NeuralNetwork.accuracy(self.output_layer.output, target_value)
+            accuracy.append(acc)
+
 
             print(err)
             errors.append(err)
@@ -287,6 +291,9 @@ class NeuralNetwork:
         #NeuralNetwork.saveModel(self, weights)
         # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
         NeuralNetwork.plotError(self, epochs_plot, errors)
+        NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
+
+
         return weights, err
 
     def test_network(self, x, target_value):
@@ -294,6 +301,17 @@ class NeuralNetwork:
         NeuralNetwork.forward_propagation(self, x)
         err = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
         return err
+
+    @staticmethod
+    def accuracy(output_net, target):
+        out_rounded = np.rint(output_net)
+        result = np.where(out_rounded == target, 1, 0)
+        result = np.mean(result)
+        return result
+
+
+
+
     """
     MSE - sicuramente sbagliato
         per regolarizzazione: aggiungere +lambda*(weights)**2
@@ -345,5 +363,11 @@ class NeuralNetwork:
         plt.xlabel("epochs")
         plt.ylabel("error")
         plt.legend(loc='upper left', frameon=False)
+        plt.show()
 
+    def plot_accuracy(self, epochs_plot, accuracy):
+        plt.plot(epochs_plot, accuracy, color="blue", label="accuracy")
+        plt.xlabel("epochs")
+        plt.ylabel("accuracy")
+        plt.legend(loc='upper left', frameon=False)
         plt.show()

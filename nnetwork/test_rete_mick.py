@@ -39,7 +39,7 @@ def __main__():
     monk_datas = MonkDataset.load_encode_monk('/Users/mick/Dati/Università/Pisa/Machine_learning/Prj_info/Progetto_ml/monks-1.train')
     monk_targets = monk_datas[0]
     monk_input = monk_datas[1]
-    neural_net.train_network(monk_input, monk_targets, 1000, 0.00, 'mean_squared_err', 0.5)
+    neural_net.train_network(monk_input, monk_targets, 500, 0.00, 'mean_squared_err', eta=0.3, alfa=0.5, lambd=0.01)
 
 
 
