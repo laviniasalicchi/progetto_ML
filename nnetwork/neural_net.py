@@ -246,9 +246,10 @@ class NeuralNetwork:
         for epoch in range(epochs):
             print("EPOCH", epoch)
             forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
+            acc = NeuralNetwork.accuracy(self.output_layer.output, target_value)
+
 
             err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, alfa, lambd)
-            acc = NeuralNetwork.accuracy(self.output_layer.output, target_value)
             accuracy.append(acc)
 
 
@@ -258,13 +259,13 @@ class NeuralNetwork:
             # // creazione dizionario {nomelayer : pesi}
             for i in range(len(self.hidden_layers)):
                 layer = self.hidden_layers[i]
-                if i==0:
+                if i == 0:
                     #// weights è un dizionario per poter avere i pesi aggiornati raggiungibili dal nome del layer
                     key = "hidden"+str(i)
                     weights = ({key:layer.weights})
                 else:
                     key = "hidden" + str(i)
-                    weights.update({key: layer.weights})
+                    weights.update({key:    layer.weights})
             weights.update({'output': self.output_layer.weights})
 
             # // se l'errore scende sotto la soglia, si salva il modello che lo produce
@@ -281,6 +282,9 @@ class NeuralNetwork:
             else:
                 weights_BT = weights
                 err_BT = err
+
+            if epoch + 1 == epochs:
+                print("ACCURACY:",NeuralNetwork.accuracy(self.output_layer.output, target_value))
 
             '''
             NB: l'errore nel training non dovrebbe mai aumentare col passare delle epoch

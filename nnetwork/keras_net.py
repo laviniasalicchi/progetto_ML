@@ -5,6 +5,8 @@ from monk_dataset import *
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from neural_net import NeuralNetwork
 
@@ -39,7 +41,7 @@ neural_net.output_layer.weights = output_k_wei
 
 monk_targets_n = monk_datas[0]
 monk_input_n = monk_datas[1]
-err_net = neural_net.train_network(monk_input_n, monk_targets_n, 1000, 0.00001, 'squared_err', 0.1)
+err_net = neural_net.train_network(monk_input_n, monk_targets_n, 1000, 0.00001, 'squared_err', 0.1, alfa=0.0, lambd=0.0)
 
 
 #   configurazione learning process
@@ -50,7 +52,7 @@ neural_net_k.compile(loss='mean_squared_error', optimizer=sgd_n, metrics = ['acc
 
 
 #   training della rete        fit(dati, targets, grandezza batch, epochs)
-training = neural_net_k.fit(monk_input, monk_targets, batch_size=124, epochs=1000)
+training = neural_net_k.fit(monk_input, monk_targets, batch_size=124, epochs=8000)
 
 print("ERRORE NET", err_net)
 
@@ -68,5 +70,3 @@ plt.title("accuracy")
 plt.ylabel("accuracy")
 plt.xlabel("epochs")
 plt.show()
-
-
