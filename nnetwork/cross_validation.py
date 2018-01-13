@@ -56,7 +56,7 @@ def grid_search():
             '''
 
 
-def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta):
+def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd):
 
     k = 8
     slice = int(input_vector.shape[1] / k)
@@ -71,56 +71,30 @@ def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta):
             test_target_value = target_value[:, begin:i]
             train = np.delete(input_vector, np.s_[begin:i], 1)
             train_target_value = np.delete(target_value, np.s_[begin:i], 1)
-            print("begin", begin, " - i", i)
-            print("shapes:\ntest", test.shape, "\ntarget test",test_target_value.shape, "\ntrain", train.shape,"\ntarget train", train_target_value.shape)
 
-            input_layer = InputLayer(train.shape[0])
-            input_layer.create_weights(train.shape[0])
+            neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
 
-            hidden_layer = HiddenLayer(5)
-            hidden_layer.create_weights(input_layer.n_units)
-            hidden_layer.set_activation_function('sigmoid')
+            trained_net = neural_net.train_network(train, train_target_value, epochs, threshold, loss_func, eta, alfa, lambd)
+            neural_net_test = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
 
-            output_layer = OutputLayer(2)
-            output_layer.create_weights(hidden_layer.n_units)
-            output_layer.set_activation_function('sigmoid')
+            output_wei = trained_net[0]['output']
+            neural_net_test.output_layer.weights = output_wei
 
-            neural_net = NeuralNetwork()
-            neural_net.define_loss('mean_euclidean')
-            neural_net.add_input_layer(input_layer)
-            neural_net.add_hidden_layer(hidden_layer)
-            neural_net.add_output_layer(output_layer)
-            #neural_net.forward_propagation(train)
+            trained_net[0].pop("output")
 
-            trained_net = neural_net.train_network(train, train_target_value, epochs, threshold, loss_func, eta)
-            print(trained_net[0])
-            print(trained_net[1])
-            print(trained_net[2].weights.shape)
+            l = 0
+            for h in trained_net[0]:
+                key = str(h)
+                hidden_wei = trained_net[0][key]
+                neural_net_test.hidden_layers[l].weights = hidden_wei
+                l = l+1
 
-            input_layer = InputLayer(test.shape[0])
-            input_layer.create_weights(test.shape[0])
-
-            for h in trained_net[1]:
-                hidden_layer = HiddenLayer(5)
-                hidden_layer.weights = h.weights
-                hidden_layer.set_activation_function('sigmoid')
-
-            output_layer = OutputLayer(2)
-            output_layer.weights = trained_net[2].weights
-            output_layer.set_activation_function('sigmoid')
-
-            neural_net_test = NeuralNetwork()
-            neural_net_test.define_loss('mean_euclidean')
-            neural_net_test.add_input_layer(input_layer)
-            neural_net_test.add_hidden_layer(hidden_layer)
-            neural_net_test.add_output_layer(output_layer)
-
-            err_test = neural_net_test.test_network(test, test_target_value)
+            #err_test = neural_net_test.test_network(test, test_target_value)
+            err_test = neural_net_test.accuracy(test, test_target_value)
             errors_test = np.append(errors_test, err_test)
-            print("errore test", err_test.shape)
-            mean = errors_test.mean()
-
+            print("ACCURACY", err_test)
             begin = i
 
+    mean = errors_test.mean()
     print(errors_test.shape)
     print(mean)
