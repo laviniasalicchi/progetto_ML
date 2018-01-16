@@ -74,6 +74,7 @@ def grid_search(input_vector, target_value, epochs, threshold, loss_func):
         acc = accfile['accuracy']
         accuracies = np.append(accuracies,acc)
     maxind = str(np.argmax(accuracies)+1)
+    print("TOTAL ACCURACIES", accuracies)
 
     path = "models/Model_" + maxind + "/eta.npz"
     file = np.load(path)
@@ -94,6 +95,7 @@ def grid_search(input_vector, target_value, epochs, threshold, loss_func):
     accuracy = neural_net.accuracy(neural_net.output_layer.output, target_value)
 
     neural_net.saveModel(weights, eta, alfa, lambd, maxind, accuracy, final=True)
+
 
 
 def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd):

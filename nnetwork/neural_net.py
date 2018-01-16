@@ -358,13 +358,15 @@ class NeuralNetwork:
         i = str(i)
 
         if final:
-            folder = "models/finals/Model"+i+"/"
+            folder = "models/finals/Model"+i+"/weights/"
             if not os.path.exists(folder):
                 os.makedirs(folder)
             for k in weights:
                 path = folder + k
                 data = weights[k]
+                print(path)
                 np.savez(path, weights=data)
+            folder = "models/finals/Model" + i + "/"
 
         else:
             folder = "models/Model_"+i+"/"
@@ -382,6 +384,8 @@ class NeuralNetwork:
 
         path = folder + "accuracy"
         np.savez(path, accuracy = accuracy)
+
+
 
 
     def plotError(self, epochs_plot, errors):
