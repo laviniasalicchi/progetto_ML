@@ -41,18 +41,18 @@ neural_net.output_layer.weights = output_k_wei
 
 monk_targets_n = monk_datas[0]
 monk_input_n = monk_datas[1]
-err_net = neural_net.train_network(monk_input_n, monk_targets_n, 1000, 0.00001, 'squared_err', 0.1, alfa=0.0, lambd=0.0)
+err_net = neural_net.train_network(monk_input_n, monk_targets_n, 1000, 0.00001, 'mean_squared_err', 0.07, alfa=0.1, lambd=0.9)
 
 
 #   configurazione learning process
 #       loss = MSE
 #       optimizer = stochastic gradient descent (learning rate, momentum, learning rate decay, Nesterov momentum)
-sgd_n = optimizers.SGD(lr=0.1, momentum=0.0, decay=0.0, nesterov=False)
+sgd_n = optimizers.SGD(lr=0.07, momentum=0.1, decay=0.9, nesterov=False)
 neural_net_k.compile(loss='mean_squared_error', optimizer=sgd_n, metrics = ['accuracy'])
 
 
 #   training della rete        fit(dati, targets, grandezza batch, epochs)
-training = neural_net_k.fit(monk_input, monk_targets, batch_size=124, epochs=8000)
+training = neural_net_k.fit(monk_input, monk_targets, batch_size=124, epochs=1000)
 
 print("ERRORE NET", err_net)
 

@@ -15,6 +15,9 @@ from input_layer import InputLayer
 from hidden_layer import HiddenLayer
 from output_layer import OutputLayer
 import matplotlib.pyplot as plt
+import logging
+import sys
+
 
 
 class NeuralNetwork:
@@ -159,52 +162,49 @@ class NeuralNetwork:
     lambda = Tikhonov regularization
     """
     def backpropagation(self, input_vector, target_value, err_func, eta, alfa, lambd):
+        logger = logging.getLogger(__name__)
+
         # delt = deriv(E/out) * f'(net)
         err_deriv = err_func(target_value, self.output_layer.output, True)
-        print("DEBUG:err_deriv shape", err_deriv.shape)
+        logger.debug('Backprop: err_deriv.shape %s', str(err_deriv.shape))
 
         out_net = self.output_layer.net
-        print("DEBUG:out_net shape", out_net.shape)
+
+        logger.debug("Backprop: out_net.shape %s", str(out_net.shape))
 
         f_prime = self.output_layer.activation_function_derivative(out_net)
-        print("DEBUG:f_prime shape", f_prime.shape)
+        logger.debug("Backprop: f_prime shape %s", str(f_prime.shape))
 
         delta_out = err_deriv * f_prime  # dovrebbe essere una matrice con colonne = numero di pattern // è pattern x n output units
         self.output_layer.deltas = delta_out
         prev_layer_delta = delta_out
         prev_layer_weights = self.output_layer.weights  # prev layer weights sono i pesi del layer precedente (quindi quello a destra quando si fa la backprop)
-        print("DEBUG:deltaout shape", delta_out.shape)
+        logger.debug("Backprop: delta_out.shape %s", str(delta_out.shape))
 
         for layer in reversed(self.hidden_layers):
             layer_net = layer.net
-            print("DEBUG:layer_net shape", layer_net.shape)
-
+            logger.debug("Backprop: layer_net.shape %s", str(layer_net.shape))
 
             f_prime = layer.activation_function_derivative(layer_net)
-            '''
-            tolta l'ultima riga dei weights, quella che - a regola - conteneva il bias
-            guarda un po' se ha senso questa cosa e se era proprio quella riga
-            '''
-            prev_layer_weights = np.delete(prev_layer_weights, -1, 0)
+
+            prev_layer_weights = np.delete(prev_layer_weights, -1, 0) # tolta la riga dei pesi del bias
             transpose_weights = np.transpose(prev_layer_weights)    # // trasposta fatta a parte senza motivo
 
-            print("DEBUG:layer_weights shape", prev_layer_weights.shape)
-            print("DEBUG:prev_layer_delta shape", prev_layer_delta.shape)
-            print("DEBUG:fprime shape", f_prime.shape)
-
+            logger.debug("Backprop: prev_layer_weights.shape %s", str(prev_layer_weights.shape))
+            logger.debug("Backprop: prev_layer_delta.shape %s", str(prev_layer_weights.shape))
+            logger.debug("Backprop: f_prime.shape %s", str(f_prime.shape))
 
             delta = np.dot(prev_layer_weights, prev_layer_delta) * f_prime
 
             layer.deltas = delta
 
-            print("DEBUG:layer_delta shape", layer.deltas.shape)
-
+            logger.debug("Backprop: layer_deltas.shape %s", str(layer.deltas.shape))
 
             prev_layer_delta = delta
             prev_layer_weights = layer.weights
 
         # update weights
-        print('debug:layerweights', layer.weights.shape)
+        logger.debug("Backprop: layer.weights.shape %s", str(layer.weights.shape))
         ones_row = np.ones((1, layer.deltas.shape[1]))
 
         # update weights
@@ -231,6 +231,7 @@ class NeuralNetwork:
         return err_func(target_value, self.output_layer.output)
 
     def train_network(self, input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd): # // aggiunti i target_values
+        logger = logging.getLogger(__name__)
         loss = NeuralNetwork.mean_euclidean_err
         if loss_func == 'mean_euclidean':
             loss = NeuralNetwork.mean_euclidean_err
@@ -244,7 +245,8 @@ class NeuralNetwork:
         weights_BT = {}     # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
         for epoch in range(epochs):
-            print("EPOCH", epoch)
+            logger.info("Epoch %s", str(epoch))
+            #print("EPOCH", epoch)
             forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
             acc = NeuralNetwork.accuracy(self.output_layer.output, target_value)
 
@@ -253,9 +255,17 @@ class NeuralNetwork:
             accuracy.append(acc)
 
 
-            print(err)
+            #print(err)
             errors.append(err)
             epochs_plot.append(epoch)
+
+
+            sys.stdout.write('\r')
+            j = (epoch + 1 / epochs)
+            sys.stdout.write("[%-20s] %d%%" % ('='*int(j), 100*j))
+            sys.stdout.flush()
+
+
             # // creazione dizionario {nomelayer : pesi}
             for i in range(len(self.hidden_layers)):
                 layer = self.hidden_layers[i]
@@ -283,8 +293,7 @@ class NeuralNetwork:
                 weights_BT = weights
                 err_BT = err
 
-            if epoch + 1 == epochs:
-                print("ACCURACY:",NeuralNetwork.accuracy(self.output_layer.output, target_value))
+
 
             '''
             NB: l'errore nel training non dovrebbe mai aumentare col passare delle epoch
@@ -296,6 +305,7 @@ class NeuralNetwork:
         # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
         NeuralNetwork.plotError(self, epochs_plot, errors)
         NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
+        print("Accuracy;", accuracy[len(accuracy)-1])
 
 
         return weights, err
@@ -304,7 +314,8 @@ class NeuralNetwork:
         # solo forward + calcolo dell'errore
         NeuralNetwork.forward_propagation(self, x)
         err = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
-        return err
+        accuracy = NeuralNetwork.accuracy(self.output_layer.output, target_value)
+        return err, accuracy
 
     @staticmethod
     def accuracy(output_net, target):
