@@ -44,21 +44,61 @@ encoded_datas = Monk_Dataset.load_encode_monk(filename)[1]'''
 
 # a= np.delete(a, np.s_[0:2], 1)
 
-#def grid_search(input_vector, target_value, epochs, threshold, loss_func):
-def grid_search():
-    eta = np.arange(0.01, 0.5, 0.05)
-    n_hidden_units = np.arange(2, 11, 2)
-    for e in eta:
-        for h in n_hidden_units:
-            a=1
-            '''
-               si richiama volta volta kfold_cv
-            '''
+def grid_search(input_vector, target_value, epochs, threshold, loss_func):
+#def grid_search():
+    '''n_hidden_units = np.arange(2, 11, 2)
+    etas = np.arange(0.01, 0.51, 0.04)
+    alfas = np.arange(0.5, 1.1, 0.2)
+    lambds = np.arange(0.01, 0.11, 0.03)'''
+    etas = [0.01, 0.05, 0.1, 0.3, 0.5]
+    alfas = [0.5, 0.7, 0.9]
+    lambds = [0.01, 0.04, 0.07, 0.1]
+    i = 1
+    for e in etas:
+        for a in alfas:
+            for l in lambds:
+                #neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
+                #trained_net = neural_net.train_network(input_vector, target_value, epochs, threshold, loss_func, eta=e, alfa=a, lambd=l)
+
+                acc = kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta=e, alfa=a, lambd=l)
+
+                print(i, ")  eta:", e, " - alfa:", a, " - lambda:", l, "** ACCURACY:", acc)
+
+                NeuralNetwork.saveModel(0, e, a, l, i, acc)
+                i=i+1
+    accuracies = []
+    for i in range(len(etas) * len(alfas) * len(lambds)):
+        res = str(i + 1)
+        file = "models/Model_" + res + "/accuracy.npz"
+        accfile = np.load(file)
+        acc = accfile['accuracy']
+        accuracies = np.append(accuracies,acc)
+    maxind = str(np.argmax(accuracies)+1)
+
+    path = "models/Model_" + maxind + "/eta.npz"
+    file = np.load(path)
+    eta = file['eta']
+
+    path = "models/Model_" + maxind + "/alfa.npz"
+    file = np.load(path)
+    alfa = file['alfa']
+
+    path = "models/Model_" + maxind + "/lambda.npz"
+    file = np.load(path)
+    lambd = file['lambd']
+
+    neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
+    train = neural_net.train_network(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, final=True)
+    weights = train[0]
+    error = train[1]
+    accuracy = neural_net.accuracy(neural_net.output_layer.output, target_value)
+
+    neural_net.saveModel(weights, eta, alfa, lambd, maxind, accuracy, final=True)
 
 
 def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd):
 
-    k = 8
+    k = 4
     slice = int(input_vector.shape[1] / k)
 
     begin = 0
@@ -77,8 +117,14 @@ def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa
             trained_net = neural_net.train_network(train, train_target_value, epochs, threshold, loss_func, eta, alfa, lambd)
             neural_net_test = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
 
+            weights = trained_net[0]
             output_wei = trained_net[0]['output']
             neural_net_test.output_layer.weights = output_wei
+
+            #print("PROVE")
+            #print("neural net", neural_net.output_layer.weights)
+            #print("trained_net[0]", trained_net[0]['output'])
+            #print("neural net TEST", neural_net_test.output_layer.weights)
 
             trained_net[0].pop("output")
 
@@ -89,12 +135,14 @@ def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa
                 neural_net_test.hidden_layers[l].weights = hidden_wei
                 l = l+1
 
-            #err_test = neural_net_test.test_network(test, test_target_value)
-            err_test = neural_net_test.accuracy(test, test_target_value)
+            err_test = neural_net_test.test_network(test, test_target_value)
+            #err_test = neural_net_test.accuracy(test, test_target_value)
             errors_test = np.append(errors_test, err_test)
-            print("ACCURACY", err_test)
+            print("ACCURACY_in cv", err_test)
             begin = i
 
     mean = errors_test.mean()
     print(errors_test.shape)
+    print(errors_test)
     print(mean)
+    return mean

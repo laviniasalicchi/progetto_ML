@@ -42,7 +42,9 @@ def __main__():
     monk_targets = monk_datas[0]
     monk_input = monk_datas[1]
     #neural_net.train_network(monk_input, monk_targets, 1000, 0.00001, 'mean_squared_err', eta=0.3, alfa=0.5, lambd=0.01)
-    kfold_cv(monk_input, monk_targets, 1000, 0.00001, 'mean_squared_err', eta=0.3, alfa=0.5, lambd=0.01)
+    #   kfold_cv(monk_input, monk_targets, 100, 0.00001, 'mean_squared_err', eta=0.3, alfa=0.9, lambd=0.1)
+
+    grid_search(monk_input, monk_targets, 500, 0.0, 'mean_squared_err')
 
 
 

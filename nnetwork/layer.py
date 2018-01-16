@@ -62,7 +62,7 @@ class Layer:
         return matrice come output_vector, ma una colonna in più di 1
     """
     def layer_output(self):
-        print(self.activation_function)
+        #print(self.activation_function)
         if self.activation_function is 'sigmoid':
             self.output = Layer.sigmoid(self.net)
         elif self.activation_function is 'tanh':
