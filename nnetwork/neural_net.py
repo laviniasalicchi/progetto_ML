@@ -15,6 +15,7 @@ from input_layer import InputLayer
 from hidden_layer import HiddenLayer
 from output_layer import OutputLayer
 import matplotlib.pyplot as plt
+import re
 
 
 class NeuralNetwork:
@@ -314,6 +315,36 @@ class NeuralNetwork:
         result = np.where(out_rounded == target, 1, 0)
         result = np.mean(result)
         return result
+
+
+    def test_existing_model(self, input, target, path):
+        dirs = os.listdir(path)
+        for dir in dirs:
+            print(dir)
+            dir_wei = path + dir + "/weights"
+            print(dir_wei)
+            wei_files = os.listdir(dir_wei)
+            i = 0
+            for file in wei_files:
+                print("FILES", file)
+                if file == 'output.npz':
+                    print("output ok")
+                    fileout = dir_wei + "/" + file
+                    npzfile = np.load(fileout)
+                    output_wei = npzfile['weights']
+                    self.output_layer.weights = output_wei
+                matchhidden = re.match(r'hidden([0-9]).npz', file)
+                if matchhidden:
+                    print("hidden ok")
+                    print(file)
+                    fileout = dir_wei + "/" + file
+                    npzfile = np.load(fileout)
+                    hidden_wei = npzfile['weights']
+                    self.hidden_layers[i].weights = hidden_wei
+                    i = i + 1
+            NeuralNetwork.forward_propagation(self, input)
+            acc = NeuralNetwork.accuracy(self.output_layer.output, target)
+            print("Accuracy su test set", acc)
 
     """
     MSE - sicuramente sbagliato
