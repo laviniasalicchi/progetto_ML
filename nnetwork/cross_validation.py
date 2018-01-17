@@ -25,9 +25,9 @@ from ML_CUP_dataset import ML_CUP_Dataset
             § per ogni parte D_k (e ogni controparte not_D_k):
                 # training su not_D_k
                 # test del modello risultante su D_k    // da salvare a parte
-            § fare una media dei risultati dei test dai K modelli 
-            
-            
+            § fare una media dei risultati dei test dai K modelli
+
+
          ### IPERPARAMETRI ###
             - range valori pesi al momento dell'inizializzazione
             - (se online/batch)
@@ -35,7 +35,7 @@ from ML_CUP_dataset import ML_CUP_Dataset
                 § momentum
             - (n epoch / stopping criteria)
             - lambda
-            - n unità   
+            - n unità
 '''
 
 '''filename = '../datasets/monks-1.train'
@@ -106,7 +106,8 @@ def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa
     begin = 0
     errors_test = []
     for i in np.arange(0, input_vector.shape[1]+1, slice):
-        if i!=0:
+        print ("aiuto", i)
+        if i != 0:
             print("CV n°",i)
             test = input_vector[:, begin:i]
             test_target_value = target_value[:, begin:i]

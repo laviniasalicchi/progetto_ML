@@ -6,6 +6,7 @@
 # © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
 import numpy as np
+import logging
 
 
 class Layer:
@@ -26,13 +27,14 @@ class Layer:
     // non manca il bias così? Non dovremmo usare la matrice che è output del layer precedente?
     """
     def create_weights(self, unit_previous_layer):
+        logger = logging.getLogger(__name__)
+
         self.weights = (np.random.rand(unit_previous_layer, self.n_units) * 1.4) - 0.7
-        print('DEBUG:weights.shape:',self.weights.shape)
+        logger.debug('Weights shape: %s', str(self.weights.shape))
+
         ones_row = (np.random.rand(1, self.weights.shape[1]) * 1.4) - 0.7
-
         #ones_row = np.zeros((1, self.weights.shape[1]))
-        print('DEBUG:ones.shape:', ones_row.shape)
-
+        logger.debug('Biases shape: %s', str(self.weights.shape))
         self.weights = np.concatenate((self.weights, ones_row), axis=0)
 
     """
@@ -70,9 +72,7 @@ class Layer:
         ones_row = np.ones((1, self.output.shape[1]))
         self.output = np.concatenate((self.output, ones_row), axis=0)
         return self.output
-        #self.output = np.ones((self.output_vector.shape[0], self.output_vector.shape[1] + 1))
-        #self.output[:, :-1] = self.output_vector
-        #return self.output
+
 
     """
     f_name: nome della funzione di attivazione da usare per i neuroni del
