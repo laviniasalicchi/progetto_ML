@@ -51,7 +51,7 @@ class MonkDataset:
     encoded_datas: righe=features, colonne=patterns
     '''
     @staticmethod
-    def load_encode_monk(filename):
+    def load_encode_monk(filename, test=False):
         fields = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'id']
         print(len(fields))
         raw_data = open(filename, 'r')
@@ -157,7 +157,14 @@ class MonkDataset:
 
         encoded_datas = encoded_datas.T
         target_x = target_x.T
+<<<<<<< HEAD
         np.savetxt(filename.replace('.train', '_encoded.train').replace('.test', '_encoded.test'), encoded_datas.astype(np.int64), delimiter=',', fmt='%2.1d')
+=======
+        if test:
+            np.savetxt(filename.replace('.test', '_encoded.test'), encoded_datas.astype(np.int64), delimiter=',', fmt='%2.1d')
+        else:
+            np.savetxt(filename.replace('.train', '_encoded.train'), encoded_datas.astype(np.int64), delimiter=',', fmt='%2.1d')
+>>>>>>> 3a5029ec2bf924d96e27f666c32c78bed4f914a3
 
         print('MONK IMPORTED: target shape is:' + str(target_x.shape))
         print('MONK IMPORTED: encoded data shape is:' + str(encoded_datas.shape))

@@ -361,18 +361,45 @@ class NeuralNetwork:
     """
     TODO decommentare.
     """
-    def saveModel(self, weights):
-        """now = (datetime.now().isoformat()).replace(":", "")
-        print(now)
-        folder = "models/Model_2_"+now+"/"
-        if not os.path.exists(folder):
-            os.makedirs(folder)
+    @staticmethod
+    def saveModel(weights, eta, alfa, lambd, i, accuracy, final=False):
+        now_m = datetime.now().isoformat()
+        now = (now_m.rpartition(':')[0]).replace(":", "")
+        #print(now)
+        #folder = "models/Model_"+now+"/"
+        i = str(i)
 
-        for k in weights:
-            path = folder+k
-            data = weights[k]
-            np.savez(path, weights = data)
-"""
+        if final:
+            folder = "models/finals/Model"+i+"/weights/"
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+            for k in weights:
+                path = folder + k
+                data = weights[k]
+                print(path)
+                np.savez(path, weights=data)
+            folder = "models/finals/Model" + i + "/"
+
+        else:
+            folder = "models/Model_"+i+"/"
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+
+        path = folder+"eta"
+        np.savez(path, eta = eta)
+
+        path = folder + "alfa"
+        np.savez(path, alfa = alfa)
+
+        path = folder + "lambda"
+        np.savez(path, lambd = lambd)
+
+        path = folder + "accuracy"
+        np.savez(path, accuracy = accuracy)
+
+
+
+
     def plotError(self, epochs_plot, errors):
         plt.plot(epochs_plot, errors, color="blue", label="training error")
         plt.xlabel("epochs")
