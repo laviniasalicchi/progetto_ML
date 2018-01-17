@@ -103,14 +103,14 @@ class NeuralNetwork:
         return forward_propagation(self, input_vector)
 
     def print_net_info(self):
-        #print("**************** NETWORK ****************")
-        #print("Input Layer: " + str(self.input_layer.n_units) + ' units')
+        print("**************** NETWORK ****************")
+        print("Input Layer: " + str(self.input_layer.n_units) + ' units')
         i = 1
         for h_layer in self.hidden_layers:
-            #print("HiddenLayer " + str(i + 1) + ": " + str(self.hidden_layers[0].n_units) + " units")
+            print("HiddenLayer " + str(i + 1) + ": " + str(self.hidden_layers[0].n_units) + " units")
             i = i + 1
-        #print("Output Layer: " + str(self.output_layer.n_units) + ' units')
-        #print("**************** NETWORK ***************")
+        print("Output Layer: " + str(self.output_layer.n_units) + ' units')
+        print("**************** NETWORK ***************")
 
 
 
@@ -128,7 +128,7 @@ class NeuralNetwork:
         net = self.input_layer.net_function(input_vector)
         input_layer_out = self.input_layer.layer_output()
         self.input_layer.output = input_layer_out   # // aggiunto il.output
-        ##print('debug\t:inout_layer_out', self.input_layer.output.shape)
+        #print('debug\t:inout_layer_out', self.input_layer.output.shape)
 
 
         if len(self.hidden_layers) <= 1:
@@ -166,7 +166,6 @@ class NeuralNetwork:
 
         # delt = deriv(E/out) * f'(net)
         err_deriv = err_func(target_value, self.output_layer.output, True)
-<<<<<<< HEAD
         logger.debug('Backprop: err_deriv.shape %s', str(err_deriv.shape))
 
         out_net = self.output_layer.net
@@ -175,45 +174,21 @@ class NeuralNetwork:
 
         f_prime = self.output_layer.activation_function_derivative(out_net)
         logger.debug("Backprop: f_prime shape %s", str(f_prime.shape))
-=======
-        #print("DEBUG:err_deriv shape", err_deriv.shape)
-
-        out_net = self.output_layer.net
-        #print("DEBUG:out_net shape", out_net.shape)
-
-        f_prime = self.output_layer.activation_function_derivative(out_net)
-        #print("DEBUG:f_prime shape", f_prime.shape)
->>>>>>> 7e488284d8fa07a215c81023a1a1a552dfcb717b
 
         delta_out = err_deriv * f_prime  # dovrebbe essere una matrice con colonne = numero di pattern // è pattern x n output units
         self.output_layer.deltas = delta_out
         prev_layer_delta = delta_out
         prev_layer_weights = self.output_layer.weights  # prev layer weights sono i pesi del layer precedente (quindi quello a destra quando si fa la backprop)
-<<<<<<< HEAD
         logger.debug("Backprop: delta_out.shape %s", str(delta_out.shape))
 
         for layer in reversed(self.hidden_layers):
             layer_net = layer.net
             logger.debug("Backprop: layer_net.shape %s", str(layer_net.shape))
-=======
-        #print("DEBUG:deltaout shape", delta_out.shape)
-
-        for layer in reversed(self.hidden_layers):
-            layer_net = layer.net
-            #print("DEBUG:layer_net shape", layer_net.shape)
-
->>>>>>> 7e488284d8fa07a215c81023a1a1a552dfcb717b
 
             f_prime = layer.activation_function_derivative(layer_net)
 
-<<<<<<< HEAD
             prev_layer_weights = np.delete(prev_layer_weights, -1, 0) # tolta la riga dei pesi del bias
             transpose_weights = np.transpose(prev_layer_weights)    # // trasposta fatta a parte senza motivo
-=======
-            #print("DEBUG:layer_weights shape", prev_layer_weights.shape)
-            #print("DEBUG:prev_layer_delta shape", prev_layer_delta.shape)
-            #print("DEBUG:fprime shape", f_prime.shape)
->>>>>>> 7e488284d8fa07a215c81023a1a1a552dfcb717b
 
             logger.debug("Backprop: prev_layer_weights.shape %s", str(prev_layer_weights.shape))
             logger.debug("Backprop: prev_layer_delta.shape %s", str(prev_layer_weights.shape))
@@ -223,22 +198,13 @@ class NeuralNetwork:
 
             layer.deltas = delta
 
-<<<<<<< HEAD
             logger.debug("Backprop: layer_deltas.shape %s", str(layer.deltas.shape))
-=======
-            #print("DEBUG:layer_delta shape", layer.deltas.shape)
-
->>>>>>> 7e488284d8fa07a215c81023a1a1a552dfcb717b
 
             prev_layer_delta = delta
             prev_layer_weights = layer.weights
 
         # update weights
-<<<<<<< HEAD
         logger.debug("Backprop: layer.weights.shape %s", str(layer.weights.shape))
-=======
-        #print('debug:layerweights', layer.weights.shape)
->>>>>>> 7e488284d8fa07a215c81023a1a1a552dfcb717b
         ones_row = np.ones((1, layer.deltas.shape[1]))
 
         # update weights
@@ -257,19 +223,15 @@ class NeuralNetwork:
             reg_term = (lambd * layer.weights)
 
             layer.weights = layer.weights - (eta * dW) + momentum - reg_term # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
-            ##print("DW pre", layer.last_dW)
+            #print("DW pre", layer.last_dW)
             layer.last_dW = - (eta * dW) + momentum
-            ##print("DW post", layer.last_dW)
+            #print("DW post", layer.last_dW)
             last_layer_out = layer.output
 
         return err_func(target_value, self.output_layer.output)
 
-<<<<<<< HEAD
     def train_network(self, input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd): # // aggiunti i target_values
         logger = logging.getLogger(__name__)
-=======
-    def train_network(self, input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, final=False): # // aggiunti i target_values
->>>>>>> 7e488284d8fa07a215c81023a1a1a552dfcb717b
         loss = NeuralNetwork.mean_euclidean_err
         if loss_func == 'mean_euclidean':
             loss = NeuralNetwork.mean_euclidean_err
@@ -283,10 +245,7 @@ class NeuralNetwork:
         weights_BT = {}     # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
         for epoch in range(epochs):
-<<<<<<< HEAD
             logger.info("Epoch %s", str(epoch))
-=======
->>>>>>> 7e488284d8fa07a215c81023a1a1a552dfcb717b
             #print("EPOCH", epoch)
             forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
             acc = NeuralNetwork.accuracy(self.output_layer.output, target_value)
@@ -321,7 +280,7 @@ class NeuralNetwork:
 
             # // se l'errore scende sotto la soglia, si salva il modello che lo produce
             if err < threshold:
-                #print('lavinia puzzecchia! trallallero taralli e vino')
+                print('lavinia puzzecchia! trallallero taralli e vino')
                 #   NeuralNetwork.saveModel(self, weights)
                 break
             # // se l'errore del modello di turno supera il precedente, si sovrascrive a weights il modello precedente
@@ -341,40 +300,22 @@ class NeuralNetwork:
             la precedente serie di if è però riutilizzabile quando guardiamo l'errore sul test set
             '''
 
-        #   DECOM   NeuralNetwork.saveModel(self, weights)
+        NeuralNetwork.saveModel(self, weights)
         #NeuralNetwork.saveModel(self, weights)
         # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
-<<<<<<< HEAD
         NeuralNetwork.plotError(self, epochs_plot, errors)
         NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
         print("Accuracy;", accuracy[len(accuracy)-1])
 
-=======
-        if final:
-            NeuralNetwork.plotError(self, epochs_plot, errors)
-            NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
-        #print("ACCURACY", accuracy[len(accuracy)-1])
->>>>>>> 7e488284d8fa07a215c81023a1a1a552dfcb717b
 
         return weights, err
 
-    def test_network(self, x, target_value, reg=False):
-        if reg:
+    def test_network(self, x, target_value):
         # solo forward + calcolo dell'errore
-<<<<<<< HEAD
         NeuralNetwork.forward_propagation(self, x)
         err = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
         accuracy = NeuralNetwork.accuracy(self.output_layer.output, target_value)
         return err, accuracy
-=======
-            NeuralNetwork.forward_propagation(self, x)
-            err = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
-            return err
-        else:
-            NeuralNetwork.forward_propagation(self, x)
-            acc = NeuralNetwork.accuracy(self.output_layer.output, target_value)
-            return acc
->>>>>>> 7e488284d8fa07a215c81023a1a1a552dfcb717b
 
     @staticmethod
     def accuracy(output_net, target):
@@ -382,6 +323,9 @@ class NeuralNetwork:
         result = np.where(out_rounded == target, 1, 0)
         result = np.mean(result)
         return result
+
+
+
 
     """
     MSE - sicuramente sbagliato
@@ -417,41 +361,18 @@ class NeuralNetwork:
     """
     TODO decommentare.
     """
-    @staticmethod
-    def saveModel(weights, eta, alfa, lambd, i, accuracy, final=False):
-        now_m = datetime.now().isoformat()
-        now = (now_m.rpartition(':')[0]).replace(":", "")
-        #print(now)
-        #folder = "models/Model_"+now+"/"
-        i = str(i)
+    def saveModel(self, weights):
+        """now = (datetime.now().isoformat()).replace(":", "")
+        print(now)
+        folder = "models/Model_2_"+now+"/"
+        if not os.path.exists(folder):
+            os.makedirs(folder)
 
-        if final:
-            folder = "models/finals/Model"+i+"/"
-            if not os.path.exists(folder):
-                os.makedirs(folder)
-            for k in weights:
-                path = folder + k
-                data = weights[k]
-                np.savez(path, weights=data)
-
-        else:
-            folder = "models/Model_"+i+"/"
-            if not os.path.exists(folder):
-                os.makedirs(folder)
-
-        path = folder+"eta"
-        np.savez(path, eta = eta)
-
-        path = folder + "alfa"
-        np.savez(path, alfa = alfa)
-
-        path = folder + "lambda"
-        np.savez(path, lambd = lambd)
-
-        path = folder + "accuracy"
-        np.savez(path, accuracy = accuracy)
-
-
+        for k in weights:
+            path = folder+k
+            data = weights[k]
+            np.savez(path, weights = data)
+"""
     def plotError(self, epochs_plot, errors):
         plt.plot(epochs_plot, errors, color="blue", label="training error")
         plt.xlabel("epochs")
