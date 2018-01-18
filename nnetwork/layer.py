@@ -19,6 +19,7 @@ class Layer:
         self.n_units = n_units
         self.deltas = []  # vettore di delta associato con il layer
         self.last_dW = 0
+        self.sigmoid_slope = 1
 
 
     """
@@ -64,7 +65,7 @@ class Layer:
     def layer_output(self):
         #print(self.activation_function)
         if self.activation_function is 'sigmoid':
-            self.output = Layer.sigmoid(self.net)
+            self.output = Layer.sigmoid(self.net, self.sigmoid_slope)
         elif self.activation_function is 'tanh':
             self.output = Layer.tanh(self.net)
         # aggiungiamo il bias
@@ -77,6 +78,7 @@ class Layer:
     """
     f_name: nome della funzione di attivazione da usare per i neuroni del
     layer
+    slope: parametro "a" della sigmoide, default = 1
     """
     def set_activation_function(self, f_name):
         if f_name is 'sigmoid':
@@ -87,16 +89,13 @@ class Layer:
             self.activation_function = 'sigmoid'
             print('WARNING:\tf_name not recognized. Using sigmoid as activation function')
 
-    ''' //
-        WARNING: la parte della sigmoid non ha subito modifiche
-        usando la tanh ho visto che fare operazioni con self.activation_function senza argomento dava errore:
-            unsupported operand type(s) for -: 'int' and 'function'
-        vectorize pare non essere indispensabile
-    '''
 
-    def activation_function_derivative(self, x):
+    """
+    a è la slope della sigmoide
+    """
+    def activation_function_derivative(self, x, a):
         if self.activation_function == 'sigmoid':
-            deriv = (1 / (1 + np.exp(-x))) * (1 - (1 / (1 + np.exp(-x))))
+            deriv = (1 / (1 + np.exp(- a * x))) * (1 - (1 / (1 + np.exp(- a * x))))
             return deriv
         if self.activation_function == 'tanh':
             #deriv = 1 - self.activation_function**2
@@ -104,13 +103,26 @@ class Layer:
             #return vectorized(x)
             return 1 - (np.tanh(x))**2
 
+    def activation_function_derivative(self, x):
+        if self.activation_function == 'sigmoid':
+            deriv = (1 / (1 + np.exp(- self.sigmoid_slope * x))) * (1 - (1 / (1 + np.exp(- self.sigmoid_slope * x))))
+            return deriv
+        if self.activation_function == 'tanh':
+            #deriv = 1 - self.activation_function**2
+            #vectorized = np.vectorize(deriv)
+            #return vectorized(x)
+            return 1 - (np.tanh(x))**2
+
+    def set_sigmoid_slope(self, slope):
+        self.sigmoid_slope = slope
+
 
     """
     Sigmoid function
     """
     @staticmethod
-    def sigmoid(x):
-        return 1 / (1 + np.exp(-x))
+    def sigmoid(x, slope):
+        return 1 / (1 + np.exp(- slope * x))
 
     """
     Tanh function

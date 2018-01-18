@@ -8,6 +8,7 @@ from output_layer import OutputLayer
 from neural_net import NeuralNetwork
 from monk_dataset import *
 from ML_CUP_dataset import ML_CUP_Dataset
+import cross_validation
 
 
 def __main__():
@@ -34,12 +35,14 @@ def __main__():
     neural_net.add_hidden_layer(hidden_layer)
     neural_net.add_output_layer(output_layer)'''
 
-    neural_net = NeuralNetwork.create_network(3, 17, 2, 1, 'sigmoid')
+    neural_net = NeuralNetwork.create_network(3, 17, 2, 1, 'sigmoid', slope=1)
 
     monk_datas = MonkDataset.load_encode_monk('/Users/mick/Dati/Università/Pisa/Machine_learning/Prj_info/Progetto_ml/monks-1.train')
     monk_targets = monk_datas[0]
     monk_input = monk_datas[1]
     neural_net.train_network(monk_input, monk_targets, 500, 0.00, 'mean_squared_err', eta=0.3, alfa=0.5, lambd=0.01)
+
+    cross_validation.kfold_cv(monk_input, monk_targets, 500, 0.0, 'mean_squared_err', eta=0.3, alfa=0.5, lambd=0.01)
 
 
 

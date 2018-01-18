@@ -37,7 +37,7 @@ def __main__():
     neural_net.add_hidden_layer(hidden_layer)
     neural_net.add_output_layer(output_layer)'''
 
-    neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
+    neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
 
 
     monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
@@ -52,7 +52,7 @@ def __main__():
     monk_targets = monk_datas[0]
     monk_input = monk_datas[1]
 
-    neural_net_test = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
+    neural_net_test = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
     path = "models/finals/"
 
     neural_net_test.test_existing_model(monk_input, monk_targets, path)
@@ -64,4 +64,3 @@ def __main__():
 
 
 __main__()
-

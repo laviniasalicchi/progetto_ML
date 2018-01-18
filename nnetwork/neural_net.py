@@ -16,7 +16,7 @@ from hidden_layer import HiddenLayer
 from output_layer import OutputLayer
 
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('TkAgg') # mac osx need this backend
 
 import matplotlib.pyplot as plt
 import re
@@ -77,14 +77,18 @@ class NeuralNetwork:
     units_out = unità di output
     units_in = unità input
     activ_func = funzione di attivazione dei layers
+    slope = sigmoid slope
     """
     @staticmethod
-    def create_network(total_layers, units_in, units_hidden, units_out, activ_func):
+    def create_network(total_layers, units_in, units_hidden, units_out, activ_func, slope=1):
         neural_network = NeuralNetwork()
         hidden_num = total_layers - 2
         input_layer = InputLayer(units_in)
         input_layer.create_weights(units_in)
         input_layer.set_activation_function(activ_func)
+
+        input_layer.set_sigmoid_slope(slope)
+
         neural_network.add_input_layer(input_layer)
         hidden_l = HiddenLayer(units_hidden)
         hidden_l.create_weights(units_in)
@@ -95,13 +99,17 @@ class NeuralNetwork:
             hidden_l = HiddenLayer(units_hidden)
             hidden_l.create_weights(units_hidden)
             hidden_l.set_activation_function(activ_func)
+            hidden_l.set_sigmoid_slope(slope)
+
+
             neural_network.add_hidden_layer(hidden_l)
 
         output_layer = OutputLayer(units_out)
         output_layer.create_weights(units_hidden)
         output_layer.set_activation_function(activ_func)
+        output_layer.set_sigmoid_slope(slope)
         neural_network.add_output_layer(output_layer)
-        neural_network.print_net_info()
+        #neural_network.print_net_info()
         return neural_network
 
     def predict(self, input_vector):
@@ -116,10 +124,6 @@ class NeuralNetwork:
             i = i + 1
         print("Output Layer: " + str(self.output_layer.n_units) + ' units')
         print("**************** NETWORK ***************")
-
-
-
-
 
 
 
@@ -235,7 +239,7 @@ class NeuralNetwork:
 
         return err_func(target_value, self.output_layer.output)
 
-    def train_network(self, input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd): # // aggiunti i target_values
+    def train_network(self, input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, final=False): # // aggiunti i target_values
         logger = logging.getLogger(__name__)
         loss = NeuralNetwork.mean_euclidean_err
         if loss_func == 'mean_euclidean':
@@ -251,16 +255,11 @@ class NeuralNetwork:
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
         for epoch in range(epochs):
             logger.info("Epoch %s", str(epoch))
-            #print("EPOCH", epoch)
             forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
             acc = NeuralNetwork.accuracy(self.output_layer.output, target_value)
 
-
             err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, alfa, lambd)
             accuracy.append(acc)
-
-
-            #print(err)
             errors.append(err)
             epochs_plot.append(epoch)
 
@@ -308,24 +307,23 @@ class NeuralNetwork:
             la precedente serie di if è però riutilizzabile quando guardiamo l'errore sul test set
             '''
 
-        #NeuralNetwork.saveModel(self, weights)
-        #NeuralNetwork.saveModel(self, weights)
+
         logger.info("Saving %s", str(epoch))
 
-        # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
-        #NeuralNetwork.plotError(self, epochs_plot, errors)
-        #NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
         print("Accuracy;", accuracy[len(accuracy)-1])
-
-
         return weights, err
 
+    """
+    tests the network
+    return values: accuracy = network accuracy
+                   error    = network error
+    """
     def test_network(self, x, target_value):
         # solo forward + calcolo dell'errore
         NeuralNetwork.forward_propagation(self, x)
-        err = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
+        error = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
         accuracy = NeuralNetwork.accuracy(self.output_layer.output, target_value)
-        return err, accuracy
+        return error, accuracy
 
     @staticmethod
     def accuracy(output_net, target):
@@ -366,8 +364,6 @@ class NeuralNetwork:
             print("Accuracy su test set", acc)
 
 
-
-
     """
     MSE - sicuramente sbagliato
         per regolarizzazione: aggiungere +lambda*(weights)**2
@@ -404,7 +400,7 @@ class NeuralNetwork:
     """
     @staticmethod
     def saveModel(weights, eta, alfa, lambd, i, accuracy, final=False):
-        """now_m = datetime.now().isoformat()
+        now_m = datetime.now().isoformat()
         now = (now_m.rpartition(':')[0]).replace(":", "")
         #print(now)
         #folder = "models/Model_"+now+"/"
@@ -437,7 +433,7 @@ class NeuralNetwork:
 
         path = folder + "accuracy"
         np.savez(path, accuracy = accuracy)
-        """
+
 
 
 

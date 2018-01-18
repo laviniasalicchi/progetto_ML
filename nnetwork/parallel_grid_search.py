@@ -24,7 +24,9 @@ def __main__():
     monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
     monk_targets = monk_datas[0]
     monk_input = monk_datas[1]
-    start_grid_search(monk_input, monk_targets, 500, 0.0, 'mean_squared_err')
+
+    #start_grid_search(monk_input, monk_targets, 500, 0.0, 'mean_squared_err')
+    kfold_cv_mick(monk_input, monk_targets, 10000, 0.0, 'mean_squared_err', 0, 0, 0)
 
 
 def start_grid_search(input_vect, target_vect, epochs, threshold, loss_func):
@@ -42,7 +44,6 @@ def start_grid_search(input_vect, target_vect, epochs, threshold, loss_func):
                 res = executor.submit(kfold_task, input_vect, target_vect, epochs, threshold, loss_func, eta=e, alfa=a, lambd=l)
                 acc_list.append(res.result())
 
-                #NeuralNetwork.saveModel(0, e, a, l, i, acc)
     executor.shutdown(wait=True)
     print(acc_list)
 

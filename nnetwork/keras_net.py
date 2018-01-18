@@ -35,7 +35,7 @@ output_k_bias = output_layer.get_weights()[1].reshape(1,len(output_layer.get_wei
 hidden_k_wei = np.concatenate((hidden_layer.get_weights()[0], hidden_k_bias))
 output_k_wei = np.concatenate((output_layer.get_weights()[0], output_k_bias))
 
-neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
+neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
 neural_net.hidden_layers[0].weights = hidden_k_wei
 neural_net.output_layer.weights = output_k_wei
 
