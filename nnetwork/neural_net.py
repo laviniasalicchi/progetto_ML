@@ -19,13 +19,10 @@ import matplotlib
 matplotlib.use('TkAgg')
 
 import matplotlib.pyplot as plt
-<<<<<<< HEAD
 import re
-=======
+
 import logging
 import sys
-
->>>>>>> 443d89a0e7302ca823d8eda0512b26f30148a8d3
 
 
 class NeuralNetwork:
@@ -316,8 +313,8 @@ class NeuralNetwork:
         logger.info("Saving %s", str(epoch))
 
         # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
-        NeuralNetwork.plotError(self, epochs_plot, errors)
-        NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
+        #NeuralNetwork.plotError(self, epochs_plot, errors)
+        #NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
         print("Accuracy;", accuracy[len(accuracy)-1])
 
 
@@ -338,7 +335,7 @@ class NeuralNetwork:
         return result
 
 
-<<<<<<< HEAD
+
     def test_existing_model(self, input, target, path):
         dirs = os.listdir(path)
         for dir in dirs:
@@ -367,9 +364,9 @@ class NeuralNetwork:
             NeuralNetwork.forward_propagation(self, input)
             acc = NeuralNetwork.accuracy(self.output_layer.output, target)
             print("Accuracy su test set", acc)
-=======
 
->>>>>>> 443d89a0e7302ca823d8eda0512b26f30148a8d3
+
+
 
     """
     MSE - sicuramente sbagliato
