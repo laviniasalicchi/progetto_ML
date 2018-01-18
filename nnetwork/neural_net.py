@@ -14,6 +14,10 @@ from layer import Layer
 from input_layer import InputLayer
 from hidden_layer import HiddenLayer
 from output_layer import OutputLayer
+
+import matplotlib
+matplotlib.use('TkAgg')
+
 import matplotlib.pyplot as plt
 import logging
 import sys
@@ -260,10 +264,13 @@ class NeuralNetwork:
             epochs_plot.append(epoch)
 
 
+            """
+            test per barra di progresso
+
             sys.stdout.write('\r')
             j = (epoch + 1 / epochs)
             sys.stdout.write("[%-20s] %d%%" % ('='*int(j), 100*j))
-            sys.stdout.flush()
+            sys.stdout.flush()"""
 
 
             # // creazione dizionario {nomelayer : pesi}
@@ -300,8 +307,10 @@ class NeuralNetwork:
             la precedente serie di if è però riutilizzabile quando guardiamo l'errore sul test set
             '''
 
-        NeuralNetwork.saveModel(self, weights)
         #NeuralNetwork.saveModel(self, weights)
+        #NeuralNetwork.saveModel(self, weights)
+        logger.info("Saving %s", str(epoch))
+
         # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
         NeuralNetwork.plotError(self, epochs_plot, errors)
         NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
@@ -363,7 +372,7 @@ class NeuralNetwork:
     """
     @staticmethod
     def saveModel(weights, eta, alfa, lambd, i, accuracy, final=False):
-        now_m = datetime.now().isoformat()
+        """now_m = datetime.now().isoformat()
         now = (now_m.rpartition(':')[0]).replace(":", "")
         #print(now)
         #folder = "models/Model_"+now+"/"
@@ -396,6 +405,7 @@ class NeuralNetwork:
 
         path = folder + "accuracy"
         np.savez(path, accuracy = accuracy)
+        """
 
 
 
