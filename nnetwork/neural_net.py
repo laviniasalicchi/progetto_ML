@@ -19,9 +19,13 @@ import matplotlib
 matplotlib.use('TkAgg')
 
 import matplotlib.pyplot as plt
+<<<<<<< HEAD
+import re
+=======
 import logging
 import sys
 
+>>>>>>> 443d89a0e7302ca823d8eda0512b26f30148a8d3
 
 
 class NeuralNetwork:
@@ -334,7 +338,38 @@ class NeuralNetwork:
         return result
 
 
+<<<<<<< HEAD
+    def test_existing_model(self, input, target, path):
+        dirs = os.listdir(path)
+        for dir in dirs:
+            print(dir)
+            dir_wei = path + dir + "/weights"
+            print(dir_wei)
+            wei_files = os.listdir(dir_wei)
+            i = 0
+            for file in wei_files:
+                print("FILES", file)
+                if file == 'output.npz':
+                    print("output ok")
+                    fileout = dir_wei + "/" + file
+                    npzfile = np.load(fileout)
+                    output_wei = npzfile['weights']
+                    self.output_layer.weights = output_wei
+                matchhidden = re.match(r'hidden([0-9]).npz', file)
+                if matchhidden:
+                    print("hidden ok")
+                    print(file)
+                    fileout = dir_wei + "/" + file
+                    npzfile = np.load(fileout)
+                    hidden_wei = npzfile['weights']
+                    self.hidden_layers[i].weights = hidden_wei
+                    i = i + 1
+            NeuralNetwork.forward_propagation(self, input)
+            acc = NeuralNetwork.accuracy(self.output_layer.output, target)
+            print("Accuracy su test set", acc)
+=======
 
+>>>>>>> 443d89a0e7302ca823d8eda0512b26f30148a8d3
 
     """
     MSE - sicuramente sbagliato

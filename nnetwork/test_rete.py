@@ -54,32 +54,8 @@ def __main__():
 
     neural_net_test = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
     path = "models/finals/"
-    dirs = os.listdir(path)
-    for dir in dirs:
-        print(dir)
-        dir_wei = path+dir+"/weights"
-        print(dir_wei)
-        wei_files = os.listdir(dir_wei)
-        i=0
-        for file in wei_files:
-            print("FILES", file)
-            if file == 'output.npz':
-                print("output ok")
-                fileout = dir_wei+"/"+file
-                npzfile = np.load(fileout)
-                output_wei = npzfile['weights']
-                neural_net_test.output_layer.weights = output_wei
-            matchhidden = re.match(r'hidden([0-9]).npz', file)
-            if matchhidden:
-                print("hidden ok")
-                print(file)
-                fileout = dir_wei + "/" + file
-                npzfile = np.load(fileout)
-                hidden_wei = npzfile['weights']
-                neural_net_test.hidden_layers[i].weights = hidden_wei
-                i=i+1
-        acc = neural_net_test.test_network(monk_input, monk_targets)
-        print("Accuracy su test set", acc)
+
+    neural_net_test.test_existing_model(monk_input, monk_targets, path)
 
 
 
