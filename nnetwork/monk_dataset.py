@@ -157,7 +157,7 @@ class MonkDataset:
 
         encoded_datas = encoded_datas.T
         target_x = target_x.T
-
+        np.savetxt(filename.replace('.train', '_encoded.train').replace('.test', '_encoded.test'), encoded_datas.astype(np.int64), delimiter=',', fmt='%2.1d')
         if test:
             np.savetxt(filename.replace('.test', '_encoded.test'), encoded_datas.astype(np.int64), delimiter=',', fmt='%2.1d')
         else:

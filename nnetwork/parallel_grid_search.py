@@ -25,8 +25,8 @@ def __main__():
     monk_targets = monk_datas[0]
     monk_input = monk_datas[1]
 
-    #start_grid_search(monk_input, monk_targets, 500, 0.0, 'mean_squared_err')
-    kfold_cv_mick(monk_input, monk_targets, 10000, 0.0, 'mean_squared_err', 0, 0, 0)
+    start_grid_search(monk_input, monk_targets, 6000, 0.0, 'mean_squared_err')
+    #kfold_cv_mick(monk_input, monk_targets, 10000, 0.0, 'mean_squared_err', 0, 0, 0)
 
 
 def start_grid_search(input_vect, target_vect, epochs, threshold, loss_func):
@@ -52,7 +52,6 @@ def start_grid_search(input_vect, target_vect, epochs, threshold, loss_func):
 def kfold_task(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd):
     acc = kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd)
     return acc
-
 
 
 __main__()

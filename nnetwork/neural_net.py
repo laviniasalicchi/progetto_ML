@@ -20,10 +20,8 @@ matplotlib.use('TkAgg') # mac osx need this backend
 
 import matplotlib.pyplot as plt
 import re
-
 import logging
 import sys
-
 
 class NeuralNetwork:
 
@@ -264,13 +262,10 @@ class NeuralNetwork:
             epochs_plot.append(epoch)
 
 
-            """
-            test per barra di progresso
-
             sys.stdout.write('\r')
             j = (epoch + 1 / epochs)
             sys.stdout.write("[%-20s] %d%%" % ('='*int(j), 100*j))
-            sys.stdout.flush()"""
+            sys.stdout.flush()
 
 
             # // creazione dizionario {nomelayer : pesi}
@@ -307,9 +302,12 @@ class NeuralNetwork:
             la precedente serie di if è però riutilizzabile quando guardiamo l'errore sul test set
             '''
 
-
-        logger.info("Saving %s", str(epoch))
-
+        #NeuralNetwork.saveModel(self, weights)
+        #NeuralNetwork.saveModel(self, weights)
+        # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
+        if final:
+            NeuralNetwork.plotError(self, epochs_plot, errors)
+            NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
         print("Accuracy;", accuracy[len(accuracy)-1])
         return weights, err
 
@@ -334,7 +332,8 @@ class NeuralNetwork:
 
 
 
-    def test_existing_model(self, input, target, path):
+    def test_existing_model(self, input, target):
+        path = "models/finals/"
         dirs = os.listdir(path)
         for dir in dirs:
             print(dir)
