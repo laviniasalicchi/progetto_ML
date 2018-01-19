@@ -160,7 +160,7 @@ le prime r fold avranno taglia (N/k) + 1
 le restanti N/k
 """
 def kfold_cv_mick(input_vect, target_vect, epochs, threshold, loss_func, eta, alfa, lambd):
-    k = 8
+    k = 124
     input_size = input_vect.shape[1]
     resto = input_size % k
     fold_size = int(input_size / k)
@@ -201,3 +201,4 @@ def kfold_cv_mick(input_vect, target_vect, epochs, threshold, loss_func, eta, al
     print(acc_mean)
     print(err_list)
     print(err_mean)
+    return acc_mean
