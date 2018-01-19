@@ -116,36 +116,20 @@ def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa
             neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
 
             trained_net = neural_net.train_network(train, train_target_value, epochs, threshold, loss_func, eta, alfa, lambd)
-            neural_net_test = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
 
-            weights = trained_net[0]
-            output_wei = trained_net[0]['output']
-            neural_net_test.output_layer.weights = output_wei
 
-            #print("PROVE")
-            #print("neural net", neural_net.output_layer.weights)
-            #print("trained_net[0]", trained_net[0]['output'])
-            #print("neural net TEST", neural_net_test.output_layer.weights)
+            testing = neural_net.test_network(test, test_target_value)
 
-            trained_net[0].pop("output")
+            err = testing[0]
+            acc = testing[1]
 
-            l = 0
-            for h in trained_net[0]:
-                key = str(h)
-                hidden_wei = trained_net[0][key]
-                neural_net_test.hidden_layers[l].weights = hidden_wei
-                l = l+1
+            errors_test = np.append(errors_test, err)
+            accuracies = np.append(accuracies, acc)
 
-            err_test = neural_net_test.test_network(test, test_target_value)
-            #err_test = neural_net_test.accuracy(test, test_target_value)
-            print(err_test)
-            errors_test = np.append(errors_test, err_test)
-            print("ACCURACY_in cv", err_test)
             begin = i
 
-    mean = errors_test.mean()
-    print(errors_test.shape)
-    print(errors_test)
+    mean = accuracies.mean()
+    print(accuracies)
     print(mean)
     return mean
 
