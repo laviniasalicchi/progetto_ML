@@ -44,21 +44,20 @@ def __main__():
     monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
     monk_targets = monk_datas[0]
     monk_input = monk_datas[1]
-    #neural_net.train_network(monk_input, monk_targets, 1000, 0.00001, 'mean_squared_err', eta=0.3, alfa=0.5, lambd=0.01)
+    #   neural_net.train_network(monk_input, monk_targets, 300, 0.00001, 'mean_squared_err', eta=0.3, alfa=0.7, lambd=0.01, final=True)
+
     #kfold_cv(monk_input, monk_targets, 100, 0.00001, 'mean_squared_err', eta=0.3, alfa=0.9, lambd=0.1)
 
     monk_datas_ts = MonkDataset.load_encode_monk('../datasets/monks-1.test', test=True)
     monk_targets_ts = monk_datas[0]
     monk_input_ts = monk_datas[1]
+    neural_net.test_existing_model(monk_input_ts,monk_targets_ts)
 
     #   hold_out(monk_input, monk_targets, monk_input_ts, monk_targets_ts, 1000, 0.00001, 'mean_squared_err')
 
 
-    grid_search(monk_input, monk_targets, 500, 0.0, 'mean_squared_err')
+    #   grid_search(monk_input, monk_targets, 500, 0.0, 'mean_squared_err')
 
-    monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.test', test=True)
-    monk_targets = monk_datas[0]
-    monk_input = monk_datas[1]
 
     '''neural_net_test = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
     path = "models/finals/"

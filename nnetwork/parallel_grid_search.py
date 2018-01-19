@@ -44,7 +44,7 @@ def start_grid_search(input_vect, target_vect, epochs, threshold, loss_func):
 
                 #NeuralNetwork.saveModel(0, e, a, l, i, acc)
     executor.shutdown(wait=True)
-    print(acc_list)
+    print("lista accuracies", acc_list)
 
 
 

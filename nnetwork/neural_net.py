@@ -14,8 +14,15 @@ from layer import Layer
 from input_layer import InputLayer
 from hidden_layer import HiddenLayer
 from output_layer import OutputLayer
+
+import matplotlib
+matplotlib.use('TkAgg')
+
 import matplotlib.pyplot as plt
 import re
+import logging
+import sys
+
 import logging
 import sys
 
@@ -259,10 +266,13 @@ class NeuralNetwork:
             epochs_plot.append(epoch)
 
 
+            """
+            test per barra di progresso
+
             sys.stdout.write('\r')
             j = (epoch + 1 / epochs)
             sys.stdout.write("[%-20s] %d%%" % ('='*int(j), 100*j))
-            sys.stdout.flush()
+            sys.stdout.flush()"""
 
 
             # // creazione dizionario {nomelayer : pesi}
@@ -299,13 +309,20 @@ class NeuralNetwork:
             la precedente serie di if è però riutilizzabile quando guardiamo l'errore sul test set
             '''
 
+
         #NeuralNetwork.saveModel(self, weights)
         #NeuralNetwork.saveModel(self, weights)
+        #NeuralNetwork.saveModel(self, weights)
+        logger.info("Saving %s", str(epoch))
+
         # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
         if final:
             NeuralNetwork.plotError(self, epochs_plot, errors)
             NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
-        print("Accuracy;", accuracy[len(accuracy)-1])
+            NeuralNetwork.saveModel(weights, eta ,alfa ,lambd ,0, accuracy, final=True)
+        #NeuralNetwork.plotError(self, epochs_plot, errors)
+        #NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
+        print("Accuracy TR;", accuracy[len(accuracy)-1])
 
 
         return weights, err
@@ -326,8 +343,10 @@ class NeuralNetwork:
 
 
 
+
     def test_existing_model(self, input, target):
         path = "models/finals/"
+    #def test_existing_model(self, input, target, path):
         dirs = os.listdir(path)
         for dir in dirs:
             print(dir)
@@ -355,7 +374,6 @@ class NeuralNetwork:
             NeuralNetwork.forward_propagation(self, input)
             acc = NeuralNetwork.accuracy(self.output_layer.output, target)
             print("Accuracy su test set", acc)
-
 
     """
     MSE - sicuramente sbagliato
@@ -426,6 +444,7 @@ class NeuralNetwork:
 
         path = folder + "accuracy"
         np.savez(path, accuracy = accuracy)
+
 
 
 
