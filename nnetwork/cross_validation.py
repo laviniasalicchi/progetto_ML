@@ -26,8 +26,8 @@ from ML_CUP_dataset import ML_CUP_Dataset
                 # training su not_D_k
                 # test del modello risultante su D_k    // da salvare a parte
             § fare una media dei risultati dei test dai K modelli
-
-
+            
+         
          ### IPERPARAMETRI ###
             - range valori pesi al momento dell'inizializzazione
             - (se online/batch)
@@ -45,7 +45,6 @@ encoded_datas = Monk_Dataset.load_encode_monk(filename)[1]'''
 # a= np.delete(a, np.s_[0:2], 1)
 
 def grid_search(input_vector, target_value, epochs, threshold, loss_func):
-#def grid_search():
     '''n_hidden_units = np.arange(2, 11, 2)
     etas = np.arange(0.01, 0.51, 0.04)
     alfas = np.arange(0.5, 1.1, 0.2)
@@ -88,8 +87,8 @@ def grid_search(input_vector, target_value, epochs, threshold, loss_func):
     file = np.load(path)
     lambd = file['lambd']
 
-    neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
-    train = neural_net.train_network(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, final=True)
+    neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
+    train = neural_net.train_network(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd) #, final=True)
     weights = train[0]
     error = train[1]
     accuracy = neural_net.accuracy(neural_net.output_layer.output, target_value)
@@ -100,12 +99,11 @@ def grid_search(input_vector, target_value, epochs, threshold, loss_func):
 
 def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd):
 
-    k = 10
-    slice = int(np.rint(input_vector.shape[1] / k))
+    k = 4
+    slice = int(input_vector.shape[1] / k)
 
     begin = 0
     errors_test = []
-    accuracies = []
     for i in np.arange(0, input_vector.shape[1]+1, slice):
         print ("aiuto", i)
         if i != 0:
@@ -115,22 +113,91 @@ def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa
             train = np.delete(input_vector, np.s_[begin:i], 1)
             train_target_value = np.delete(target_value, np.s_[begin:i], 1)
 
-            neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
+            neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
 
             trained_net = neural_net.train_network(train, train_target_value, epochs, threshold, loss_func, eta, alfa, lambd)
+            neural_net_test = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
 
+            weights = trained_net[0]
+            output_wei = trained_net[0]['output']
+            neural_net_test.output_layer.weights = output_wei
 
-            testing = neural_net.test_network(test, test_target_value)
+            #print("PROVE")
+            #print("neural net", neural_net.output_layer.weights)
+            #print("trained_net[0]", trained_net[0]['output'])
+            #print("neural net TEST", neural_net_test.output_layer.weights)
 
-            err = testing[0]
-            acc = testing[1]
+            trained_net[0].pop("output")
+
+            l = 0
+            for h in trained_net[0]:
+                key = str(h)
+                hidden_wei = trained_net[0][key]
+                neural_net_test.hidden_layers[l].weights = hidden_wei
+                l = l+1
+
+            err_test = neural_net_test.test_network(test, test_target_value)
             #err_test = neural_net_test.accuracy(test, test_target_value)
-            errors_test = np.append(errors_test, err)
-            accuracies = np.append(accuracies, acc)
-            print(i, ")  eta:", eta, " - alfa:", alfa, " - lambda:", lambd, "** cv n",i ," TRerr:",trained_net[1],"TSerr",err,"TS ACCURACY:", acc)
+            print(err_test)
+            errors_test = np.append(errors_test, err_test)
+            print("ACCURACY_in cv", err_test)
             begin = i
 
-    mean = accuracies.mean()
-    print("tot accs",accuracies)
-    print("mean", mean)
+    mean = errors_test.mean()
+    print(errors_test.shape)
+    print(errors_test)
+    print(mean)
     return mean
+
+
+"""
+k-fold cross validation
+k = 10
+N = numero di elementi del dataset
+fold size = N/k
+resto = N mod k
+le prime r fold avranno taglia (N/k) + 1
+le restanti N/k
+"""
+def kfold_cv_mick(input_vect, target_vect, epochs, threshold, loss_func, eta, alfa, lambd):
+    k = 8
+    input_size = input_vect.shape[1]
+    resto = input_size % k
+    fold_size = int(input_size / k)
+    start_idx = 0
+    acc_list = []
+    err_list = []
+
+    print(fold_size)
+    print(resto)
+
+    for index in range(1, k + 1):
+        if resto != 0:
+            end_idx = start_idx + (fold_size + 1) # uso il resto come contatore dei fold che devono avere un elemento in più
+            resto = resto - 1
+        else:
+            end_idx = start_idx + fold_size
+
+        test_kfold = input_vect[:, start_idx:end_idx]
+        test_targets = target_vect[:, start_idx:end_idx]
+
+        train_kfold = np.delete(input_vect, np.s_[start_idx:end_idx], axis=1)
+
+
+        train_targets = np.delete(target_vect, np.s_[start_idx:end_idx], axis=1)
+
+        start_idx = end_idx
+
+        neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=3.5)
+        train_res = neural_net.train_network(train_kfold, train_targets, epochs, threshold, loss_func, eta, alfa, lambd)
+
+        test_res = neural_net.test_network(test_kfold, test_targets)
+        err_list.append(test_res[0])
+        acc_list.append(test_res[1])
+
+    acc_mean = np.mean(acc_list)
+    err_mean = np.mean(err_list)
+    print(acc_list)
+    print(acc_mean)
+    print(err_list)
+    print(err_mean)

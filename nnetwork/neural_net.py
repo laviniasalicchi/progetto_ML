@@ -16,13 +16,10 @@ from hidden_layer import HiddenLayer
 from output_layer import OutputLayer
 
 import matplotlib
-matplotlib.use('TkAgg')
+matplotlib.use('TkAgg') # mac osx need this backend
 
 import matplotlib.pyplot as plt
 import re
-import logging
-import sys
-
 import logging
 import sys
 
@@ -78,14 +75,18 @@ class NeuralNetwork:
     units_out = unità di output
     units_in = unità input
     activ_func = funzione di attivazione dei layers
+    slope = sigmoid slope
     """
     @staticmethod
-    def create_network(total_layers, units_in, units_hidden, units_out, activ_func):
+    def create_network(total_layers, units_in, units_hidden, units_out, activ_func, slope=1):
         neural_network = NeuralNetwork()
         hidden_num = total_layers - 2
         input_layer = InputLayer(units_in)
         input_layer.create_weights(units_in)
         input_layer.set_activation_function(activ_func)
+
+        input_layer.set_sigmoid_slope(slope)
+
         neural_network.add_input_layer(input_layer)
         hidden_l = HiddenLayer(units_hidden)
         hidden_l.create_weights(units_in)
@@ -96,13 +97,17 @@ class NeuralNetwork:
             hidden_l = HiddenLayer(units_hidden)
             hidden_l.create_weights(units_hidden)
             hidden_l.set_activation_function(activ_func)
+            hidden_l.set_sigmoid_slope(slope)
+
+
             neural_network.add_hidden_layer(hidden_l)
 
         output_layer = OutputLayer(units_out)
         output_layer.create_weights(units_hidden)
         output_layer.set_activation_function(activ_func)
+        output_layer.set_sigmoid_slope(slope)
         neural_network.add_output_layer(output_layer)
-        neural_network.print_net_info()
+        #neural_network.print_net_info()
         return neural_network
 
     def predict(self, input_vector):
@@ -120,14 +125,10 @@ class NeuralNetwork:
 
 
 
-
-
-
-
     """
     Implementa la forward propagation calcolando l'output di ogni unità della
     Rete
-
+    
     // aggiunti i vari .net e .output per poter richiamare le matrici dall'oggetto
     """
     def forward_propagation(self, input_vector):
@@ -193,7 +194,7 @@ class NeuralNetwork:
 
             f_prime = layer.activation_function_derivative(layer_net)
 
-            prev_layer_weights = np.delete(prev_layer_weights, -1, 0) # tolta la riga dei pesi del bias
+            prev_layer_weights = np.delete(prev_layer_weights, -1, 0) # tolta la riga dei pesi del bias
             transpose_weights = np.transpose(prev_layer_weights)    # // trasposta fatta a parte senza motivo
 
             logger.debug("Backprop: prev_layer_weights.shape %s", str(prev_layer_weights.shape))
@@ -252,24 +253,16 @@ class NeuralNetwork:
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
         for epoch in range(epochs):
             logger.info("Epoch %s", str(epoch))
-            #print("EPOCH", epoch)
             forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
             acc = NeuralNetwork.accuracy(self.output_layer.output, target_value)
 
-
             err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, alfa, lambd)
             accuracy.append(acc)
-
-
-            #print(err)
             errors.append(err)
             epochs_plot.append(epoch)
 
 
-            """
-            test per barra di progresso
-
-            sys.stdout.write('\r')
+            """sys.stdout.write('\r')
             j = (epoch + 1 / epochs)
             sys.stdout.write("[%-20s] %d%%" % ('='*int(j), 100*j))
             sys.stdout.flush()"""
@@ -309,30 +302,26 @@ class NeuralNetwork:
             la precedente serie di if è però riutilizzabile quando guardiamo l'errore sul test set
             '''
 
-
         #NeuralNetwork.saveModel(self, weights)
         #NeuralNetwork.saveModel(self, weights)
-        #NeuralNetwork.saveModel(self, weights)
-        logger.info("Saving %s", str(epoch))
-
         # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
         if final:
             NeuralNetwork.plotError(self, epochs_plot, errors)
             NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
-            NeuralNetwork.saveModel(weights, eta ,alfa ,lambd ,0, accuracy, final=True)
-        #NeuralNetwork.plotError(self, epochs_plot, errors)
-        #NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
-        print("Accuracy TR;", accuracy[len(accuracy)-1])
-
-
+        print("Accuracy;", accuracy[len(accuracy)-1])
         return weights, err
 
+    """
+    tests the network
+    return values: accuracy = network accuracy
+                   error    = network error
+    """
     def test_network(self, x, target_value):
         # solo forward + calcolo dell'errore
         NeuralNetwork.forward_propagation(self, x)
-        err = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
+        error = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
         accuracy = NeuralNetwork.accuracy(self.output_layer.output, target_value)
-        return err, accuracy
+        return error, accuracy
 
     @staticmethod
     def accuracy(output_net, target):
@@ -343,10 +332,8 @@ class NeuralNetwork:
 
 
 
-
     def test_existing_model(self, input, target):
         path = "models/finals/"
-    #def test_existing_model(self, input, target, path):
         dirs = os.listdir(path)
         for dir in dirs:
             print(dir)
@@ -374,6 +361,7 @@ class NeuralNetwork:
             NeuralNetwork.forward_propagation(self, input)
             acc = NeuralNetwork.accuracy(self.output_layer.output, target)
             print("Accuracy su test set", acc)
+
 
     """
     MSE - sicuramente sbagliato
