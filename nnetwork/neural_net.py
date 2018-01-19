@@ -262,10 +262,10 @@ class NeuralNetwork:
             epochs_plot.append(epoch)
 
 
-            sys.stdout.write('\r')
+            """sys.stdout.write('\r')
             j = (epoch + 1 / epochs)
             sys.stdout.write("[%-20s] %d%%" % ('='*int(j), 100*j))
-            sys.stdout.flush()
+            sys.stdout.flush()"""
 
 
             # // creazione dizionario {nomelayer : pesi}
