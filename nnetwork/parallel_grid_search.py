@@ -13,27 +13,29 @@ import random
 import time
 from monk_dataset import *
 import multiprocessing as mp
-
+import parallelTestModule
 
 
 def __main__():
+    if __name__ == '__main__':
 
 
 
-    monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
-    monk_targets = monk_datas[0]
-    monk_input = monk_datas[1]
-    start = time.time() * 1000  # benchmark
-    res = start_grid_search(monk_input, monk_targets, 100, 0.0, 'mean_squared_err')
 
-    #grid_search(monk_input, monk_targets, 1000, 0.0, 'mean_squared_err')
+        monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
+        monk_targets = monk_datas[0]
+        monk_input = monk_datas[1]
+        start = time.time() * 1000  # benchmark
+        res = start_grid_search(monk_input, monk_targets, 100, 0.0, 'mean_squared_err')
 
-    end = time.time() * 1000
-    for key, value in res.items():
-        print(key, value.get())
-    #kfold_cv_mick(monk_input, monk_targets, 10000, 0.0, 'mean_squared_err', 0, 0, 0)
-    input()
-    print("TIME: ", end-start)
+        #grid_search(monk_input, monk_targets, 1000, 0.0, 'mean_squared_err')
+
+        end = time.time() * 1000
+        for key, value in res.items():
+            print(key, value.get())
+        #kfold_cv_mick(monk_input, monk_targets, 10000, 0.0, 'mean_squared_err', 0, 0, 0)
+        input()
+        print("TIME: ", end-start)
 
 
 
