@@ -35,10 +35,11 @@ class NeuralNetwork:
     se il layer precedente viene sovrascritto stampa un warning
     """
     def add_input_layer(self, input_layer):
+        logger = logging.getLogger(__name__)
         if isinstance(input_layer, list):
-            print('Input layer connected')
+            logger.debug('Input layer connected')
         else:
-            print('WARNING:\tyou could have overwritten previous input layer, you\'re doomed man!')
+            logger.debug('you could have overwritten previous input layer, you\'re doomed man!')
         self.input_layer = input_layer
 
     """
