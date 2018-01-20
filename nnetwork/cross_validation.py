@@ -100,10 +100,11 @@ def grid_search(input_vector, target_value, epochs, threshold, loss_func):
 def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd):
 
     k = 4
-    slice = int(input_vector.shape[1] / k)
+    slice = int(np.round(input_vector.shape[1] / k))
 
     begin = 0
     errors_test = []
+    accuracies = []
     for i in np.arange(0, input_vector.shape[1]+1, slice):
         print ("aiuto", i)
         if i != 0:
@@ -117,14 +118,12 @@ def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa
 
             trained_net = neural_net.train_network(train, train_target_value, epochs, threshold, loss_func, eta, alfa, lambd)
 
-
-            testing = neural_net.test_network(test, test_target_value)
-
-            err = testing[0]
-            acc = testing[1]
+            err, acc = neural_net.test_network(test, test_target_value)
 
             errors_test = np.append(errors_test, err)
             accuracies = np.append(accuracies, acc)
+
+            print("Accuracy in cv",i,":", acc)
 
             begin = i
 
@@ -172,7 +171,7 @@ def kfold_cv_mick(input_vect, target_vect, epochs, threshold, loss_func, eta, al
 
         start_idx = end_idx
 
-        neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=3.5)
+        neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
         train_res = neural_net.train_network(train_kfold, train_targets, epochs, threshold, loss_func, eta, alfa, lambd)
 
         test_res = neural_net.test_network(test_kfold, test_targets)

@@ -32,7 +32,7 @@ from ML_CUP_dataset import ML_CUP_Dataset
 '''
 
 def hold_out(input_vector, target_value, input_test, target_test, epochs, threshold, loss_func):
-    bound = int(np.rint((input_vector.shape[1]/100)*70))
+    bound = int(np.rint((input_vector.shape[1]/100)*60))
     training_set = input_vector[:, 0:bound]
     target_training = target_value[:, 0:bound]
     valid_set = input_vector[:, bound:input_vector.shape[1]]
