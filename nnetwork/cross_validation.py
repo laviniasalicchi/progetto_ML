@@ -52,21 +52,27 @@ def grid_search(input_vector, target_value, epochs, threshold, loss_func):
     etas = [0.01, 0.05, 0.1, 0.3, 0.5]
     alfas = [0.5, 0.7, 0.9]
     lambds = [0.01, 0.04, 0.07, 0.1]
+    n_total_layers = [3, 4]
+    n_hidden_units = [3, 5, 10]
+    act_func = ['sigmoid', 'tanh']
     i = 1
-    for e in etas:
-        for a in alfas:
-            for l in lambds:
-                #neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
-                #trained_net = neural_net.train_network(input_vector, target_value, epochs, threshold, loss_func, eta=e, alfa=a, lambd=l)
+    for ntl in n_total_layers:
+        for nhu in n_hidden_units:
+            for af in act_func:
+                for e in etas:
+                    for a in alfas:
+                        for l in lambds:
+                            #neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
+                            #trained_net = neural_net.train_network(input_vector, target_value, epochs, threshold, loss_func, eta=e, alfa=a, lambd=l)
 
-                acc = kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta=e, alfa=a, lambd=l)
+                            acc = kfold_cv(input_vector, target_value, epochs, threshold, loss_func, e, a, l, ntl, nhu, af)
 
-                print(i, ")  eta:", e, " - alfa:", a, " - lambda:", l, "** ACCURACY:", acc)
+                            print(i, ")  eta:", e, " - alfa:", a, " - lambda:", l, "** ACCURACY:", acc)
 
-                NeuralNetwork.saveModel(0, e, a, l, i, acc)
-                i=i+1
+                            NeuralNetwork.saveModel(0, e, a, l, ntl, nhu, af, i, acc)
+                            i=i+1
     accuracies = []
-    for i in range(len(etas) * len(alfas) * len(lambds)):
+    for i in range(len(etas) * len(alfas) * len(lambds)* len(n_total_layers) * len(n_hidden_units) * len(act_func)):
         res = str(i + 1)
         file = "models/Model_" + res + "/accuracy.npz"
         accfile = np.load(file)
@@ -87,23 +93,36 @@ def grid_search(input_vector, target_value, epochs, threshold, loss_func):
     file = np.load(path)
     lambd = file['lambd']
 
-    neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
+    path = "models/Model_" + maxind + "/n_layers.npz"
+    file = np.load(path)
+    ntl = file['ntl']
+
+    path = "models/Model_" + maxind + "/n_hidden_units.npz"
+    file = np.load(path)
+    nhu = file['nhu']
+
+    path = "models/Model_" + maxind + "/activation_func.npz"
+    file = np.load(path)
+    af = str(file['af'])
+
+    neural_net = NeuralNetwork.create_network(ntl, 17, nhu, 1, af, slope=1)
     train = neural_net.train_network(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd) #, final=True)
     weights = train[0]
     error = train[1]
     accuracy = neural_net.accuracy(neural_net.output_layer.output, target_value)
 
-    neural_net.saveModel(weights, eta, alfa, lambd, maxind, accuracy, final=True)
+    neural_net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, maxind, accuracy, final=True)
 
 
 
-def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd):
+def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, ntl, nhu, af):
 
     k = 4
-    slice = int(input_vector.shape[1] / k)
+    slice = int(np.round(input_vector.shape[1] / k))
 
     begin = 0
     errors_test = []
+    accuracies = []
     for i in np.arange(0, input_vector.shape[1]+1, slice):
         print ("aiuto", i)
         if i != 0:
@@ -113,39 +132,21 @@ def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa
             train = np.delete(input_vector, np.s_[begin:i], 1)
             train_target_value = np.delete(target_value, np.s_[begin:i], 1)
 
-            neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
+            neural_net = NeuralNetwork.create_network(ntl, 17, nhu, 1, af, slope=1)
 
             trained_net = neural_net.train_network(train, train_target_value, epochs, threshold, loss_func, eta, alfa, lambd)
-            neural_net_test = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
 
-            weights = trained_net[0]
-            output_wei = trained_net[0]['output']
-            neural_net_test.output_layer.weights = output_wei
+            err, acc = neural_net.test_network(test, test_target_value)
 
-            #print("PROVE")
-            #print("neural net", neural_net.output_layer.weights)
-            #print("trained_net[0]", trained_net[0]['output'])
-            #print("neural net TEST", neural_net_test.output_layer.weights)
+            errors_test = np.append(errors_test, err)
+            accuracies = np.append(accuracies, acc)
 
-            trained_net[0].pop("output")
+            print("Accuracy in cv",i,":", acc)
 
-            l = 0
-            for h in trained_net[0]:
-                key = str(h)
-                hidden_wei = trained_net[0][key]
-                neural_net_test.hidden_layers[l].weights = hidden_wei
-                l = l+1
-
-            err_test = neural_net_test.test_network(test, test_target_value)
-            #err_test = neural_net_test.accuracy(test, test_target_value)
-            print(err_test)
-            errors_test = np.append(errors_test, err_test)
-            print("ACCURACY_in cv", err_test)
             begin = i
 
-    mean = errors_test.mean()
-    print(errors_test.shape)
-    print(errors_test)
+    mean = accuracies.mean()
+    print(accuracies)
     print(mean)
     return mean
 
@@ -188,7 +189,7 @@ def kfold_cv_mick(input_vect, target_vect, epochs, threshold, loss_func, eta, al
 
         start_idx = end_idx
 
-        neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=3.5)
+        neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
         train_res = neural_net.train_network(train_kfold, train_targets, epochs, threshold, loss_func, eta, alfa, lambd)
 
         test_res = neural_net.test_network(test_kfold, test_targets)
@@ -200,5 +201,3 @@ def kfold_cv_mick(input_vect, target_vect, epochs, threshold, loss_func, eta, al
     print(acc_list)
     print(acc_mean)
     print(err_list)
-    print(err_mean)
-    return acc_mean

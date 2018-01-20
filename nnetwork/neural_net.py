@@ -6,7 +6,7 @@
 # © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
 from input_layer import InputLayer
-#from save-load modello import Save, Load
+# from save-load modello import Save, Load
 import numpy as np
 import os
 from datetime import datetime
@@ -16,7 +16,7 @@ from hidden_layer import HiddenLayer
 from output_layer import OutputLayer
 
 import matplotlib
-matplotlib.use('TkAgg') # mac osx need this backend
+matplotlib.use('TkAgg')  # mac osx need this backend
 
 import matplotlib.pyplot as plt
 import re
@@ -78,6 +78,7 @@ class NeuralNetwork:
     activ_func = funzione di attivazione dei layers
     slope = sigmoid slope
     """
+
     @staticmethod
     def create_network(total_layers, units_in, units_hidden, units_out, activ_func, slope=1):
         neural_network = NeuralNetwork()
@@ -100,7 +101,6 @@ class NeuralNetwork:
             hidden_l.set_activation_function(activ_func)
             hidden_l.set_sigmoid_slope(slope)
 
-
             neural_network.add_hidden_layer(hidden_l)
 
         output_layer = OutputLayer(units_out)
@@ -108,7 +108,7 @@ class NeuralNetwork:
         output_layer.set_activation_function(activ_func)
         output_layer.set_sigmoid_slope(slope)
         neural_network.add_output_layer(output_layer)
-        #neural_network.print_net_info()
+        # neural_network.print_net_info()
         return neural_network
 
     def predict(self, input_vector):
@@ -135,25 +135,25 @@ class NeuralNetwork:
     def forward_propagation(self, input_vector):
         net = self.input_layer.net_function(input_vector)
         input_layer_out = self.input_layer.layer_output()
-        self.input_layer.output = input_layer_out   # // aggiunto il.output
-        #print('debug\t:inout_layer_out', self.input_layer.output.shape)
+        self.input_layer.output = input_layer_out  # // aggiunto il.output
+        # print('debug\t:inout_layer_out', self.input_layer.output.shape)
 
 
         if len(self.hidden_layers) <= 1:
 
             h_layer = self.hidden_layers[0]
-            h_layer.net = h_layer.net_function(input_layer_out) # // aggiunto hl.net
+            h_layer.net = h_layer.net_function(input_layer_out)  # // aggiunto hl.net
             h_layer_out = h_layer.layer_output()
-            h_layer.output = h_layer_out # // aggiunto hl.output
+            h_layer.output = h_layer_out  # // aggiunto hl.output
 
-            self.output_layer.net = self.output_layer.net_function(h_layer_out) # // agg ol.net
+            self.output_layer.net = self.output_layer.net_function(h_layer_out)  # // agg ol.net
             out_layer_out = self.output_layer.layer_output()
-            self.output_layer.output = out_layer_out # // agg ol.out
+            self.output_layer.output = out_layer_out  # // agg ol.out
 
         else:
             last_layer_out = input_layer_out  # necessario?
             for h_layer in self.hidden_layers:
-                h_layer.net = h_layer.net_function(last_layer_out) # // agg hl.net
+                h_layer.net = h_layer.net_function(last_layer_out)  # // agg hl.net
                 last_layer_out = h_layer.layer_output()
                 h_layer.output = last_layer_out  # // aggiunto hl.output
 
@@ -195,8 +195,8 @@ class NeuralNetwork:
 
             f_prime = layer.activation_function_derivative(layer_net)
 
-            prev_layer_weights = np.delete(prev_layer_weights, -1, 0) # tolta la riga dei pesi del bias
-            transpose_weights = np.transpose(prev_layer_weights)    # // trasposta fatta a parte senza motivo
+            prev_layer_weights = np.delete(prev_layer_weights, -1, 0)  # tolta la riga dei pesi del bias
+            transpose_weights = np.transpose(prev_layer_weights)  # // trasposta fatta a parte senza motivo
 
             logger.debug("Backprop: prev_layer_weights.shape %s", str(prev_layer_weights.shape))
             logger.debug("Backprop: prev_layer_delta.shape %s", str(prev_layer_weights.shape))
@@ -224,21 +224,22 @@ class NeuralNetwork:
         net_layers.append(self.output_layer)
 
         for layer in net_layers:
-
             dW = np.dot(last_layer_out, layer.deltas.T)
 
             momentum = layer.last_dW * alfa
             reg_term = (lambd * layer.weights)
 
-            layer.weights = layer.weights - (eta * dW) + momentum - reg_term # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
-            #print("DW pre", layer.last_dW)
+            layer.weights = layer.weights - (
+            eta * dW) + momentum - reg_term  # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
+            # print("DW pre", layer.last_dW)
             layer.last_dW = - (eta * dW) + momentum
-            #print("DW post", layer.last_dW)
+            # print("DW post", layer.last_dW)
             last_layer_out = layer.output
 
         return err_func(target_value, self.output_layer.output)
 
-    def train_network(self, input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, final=False): # // aggiunti i target_values
+    def train_network(self, input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd,
+                      final=False):  # // aggiunti i target_values
         logger = logging.getLogger(__name__)
         loss = NeuralNetwork.mean_euclidean_err
         if loss_func == 'mean_euclidean':
@@ -250,7 +251,7 @@ class NeuralNetwork:
         errors = []
         accuracy = []
         epochs_plot = []
-        weights_BT = {}     # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
+        weights_BT = {}  # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
         for epoch in range(epochs):
             logger.info("Epoch %s", str(epoch))
@@ -262,7 +263,6 @@ class NeuralNetwork:
             errors.append(err)
             epochs_plot.append(epoch)
 
-
             """sys.stdout.write('\r')
             j = (epoch + 1 / epochs)
             sys.stdout.write("[%-20s] %d%%" % ('='*int(j), 100*j))
@@ -273,12 +273,12 @@ class NeuralNetwork:
             for i in range(len(self.hidden_layers)):
                 layer = self.hidden_layers[i]
                 if i == 0:
-                    #// weights è un dizionario per poter avere i pesi aggiornati raggiungibili dal nome del layer
-                    key = "hidden"+str(i)
-                    weights = ({key:layer.weights})
+                    # // weights è un dizionario per poter avere i pesi aggiornati raggiungibili dal nome del layer
+                    key = "hidden" + str(i)
+                    weights = ({key: layer.weights})
                 else:
                     key = "hidden" + str(i)
-                    weights.update({key:    layer.weights})
+                    weights.update({key: layer.weights})
             weights.update({'output': self.output_layer.weights})
 
             # // se l'errore scende sotto la soglia, si salva il modello che lo produce
@@ -303,13 +303,13 @@ class NeuralNetwork:
             la precedente serie di if è però riutilizzabile quando guardiamo l'errore sul test set
             '''
 
-        #NeuralNetwork.saveModel(self, weights)
-        #NeuralNetwork.saveModel(self, weights)
+        # NeuralNetwork.saveModel(self, weights)
+        # NeuralNetwork.saveModel(self, weights)
         # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
         if final:
             NeuralNetwork.plotError(self, epochs_plot, errors)
             NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
-        print("Accuracy;", accuracy[len(accuracy)-1])
+        print("Accuracy;", accuracy[len(accuracy) - 1])
         return weights, err
 
     """
@@ -372,9 +372,9 @@ class NeuralNetwork:
     def mean_squared_err(target_value, neuron_out, deriv=False):
         if deriv:
             return - (np.subtract(target_value, neuron_out))
-        res = np.subtract(target_value, neuron_out)**2
+        res = np.subtract(target_value, neuron_out) ** 2
         res = np.sum(res, axis=1)
-        return res/target_value.shape[1]
+        return res / target_value.shape[1]
 
 
     """
@@ -388,9 +388,9 @@ class NeuralNetwork:
         if deriv:
             err = NeuralNetwork.mean_euclidean_err(target_value, neurons_out)
             return np.subtract(neurons_out, target_value) * (1 / err)
-        res = np.subtract(neurons_out, target_value)**2  # matrice con righe = numero neuroni e colonne = numero di pattern  // è al contrario
+        res = np.subtract(neurons_out,                          target_value) ** 2  # matrice con righe = numero neuroni e colonne = numero di pattern  // è al contrario
         res = np.sqrt(res)
-        res = np.sum(res, axis=0)  # somma sulle colonne. ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
+        res = np.sum(res,                     axis=0)  # somma sulle colonne. ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
         res = np.sum(res, axis=0)  # somma sulle righe
         return (res / target_value.shape[1])
 
@@ -399,15 +399,15 @@ class NeuralNetwork:
     TODO decommentare.
     """
     @staticmethod
-    def saveModel(weights, eta, alfa, lambd, i, accuracy, final=False):
+    def saveModel(weights, eta, alfa, lambd, ntl, nhu, af, i, accuracy, final=False):
         now_m = datetime.now().isoformat()
         now = (now_m.rpartition(':')[0]).replace(":", "")
-        #print(now)
-        #folder = "models/Model_"+now+"/"
+        # print(now)
+        # folder = "models/Model_"+now+"/"
         i = str(i)
 
         if final:
-            folder = "models/finals/Model"+i+"/weights/"
+            folder = "models/finals/Model" + i + "/weights/"
             if not os.path.exists(folder):
                 os.makedirs(folder)
             for k in weights:
@@ -418,21 +418,32 @@ class NeuralNetwork:
             folder = "models/finals/Model" + i + "/"
 
         else:
-            folder = "models/Model_"+i+"/"
+            folder = "models/Model_" + i + "/"
             if not os.path.exists(folder):
                 os.makedirs(folder)
 
-        path = folder+"eta"
-        np.savez(path, eta = eta)
+        path = folder + "eta"
+        np.savez(path, eta=eta)
 
         path = folder + "alfa"
-        np.savez(path, alfa = alfa)
+        np.savez(path, alfa=alfa)
 
         path = folder + "lambda"
-        np.savez(path, lambd = lambd)
+        np.savez(path, lambd=lambd)
 
         path = folder + "accuracy"
-        np.savez(path, accuracy = accuracy)
+        np.savez(path, accuracy=accuracy)
+
+        path = folder + "n_layers"
+        np.savez(path, ntl=ntl)
+
+        path = folder + "n_hidden_units"
+        np.savez(path, nhu=nhu)
+
+        path = folder + "activation_func"
+        np.savez(path, af=af)
+
+
 
 
 

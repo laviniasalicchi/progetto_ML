@@ -18,6 +18,7 @@ class Layer:
         self.output = []  # output del layer: può essere una matrice // non lo usiamo mai?
         self.n_units = n_units
         self.deltas = []  # vettore di delta associato con il layer
+        self.delta_r = 0.1
         self.last_dW = 0
         self.sigmoid_slope = 1
 

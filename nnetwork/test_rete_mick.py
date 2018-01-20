@@ -28,7 +28,7 @@ def __main__():
     output_layer = OutputLayer(1)
     output_layer.create_weights(hidden_layer.n_units)
     output_layer.set_activation_function('sigmoid')
-
+    
     neural_net = NeuralNetwork()
     neural_net.define_loss('mean_euclidean')
     neural_net.add_input_layer(input_layer)
