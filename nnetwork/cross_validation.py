@@ -56,6 +56,7 @@ def grid_search(input_vector, target_value, epochs, threshold, loss_func):
     n_hidden_units = [3, 5, 10]
     act_func = ['sigmoid', 'tanh']
     i = 1
+    models=[]
     for ntl in n_total_layers:
         for nhu in n_hidden_units:
             for af in act_func:
@@ -68,10 +69,29 @@ def grid_search(input_vector, target_value, epochs, threshold, loss_func):
                             acc = kfold_cv(input_vector, target_value, epochs, threshold, loss_func, e, a, l, ntl, nhu, af)
 
                             print(i, ")  eta:", e, " - alfa:", a, " - lambda:", l, "** ACCURACY:", acc)
-
-                            NeuralNetwork.saveModel(0, e, a, l, ntl, nhu, af, i, acc)
+                            models.append({'id': i, 'accuracy': acc, 'ntl': ntl, 'nhu': nhu, 'af': af, 'eta': e, 'alfa': a, 'lambda': l})
+                            #NeuralNetwork.saveModel(0, e, a, l, ntl, nhu, af, i, acc)
                             i=i+1
-    accuracies = []
+    models = sorted(models, key=lambda k: k['accuracy'], reverse=True)
+    print("sorted models", models)
+    j=0
+    for m in models:
+        ntl = m['ntl']
+        nhu = m['nhu']
+        af = m['af']
+        eta = m['eta']
+        alfa = m['alfa']
+        lambd = m['lambda']
+
+        neural_net = NeuralNetwork.create_network(ntl, 17, nhu, 1, af, slope=1)
+        weights, error = neural_net.train_network(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd)  # , final=True)
+        accuracy = neural_net.accuracy(neural_net.output_layer.output, target_value)
+        neural_net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, j, accuracy, final=True)
+        j+=1
+        if j == 5:
+            break
+
+    '''accuracies = []
     for i in range(len(etas) * len(alfas) * len(lambds)* len(n_total_layers) * len(n_hidden_units) * len(act_func)):
         res = str(i + 1)
         file = "models/Model_" + res + "/accuracy.npz"
@@ -111,7 +131,7 @@ def grid_search(input_vector, target_value, epochs, threshold, loss_func):
     error = train[1]
     accuracy = neural_net.accuracy(neural_net.output_layer.output, target_value)
 
-    neural_net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, maxind, accuracy, final=True)
+    neural_net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, maxind, accuracy, final=True)'''
 
 
 
