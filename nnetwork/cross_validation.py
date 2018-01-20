@@ -52,21 +52,27 @@ def grid_search(input_vector, target_value, epochs, threshold, loss_func):
     etas = [0.01, 0.05, 0.1, 0.3, 0.5]
     alfas = [0.5, 0.7, 0.9]
     lambds = [0.01, 0.04, 0.07, 0.1]
+    n_total_layers = [3, 4]
+    n_hidden_units = [3, 5, 10]
+    act_func = ['sigmoid', 'tanh']
     i = 1
-    for e in etas:
-        for a in alfas:
-            for l in lambds:
-                #neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
-                #trained_net = neural_net.train_network(input_vector, target_value, epochs, threshold, loss_func, eta=e, alfa=a, lambd=l)
+    for ntl in n_total_layers:
+        for nhu in n_hidden_units:
+            for af in act_func:
+                for e in etas:
+                    for a in alfas:
+                        for l in lambds:
+                            #neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
+                            #trained_net = neural_net.train_network(input_vector, target_value, epochs, threshold, loss_func, eta=e, alfa=a, lambd=l)
 
-                acc = kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta=e, alfa=a, lambd=l)
+                            acc = kfold_cv(input_vector, target_value, epochs, threshold, loss_func, e, a, l, ntl, nhu, af)
 
-                print(i, ")  eta:", e, " - alfa:", a, " - lambda:", l, "** ACCURACY:", acc)
+                            print(i, ")  eta:", e, " - alfa:", a, " - lambda:", l, "** ACCURACY:", acc)
 
-                NeuralNetwork.saveModel(0, e, a, l, i, acc)
-                i=i+1
+                            NeuralNetwork.saveModel(0, e, a, l, ntl, nhu, af, i, acc)
+                            i=i+1
     accuracies = []
-    for i in range(len(etas) * len(alfas) * len(lambds)):
+    for i in range(len(etas) * len(alfas) * len(lambds)* len(n_total_layers) * len(n_hidden_units) * len(act_func)):
         res = str(i + 1)
         file = "models/Model_" + res + "/accuracy.npz"
         accfile = np.load(file)
@@ -87,17 +93,29 @@ def grid_search(input_vector, target_value, epochs, threshold, loss_func):
     file = np.load(path)
     lambd = file['lambd']
 
-    neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
+    path = "models/Model_" + maxind + "/n_layers.npz"
+    file = np.load(path)
+    ntl = file['ntl']
+
+    path = "models/Model_" + maxind + "/n_hidden_units.npz"
+    file = np.load(path)
+    nhu = file['nhu']
+
+    path = "models/Model_" + maxind + "/activation_func.npz"
+    file = np.load(path)
+    af = str(file['af'])
+
+    neural_net = NeuralNetwork.create_network(ntl, 17, nhu, 1, af, slope=1)
     train = neural_net.train_network(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd) #, final=True)
     weights = train[0]
     error = train[1]
     accuracy = neural_net.accuracy(neural_net.output_layer.output, target_value)
 
-    neural_net.saveModel(weights, eta, alfa, lambd, maxind, accuracy, final=True)
+    neural_net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, maxind, accuracy, final=True)
 
 
 
-def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd):
+def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, ntl, nhu, af):
 
     k = 4
     slice = int(np.round(input_vector.shape[1] / k))
@@ -114,7 +132,7 @@ def kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa
             train = np.delete(input_vector, np.s_[begin:i], 1)
             train_target_value = np.delete(target_value, np.s_[begin:i], 1)
 
-            neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
+            neural_net = NeuralNetwork.create_network(ntl, 17, nhu, 1, af, slope=1)
 
             trained_net = neural_net.train_network(train, train_target_value, epochs, threshold, loss_func, eta, alfa, lambd)
 

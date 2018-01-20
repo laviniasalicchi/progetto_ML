@@ -41,19 +41,25 @@ def start_grid_search(input_vect, target_vect, epochs, threshold, loss_func,queu
     etas = [0.01, 0.05, 0.1, 0.3, 0.5]
     alfas = [0.5, 0.7, 0.9]
     lambds = [0.01, 0.04, 0.07, 0.1]
+    n_total_layers = [3, 4]
+    n_hidden_units = [3, 5, 10]
+    act_func = ['sigmoid', 'tanh']
     # creo l'executor a cui mandare i task
     executor = concurrent.futures.ThreadPoolExecutor()
     executor2 = mp.Pool(processes=mp.cpu_count())
     #acc_list = mp.Queue()
 
-    for e in etas:
-        for a in alfas:
-            for l in lambds:
-                print("GridSearch started eta=%f, alfas=%f, lambda=%f", e, a, l)
-                res = executor2.apply_async(kfold_task, (input_vect, target_vect, epochs, threshold, loss_func, e, a, l))
-                #res = executor.submit(kfold_task, input_vect, target_vect, epochs, threshold, loss_func, eta=e, alfa=a, lambd=l)
-                #acc_list.append(res.result())
-                queue.put(res)
+    for ntl in n_total_layers:
+        for nhu in n_hidden_units:
+            for af in act_func:
+                for e in etas:
+                    for a in alfas:
+                        for l in lambds:
+                            print("GridSearch started eta=%f, alfas=%f, lambda=%f", e, a, l)
+                            res = executor2.apply_async(kfold_task, (input_vect, target_vect, epochs, threshold, loss_func, e, a, l, ntl, nhu, af))
+                            #res = executor.submit(kfold_task, input_vect, target_vect, epochs, threshold, loss_func, eta=e, alfa=a, lambd=l)
+                            #acc_list.append(res.result())
+                            queue.put(res)
 
 
     #executor.shutdown(wait=True)
@@ -62,8 +68,8 @@ def start_grid_search(input_vect, target_vect, epochs, threshold, loss_func,queu
 
 
 
-def kfold_task(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd):
-    acc = kfold_cv_mick(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd)
+def kfold_task(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, ntl, nhu, af):
+    acc = kfold_cv_mick(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, ntl, nhu, af)
     return acc
 
 

@@ -38,7 +38,7 @@ def __main__():
     neural_net.add_hidden_layer(hidden_layer)
     neural_net.add_output_layer(output_layer)'''
 
-    neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
+    #neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
 
 
     monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
@@ -50,17 +50,17 @@ def __main__():
     monk_datas_ts = MonkDataset.load_encode_monk('../datasets/monks-1.test', test=True)
     monk_targets_ts = monk_datas[0]
     monk_input_ts = monk_datas[1]
-    neural_net.train_network(monk_input, monk_targets, 300, 0.00001, 'mean_squared_err', eta=0.4, alfa=0.9, lambd=0.1, final=True)
-    #   neural_net.test_existing_model(monk_input_ts,monk_targets_ts)
+    #   neural_net.train_network(monk_input, monk_targets, 300, 0.00001, 'mean_squared_err', eta=0.4, alfa=0.9, lambd=0.1, final=True)
+    neural_net.test_existing_model(monk_input_ts,monk_targets_ts)
 
     #   hold_out(monk_input, monk_targets, monk_input_ts, monk_targets_ts, 1000, 0.00001, 'mean_squared_err')
 
 
-    #grid_search(monk_input, monk_targets, 500, 0.0, 'mean_squared_err')
+    #   grid_search(monk_input, monk_targets, 500, 0.0, 'mean_squared_err')
 
 
 
-    neural_net_test = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
+    #neural_net_test = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
 
     '''neural_net_test = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid')
 

@@ -398,7 +398,7 @@ class NeuralNetwork:
     TODO decommentare.
     """
     @staticmethod
-    def saveModel(weights, eta, alfa, lambd, i, accuracy, final=False):
+    def saveModel(weights, eta, alfa, lambd, ntl, nhu, af, i, accuracy, final=False):
         now_m = datetime.now().isoformat()
         now = (now_m.rpartition(':')[0]).replace(":", "")
         # print(now)
@@ -432,6 +432,17 @@ class NeuralNetwork:
 
         path = folder + "accuracy"
         np.savez(path, accuracy=accuracy)
+
+        path = folder + "n_layers"
+        np.savez(path, ntl=ntl)
+
+        path = folder + "n_hidden_units"
+        np.savez(path, nhu=nhu)
+
+        path = folder + "activation_func"
+        np.savez(path, af=af)
+
+
 
 
 
