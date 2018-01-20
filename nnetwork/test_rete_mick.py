@@ -40,9 +40,16 @@ def __main__():
     monk_datas = MonkDataset.load_encode_monk('/Users/mick/Dati/Università/Pisa/Machine_learning/Prj_info/Progetto_ml/monks-1.train')
     monk_targets = monk_datas[0]
     monk_input = monk_datas[1]
-    neural_net.train_network(monk_input, monk_targets, 500, 0.00, 'mean_squared_err', eta=0.3, alfa=0.5, lambd=0.01)
+    neural_net.train_network(monk_input, monk_targets, 2000, 0.00, 'mean_squared_err', eta=0.1, alfa=0.7, lambd=0.01, final=True)
 
-    cross_validation.kfold_cv(monk_input, monk_targets, 500, 0.0, 'mean_squared_err', eta=0.3, alfa=0.5, lambd=0.01)
+    monk_test = MonkDataset.load_encode_monk('/Users/mick/Dati/Università/Pisa/Machine_learning/Prj_info/Progetto_ml/monks-1.test')
+    monk_test_target = monk_test[0]
+    monk_test_input = monk_test[1]
+
+    test_result = neural_net.test_network(monk_test_input, monk_test_target)
+    print(test_result[0], test_result[1])
+
+    #cross_validation.kfold_cv(monk_input, monk_targets, 500, 0.0, 'mean_squared_err', eta=0.3, alfa=0.5, lambd=0.01)
 
 
 
