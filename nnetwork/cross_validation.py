@@ -241,3 +241,4 @@ def kfold_net_topology(input_vect, target_vect, epochs, threshold, loss_func, et
     print(acc_list)
     print(acc_mean)
     print(err_list)
+    return acc_mean

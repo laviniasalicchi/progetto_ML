@@ -82,9 +82,9 @@ class Layer:
     slope: parametro "a" della sigmoide, default = 1
     """
     def set_activation_function(self, f_name):
-        if f_name is 'sigmoid':
+        if f_name == 'sigmoid':
             self.activation_function = 'sigmoid'
-        elif f_name is 'tanh':
+        elif f_name == 'tanh':
             self.activation_function = 'tanh'
         else:
             self.activation_function = 'sigmoid'
@@ -109,9 +109,7 @@ class Layer:
             deriv = (1 / (1 + np.exp(- self.sigmoid_slope * x))) * (1 - (1 / (1 + np.exp(- self.sigmoid_slope * x))))
             return deriv
         if self.activation_function == 'tanh':
-            #deriv = 1 - self.activation_function**2
-            #vectorized = np.vectorize(deriv)
-            #return vectorized(x)
+
             return 1 - (np.tanh(x))**2
 
     def set_sigmoid_slope(self, slope):

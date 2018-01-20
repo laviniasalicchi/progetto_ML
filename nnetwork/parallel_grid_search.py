@@ -24,7 +24,7 @@ def __main__():
     monk_targets = monk_datas[0]
     monk_input = monk_datas[1]
     start = time.time() * 1000  # benchmark
-    res = start_grid_search(monk_input, monk_targets, 1000, 0.0, 'mean_squared_err')
+    res = start_grid_search(monk_input, monk_targets, 100, 0.0, 'mean_squared_err')
 
     #grid_search(monk_input, monk_targets, 1000, 0.0, 'mean_squared_err')
 
@@ -34,16 +34,15 @@ def __main__():
     #kfold_cv_mick(monk_input, monk_targets, 10000, 0.0, 'mean_squared_err', 0, 0, 0)
     input()
     print("TIME: ", end-start)
-    for key, value in res.items():
-        print(key, value.get())
+
 
 
 def start_grid_search(input_vect, target_vect, epochs, threshold, loss_func):
     etas = [0.01, 0.05, 0.1, 0.3, 0.5]
     alfas = [0.5, 0.7, 0.9]
     lambds = [0.01, 0.04, 0.07, 0.1]
-    n_total_layers = [3, 4]
-    n_hidden_units = [3, 5, 10]
+    n_total_layers = [3, 4, 5]
+    n_hidden_units = range(5, 20)
     act_func = ['sigmoid', 'tanh']
     # creo l'executor a cui mandare i task
     executor = mp.Pool(processes=20)
