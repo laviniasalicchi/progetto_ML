@@ -422,26 +422,9 @@ class NeuralNetwork:
             if not os.path.exists(folder):
                 os.makedirs(folder)
 
-        path = folder + "eta"
-        np.savez(path, eta=eta)
+        path = folder + "hyperpar"
+        np.savez(path, eta=eta, alfa=alfa, lambd=lambd, ntl=ntl, nhu=nhu, af=af)
 
-        path = folder + "alfa"
-        np.savez(path, alfa=alfa)
-
-        path = folder + "lambda"
-        np.savez(path, lambd=lambd)
-
-        path = folder + "accuracy"
-        np.savez(path, accuracy=accuracy)
-
-        path = folder + "n_layers"
-        np.savez(path, ntl=ntl)
-
-        path = folder + "n_hidden_units"
-        np.savez(path, nhu=nhu)
-
-        path = folder + "activation_func"
-        np.savez(path, af=af)
 
 
 
