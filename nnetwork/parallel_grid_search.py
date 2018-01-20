@@ -24,16 +24,16 @@ def __main__():
     monk_targets = monk_datas[0]
     monk_input = monk_datas[1]
     start = time.time() * 1000  # benchmark
-    res = start_grid_search(monk_input, monk_targets, 2000, 0.0, 'mean_squared_err')
+    res = start_grid_search(monk_input, monk_targets, 1000, 0.0, 'mean_squared_err')
 
     #grid_search(monk_input, monk_targets, 1000, 0.0, 'mean_squared_err')
 
     end = time.time() * 1000
-    for i in acc_list:
-        print(i.get())
+    for key, value in res.items():
+        print(key, value.get())
     #kfold_cv_mick(monk_input, monk_targets, 10000, 0.0, 'mean_squared_err', 0, 0, 0)
     input()
-    print("TIME: ",end-start)
+    print("TIME: ", end-start)
     for key, value in res.items():
         print(key, value.get())
 
@@ -55,9 +55,13 @@ def start_grid_search(input_vect, target_vect, epochs, threshold, loss_func):
                 for e in etas:
                     for a in alfas:
                         for l in lambds:
-                            print("GridSearch started eta=%f, alfas=%f, lambda=%f", e, a, l
-                            key = "eta=" + str(e) + " alfa=" + str(a) + " lambda" +str(l) + "\t"
-                            res[key] = executor.apply_async(kfold_task, (input_vect, target_vect, epochs, threshold, loss_func, e, a, l))
+                            print("GridSearch started eta=%f, alfas=%f, lambda=%f", e, a, l)
+                            key = "eta=" + str(e) + " alfa=" + str(a) + " lambda" +str(l) + " ntl=" + str(ntl) + "nhu=" + str(nhu) + "act=" + af + "\t"
+                            #res[key] = executor.apply_async(kfold_task, (input_vect, target_vect, epochs, threshold, loss_func, e, a, l))
+                            res[key] = executor.apply_async(kfold_task_net_topology,
+                             (input_vect, target_vect, epochs, threshold, loss_func, e, a, l, ntl, nhu, af))
+
+
 
     executor.close()
     executor.join()
@@ -66,9 +70,14 @@ def start_grid_search(input_vect, target_vect, epochs, threshold, loss_func):
 
 
 
-def kfold_task(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, ntl, nhu, af):
-    acc = kfold_cv(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, ntl, nhu, af)
+def kfold_task(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd):
+    acc = kfold_cv_mick(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd)
     return acc
+
+def kfold_task_net_topology(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, ntl, nhu, act_func):
+    acc = kfold_net_topology(input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, ntl, nhu, act_func)
+    return acc
+
 
 
 __main__()

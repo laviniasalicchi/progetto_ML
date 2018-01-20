@@ -51,13 +51,17 @@ class MonkDataset:
     encoded_datas: righe=features, colonne=patterns
     '''
     @staticmethod
-    def load_encode_monk(filename, test=False):
+    def load_encode_monk(filename, test=False, shuffle=False):
         fields = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'id']
         print(len(fields))
         raw_data = open(filename, 'r')
         data = np.loadtxt(raw_data, delimiter=" ", dtype='str')
         data = np.delete(data, 0, axis=1)  # siccome è in un formato pessimo occorre togliere la prima colonna in quanto legge gli spazi come se fossero valori
         data = np.delete(data, data.shape[1] - 1, axis=1)
+
+        if shuffle:
+            data = numpy.random.shuffle(data)
+
         target_x = np.empty((data.shape[0], 1))
         encoded_datas = np.zeros((data.shape[0], 17))
         print(encoded_datas.shape)
