@@ -26,7 +26,6 @@ class Layer:
     """
     n_units = numero di unità del layers
     unit_previous_layer = unità del layer precedente
-    // non manca il bias così? Non dovremmo usare la matrice che è output del layer precedente?
     """
     def create_weights(self, unit_previous_layer):
         logger = logging.getLogger(__name__)
@@ -34,10 +33,24 @@ class Layer:
         self.weights = (np.random.rand(unit_previous_layer, self.n_units) * 1.4) - 0.7
         logger.debug('Weights shape: %s', str(self.weights.shape))
 
-        ones_row = (np.random.rand(1, self.weights.shape[1]) * 1.4) - 0.7
+        ones_row = (np.random.rand(1, self.weights.shape[1]) * 1.4) - 0.7  # bias non inizializzato a uno ma random
         #ones_row = np.zeros((1, self.weights.shape[1]))
         logger.debug('Biases shape: %s', str(self.weights.shape))
         self.weights = np.concatenate((self.weights, ones_row), axis=0)
+
+    """
+    Inizializza i pesi usando il fan in.
+    """
+    def create_weights_fan_in(self, unit_previous_layer, fan_in):
+        logger = logging.getLogger(__name__)
+
+        self.weights =(np.random.rand(unit_previous_layer, self.n_units) * (2 * fan_in)) - fan_in
+
+        ones_row = (np.random.rand(1, self.weights.shape[1]) * (2 * fan_in)) - fan_in  # bias non inizializzato a uno ma random
+        #ones_row = np.zeros((1, self.weights.shape[1]))
+        logger.debug('Biases shape: %s', str(self.weights.shape))
+        self.weights = np.concatenate((self.weights, ones_row), axis=0)
+
 
     """
     Calcola la funzione di rete come W trasposta per x

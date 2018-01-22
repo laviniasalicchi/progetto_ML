@@ -30,8 +30,8 @@ neural_net_k.add(output_layer)
 
 #   prove random
 
-hidden_k_bias = hidden_layer.get_weights()[1].reshape(1,len(hidden_layer.get_weights()[1]))
-output_k_bias = output_layer.get_weights()[1].reshape(1,len(output_layer.get_weights()[1]))
+hidden_k_bias = hidden_layer.get_weights()[1].reshape(1, len(hidden_layer.get_weights()[1]))
+output_k_bias = output_layer.get_weights()[1].reshape(1, len(output_layer.get_weights()[1]))
 hidden_k_wei = np.concatenate((hidden_layer.get_weights()[0], hidden_k_bias))
 output_k_wei = np.concatenate((output_layer.get_weights()[0], output_k_bias))
 
@@ -41,13 +41,13 @@ neural_net.output_layer.weights = output_k_wei
 
 monk_targets_n = monk_datas[0]
 monk_input_n = monk_datas[1]
-err_net = neural_net.train_network(monk_input_n, monk_targets_n, 1000, 0.00001, 'mean_squared_err', 0.07, alfa=0.1, lambd=0.9)
+err_net = neural_net.train_network(monk_input_n, monk_targets_n, 1000, 0.00001, 'mean_squared_err', 0.07, alfa=0.9, lambd=0.01)
 
 
 #   configurazione learning process
 #       loss = MSE
 #       optimizer = stochastic gradient descent (learning rate, momentum, learning rate decay, Nesterov momentum)
-sgd_n = optimizers.SGD(lr=0.07, momentum=0.1, decay=0.9, nesterov=False)
+sgd_n = optimizers.SGD(lr=0.1, momentum=0.1, decay=0.9, nesterov=False)
 neural_net_k.compile(loss='mean_squared_error', optimizer=sgd_n, metrics = ['accuracy'])
 
 

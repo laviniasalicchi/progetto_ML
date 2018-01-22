@@ -49,18 +49,21 @@ class MonkDataset:
     salva su disco la versione codificata del file
     target_x: righe=classe, colonne=patterns
     encoded_datas: righe=features, colonne=patterns
+    Il metodo salva il file nel formato encoded: colonne = patterns
+    la matrice ha shape (18,124) 1 target + 17 features encoded
     '''
     @staticmethod
-    def load_encode_monk(filename, test=False, shuffle=False):
+    def load_encode_monk(filename, shuffle=False):
         fields = ['class', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'id']
         print(len(fields))
         raw_data = open(filename, 'r')
         data = np.loadtxt(raw_data, delimiter=" ", dtype='str')
+        raw_data.close()
         data = np.delete(data, 0, axis=1)  # siccome è in un formato pessimo occorre togliere la prima colonna in quanto legge gli spazi come se fossero valori
         data = np.delete(data, data.shape[1] - 1, axis=1)
 
         if shuffle:
-            data = numpy.random.shuffle(data)
+            np.random.shuffle(data)
 
         target_x = np.empty((data.shape[0], 1))
         encoded_datas = np.zeros((data.shape[0], 17))
@@ -161,13 +164,32 @@ class MonkDataset:
 
         encoded_datas = encoded_datas.T
         target_x = target_x.T
-        #np.savetxt(filename.replace('.train', '_encoded.train').replace('.test', '_encoded.test'), encoded_datas.astype(np.int64), delimiter=',', fmt='%2.1d')
-        if test:
-            np.savetxt(filename.replace('.test', '_encoded.test'), encoded_datas.astype(np.int64), delimiter=',', fmt='%2.1d')
-        else:
-            np.savetxt(filename.replace('.train', '_encoded.train'), encoded_datas.astype(np.int64), delimiter=',', fmt='%2.1d')
+        dataset = np.concatenate((target_x, encoded_datas), axis=0)
 
+
+        if 'test' in filename:
+            np.savetxt(filename.replace('.test', '_encoded.test'), dataset.astype(np.int64), delimiter=',', fmt='%2.1d')
+        else:
+            np.savetxt(filename.replace('.train', '_encoded.train'), dataset.astype(np.int64), delimiter=',', fmt='%2.1d')
 
         print('MONK IMPORTED: target shape is:' + str(target_x.shape))
         print('MONK IMPORTED: encoded data shape is:' + str(encoded_datas.shape))
         return target_x, encoded_datas
+
+    """
+    Carica il monk nel formato già codificato 1-of-k
+    ritorna due matrici:
+    target_x = (1,124) (124 pattern, )
+    inputs = (17, 124)
+    """
+    @staticmethod
+    def load_monk(filename, shuffle=False):
+        raw_data = open(filename, 'r')
+        data = np.loadtxt(raw_data, delimiter=",", dtype='int')
+        raw_data.close()
+        data = np.reshape(data, [data.shape[0], -1])  # reshaping con inferenza
+        if shuffle:
+            np.random.shuffle(data.T)  # shuffle colonne
+        targets = data[0:1, :]
+        inputs = data[1:, :]
+        return targets, inputs
