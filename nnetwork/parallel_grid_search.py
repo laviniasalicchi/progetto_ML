@@ -30,7 +30,11 @@ def __main__():
         #grid_search(monk_input, monk_targets, 1000, 0.0, 'mean_squared_err')
 
         end = time.time() * 1000
+<<<<<<< HEAD
         ''''# ottieni i valori
+=======
+        # ottieni i valori
+>>>>>>> 2163dc29ff6f7fe00813b28921af409355daea70
         for key, value in res.items():
             res[key] = value.get()
         # sorting
@@ -38,7 +42,11 @@ def __main__():
         for x in sorted_res:
             print(x[0], x[1])
 
+<<<<<<< HEAD
         #kfold_cv_mick(monk_input, monk_targets, 10000, 0.0, 'mean_squared_err', 0, 0, 0)'''
+=======
+        #kfold_cv_mick(monk_input, monk_targets, 10000, 0.0, 'mean_squared_err', 0, 0, 0)
+>>>>>>> 2163dc29ff6f7fe00813b28921af409355daea70
         input()
         print("TIME: ", end-start)
 
