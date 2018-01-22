@@ -5,6 +5,7 @@
 #
 # © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
+
 from input_layer import InputLayer
 # from save-load modello import Save, Load
 import numpy as np
@@ -78,7 +79,6 @@ class NeuralNetwork:
     activ_func = funzione di attivazione dei layers
     slope = sigmoid slope
     """
-
     @staticmethod
     def create_network(total_layers, units_in, units_hidden, units_out, activ_func, slope=1):
         neural_network = NeuralNetwork()
@@ -111,6 +111,69 @@ class NeuralNetwork:
         # neural_network.print_net_info()
         return neural_network
 
+    """
+    tot_lays = number of total n_layer
+    un_lay = lista con numero di unità per layer. deve avere elementi = a num total n_layers
+    afs = lista di funzioni di attivazione: una per ogni layer a esclusione dell'input
+    init = tipo di inizializzazione dei pesi
+    xavier = fan_in --> Understanding the difficulty of training deep feedforward neural networks
+    http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf
+    """
+    @staticmethod
+    def create_advanced_net(tot_lays, un_lay, afs, init):
+        logger = logging.getLogger(__name__)
+        if tot_lays != len(un_lay):
+            logger.error("Il numero di layer e la lista di unità per layer non coincidono. Specificare un numero di unità e di funzini di attivazione per ogni layer della rete")
+            return
+        elif tot_lays != len(afs):
+            logger.error("numero di layer e lista di funzioni di attivazione non hanno la stessa lunghezza.")
+
+        if tot_lays == 2:
+            logger.error("numero di layer  minimo è tre")
+            return
+
+        slope = 1
+        net = NeuralNetwork()
+
+        fan_in = 2 / (un_lay[0] + un_lay[len(un_lay) - 1])
+
+        hidden_num = tot_lays - 2
+
+        input_layer = InputLayer(un_lay[0])
+
+        if init == "xavier":
+            input_layer.create_weights_fan_in(un_lay[0], fan_in)
+        else:
+            input_layer.create_weights(un_lay[0])
+
+        input_layer.set_activation_function(afs[0])
+        net.add_input_layer(input_layer)
+
+        prev_un = un_lay[0]
+
+        for i in range(1, hidden_num + 1):
+            hidden_l = HiddenLayer(un_lay[i])
+            if init == "xavier":
+                hidden_l.create_weights_fan_in(prev_un, fan_in)
+            else:
+                hidden_l.create_weights(prev_un)
+            prev_un = un_lay[i]
+
+            hidden_l.set_activation_function(afs[i])
+            hidden_l.set_sigmoid_slope(slope)
+            net.add_hidden_layer(hidden_l)
+
+        last_idx = len(un_lay) - 1
+        output_layer = OutputLayer(un_lay[last_idx])
+        output_layer.create_weights_fan_in(un_lay[last_idx - 1], fan_in)
+        output_layer.set_activation_function(afs[last_idx])
+        output_layer.set_sigmoid_slope(slope)
+        net.add_output_layer(output_layer)
+        net.print_net_info()
+        return net
+
+
+
     def predict(self, input_vector):
         return forward_propagation(self, input_vector)
 
@@ -119,7 +182,7 @@ class NeuralNetwork:
         print("Input Layer: " + str(self.input_layer.n_units) + ' units')
         i = 1
         for h_layer in self.hidden_layers:
-            print("HiddenLayer " + str(i + 1) + ": " + str(self.hidden_layers[0].n_units) + " units")
+            print("HiddenLayer " + str(i) + ": " + str(h_layer.n_units) + " units")
             i = i + 1
         print("Output Layer: " + str(self.output_layer.n_units) + ' units')
         print("**************** NETWORK ***************")
@@ -129,8 +192,6 @@ class NeuralNetwork:
     """
     Implementa la forward propagation calcolando l'output di ogni unità della
     Rete
-
-    // aggiunti i vari .net e .output per poter richiamare le matrici dall'oggetto
     """
     def forward_propagation(self, input_vector):
         net = self.input_layer.net_function(input_vector)
@@ -142,24 +203,24 @@ class NeuralNetwork:
         if len(self.hidden_layers) <= 1:
 
             h_layer = self.hidden_layers[0]
-            h_layer.net = h_layer.net_function(input_layer_out)  # // aggiunto hl.net
+            h_layer.net = h_layer.net_function(input_layer_out)
             h_layer_out = h_layer.layer_output()
-            h_layer.output = h_layer_out  # // aggiunto hl.output
+            h_layer.output = h_layer_out
 
-            self.output_layer.net = self.output_layer.net_function(h_layer_out)  # // agg ol.net
+            self.output_layer.net = self.output_layer.net_function(h_layer_out)
             out_layer_out = self.output_layer.layer_output()
-            self.output_layer.output = out_layer_out  # // agg ol.out
+            self.output_layer.output = out_layer_out
 
         else:
-            last_layer_out = input_layer_out  # necessario?
+            last_layer_out = input_layer_out
             for h_layer in self.hidden_layers:
-                h_layer.net = h_layer.net_function(last_layer_out)  # // agg hl.net
+                h_layer.net = h_layer.net_function(last_layer_out)
                 last_layer_out = h_layer.layer_output()
-                h_layer.output = last_layer_out  # // aggiunto hl.output
+                h_layer.output = last_layer_out
 
-            self.output_layer.net = self.output_layer.net_function(last_layer_out)  # // agg ol.net
+            self.output_layer.net = self.output_layer.net_function(last_layer_out)
             out_layer_out = self.output_layer.layer_output()
-            self.output_layer.output = out_layer_out  # // agg ol.out
+            self.output_layer.output = out_layer_out
 
         return self.output_layer.output
 
@@ -424,12 +485,6 @@ class NeuralNetwork:
 
         path = folder + "hyperpar"
         np.savez(path, eta=eta, alfa=alfa, lambd=lambd, ntl=ntl, nhu=nhu, af=af)
-
-
-
-
-
-
 
 
     def plotError(self, epochs_plot, errors):
