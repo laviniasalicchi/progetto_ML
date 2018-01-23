@@ -356,17 +356,18 @@ class NeuralNetwork:
         for layer in net_layers:
             # dW = δE/δwji
             dW = np.dot(last_layer_out, layer.deltas.T)
-            print(dW.shape)
+            #print(dW.shape)
 
             last_dW = np.zeros(dW.shape) # matrice dei δE/δwji a t-1
             sum_W = np.zeros(dW.shape)  # matrice dei pesi da sommare alla vechhia
 
             #  moltiplico δE/δwji(t) e δE/δwji (t-1) elementWise
             err_prod = np.multiply(dW, layer.last_dW)
-            print(err_prod.shape)
-            for i in range(0, len(err_prod[0])):  # righe
-                for j in range(0, len(err_prod[1])):  #  colonne
-                    print("i",i,"j",j)
+            #print(err_prod.shape)
+            #print(range(0, len(err_prod[0])))
+            for i in range(0, err_prod.shape[0]):  # righe
+                for j in range(0, err_prod.shape[1]):  #  colonne
+                    #print("i",i,"j",j)
                     if err_prod[i][j] > 0:
                         delt_ij = min(layer.delta_rprop[i][j] * npos, delt_max)
                         layer.delta_rprop[i][j] = delt_ij
