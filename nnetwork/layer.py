@@ -18,7 +18,7 @@ class Layer:
         self.output = []  # output del layer: può essere una matrice // non lo usiamo mai?
         self.n_units = n_units
         self.deltas = []  # vettore di delta associato con il layer
-        self.delta_r = 0.1
+        self.delta_rprop = []
         self.last_dW = 0
         self.sigmoid_slope = 1
 
@@ -38,18 +38,23 @@ class Layer:
         logger.debug('Biases shape: %s', str(self.weights.shape))
         self.weights = np.concatenate((self.weights, ones_row), axis=0)
 
+        self.delta_rprop = np.ones((self.weights.shape)) * 0.1
+
     """
     Inizializza i pesi usando il fan in.
     """
     def create_weights_fan_in(self, unit_previous_layer, fan_in):
         logger = logging.getLogger(__name__)
+        interval = 1 / float(fan_in)
 
-        self.weights =(np.random.rand(unit_previous_layer, self.n_units) * (2 * fan_in)) - fan_in
+        self.weights =np.random.uniform(- interval, interval, (unit_previous_layer, self.n_units))
 
-        ones_row = (np.random.rand(1, self.weights.shape[1]) * (2 * fan_in)) - fan_in  # bias non inizializzato a uno ma random
+        ones_row = np.random.uniform(-interval, interval, (1, self.weights.shape[1]))  # bias non inizializzato a uno ma random
         #ones_row = np.zeros((1, self.weights.shape[1]))
         logger.debug('Biases shape: %s', str(self.weights.shape))
         self.weights = np.concatenate((self.weights, ones_row), axis=0)
+        self.delta_rprop = np.ones((self.weights.shape)) * 0.1
+
 
 
     """
