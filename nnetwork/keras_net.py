@@ -9,6 +9,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from neural_net import NeuralNetwork
+from keras.regularizers import *
 
 
 #   load dataset
@@ -20,8 +21,8 @@ print("in keras - target", monk_targets.shape)
 
 #   creazione rete
 neural_net_k = Sequential()
-hidden_layer = Dense(5, input_dim=monk_input.shape[1], activation='sigmoid')
-output_layer = Dense(1, activation='sigmoid')
+hidden_layer = Dense(5, input_dim=monk_input.shape[1], activation='sigmoid', kernel_regularizer=regularizers.l2(0.01), activity_regularizer=regularizers.l2(0.01))
+output_layer = Dense(1, activation='sigmoid', kernel_regularizer=regularizers.l2(0.01), activity_regularizer=regularizers.l2(0.01))
 
 neural_net_k.add(hidden_layer)
 neural_net_k.add(output_layer)
@@ -41,13 +42,18 @@ neural_net.output_layer.weights = output_k_wei
 
 monk_targets_n = monk_datas[0]
 monk_input_n = monk_datas[1]
-err_net = neural_net.train_network(monk_input_n, monk_targets_n, 1000, 0.00001, 'mean_squared_err', 0.07, alfa=0.9, lambd=0.01)
+
+monk_datas_ts = MonkDataset.load_encode_monk('../datasets/monks-1.test')
+monk_targets_ts = monk_datas_ts[0]
+monk_input_ts = monk_datas_ts[1]
+
+err_net = neural_net.train_network(monk_input_n, monk_targets_n, monk_input_ts, monk_targets_ts, 1000, 0.00001, 'mean_squared_err', 0.07, alfa=0.9, lambd=0.01, final=True)
 
 
 #   configurazione learning process
 #       loss = MSE
 #       optimizer = stochastic gradient descent (learning rate, momentum, learning rate decay, Nesterov momentum)
-sgd_n = optimizers.SGD(lr=0.1, momentum=0.1, decay=0.9, nesterov=False)
+sgd_n = optimizers.SGD(lr=0.07, momentum=0.9, nesterov=False)
 neural_net_k.compile(loss='mean_squared_error', optimizer=sgd_n, metrics = ['accuracy'])
 
 

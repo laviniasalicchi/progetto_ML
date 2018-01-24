@@ -290,8 +290,7 @@ class NeuralNetwork:
             momentum = layer.last_dW * alfa
             reg_term = (lambd * layer.weights)
 
-            layer.weights = layer.weights - (
-            eta * dW) + momentum - reg_term  # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
+            layer.weights = layer.weights - (eta * dW) + momentum - reg_term  # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
             # print("DW pre", layer.last_dW)
             layer.last_dW = - (eta * dW) + momentum
             # print("DW post", layer.last_dW)
@@ -302,7 +301,7 @@ class NeuralNetwork:
             updated_w = np.square(updated_w)
             weights_sum = weights_sum + updated_w.sum()
 
-        error = err_func(target_value, self.output_layer.output) + lambd * weights_sum
+        error = err_func(target_value, self.output_layer.output) + lambd* weights_sum
 
 
         return error
@@ -465,7 +464,7 @@ class NeuralNetwork:
             errors.append(err)
 
             ts_err, ts_acc = NeuralNetwork.test_network(self, input_test, target_test)
-            ts_accuracy.append(acc)
+            ts_accuracy.append(ts_acc)
             ts_errors.append(ts_err)
 
             epochs_plot.append(epoch)
@@ -655,8 +654,8 @@ class NeuralNetwork:
         plt.show()
 
     def plot_accuracy(self, epochs_plot, accuracy, ts_accuracy):
-        plt.plot(epochs_plot, accuracy, color="blue", label="accuracy")
-        plt.plot(epochs_plot, ts_accuracy, color="red", label="test error", linestyle="-.")
+        plt.plot(epochs_plot, accuracy, color="blue", label="accuracy TR")
+        plt.plot(epochs_plot, ts_accuracy, color="red", label="accuracy TS", linestyle="-.")
         plt.xlabel("epochs")
         plt.ylabel("accuracy")
         plt.legend(loc='upper left', frameon=False)
