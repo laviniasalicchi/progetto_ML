@@ -282,13 +282,12 @@ class NeuralNetwork:
             net_layers.append(h_layer)
         net_layers.append(self.output_layer)
 
-        weights_sum = 0  # somma dei pesi per Tikhonov regularization
 
         for layer in net_layers:
             dW = np.dot(last_layer_out, layer.deltas.T)
 
             momentum = layer.last_dW * alfa
-            reg_term = 2 * (lambd * layer.weights)
+            reg_term = (lambd * layer.weights)
 
             layer.weights = layer.weights - (eta * dW) + momentum - reg_term  # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
             # print("DW pre", layer.last_dW)
@@ -296,12 +295,8 @@ class NeuralNetwork:
             # print("DW post", layer.last_dW)
             last_layer_out = layer.output
 
-            updated_w = layer.weights
-            updated_w = np.delete(updated_w, -1, 0)
-            updated_w = np.square(updated_w)
-            weights_sum = weights_sum + updated_w.sum()
 
-        error = err_func(target_value, self.output_layer.output) + lambd* weights_sum
+        error = err_func(target_value, self.output_layer.output)
 
 
         return error
