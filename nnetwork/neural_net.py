@@ -49,7 +49,6 @@ class NeuralNetwork:
     def add_hidden_layer(self, hidden_layer):
         self.hidden_layers.append(hidden_layer)
 
-
     """
     Rimuove l'hidden layer alla posizione index della lista
     """
@@ -389,7 +388,7 @@ class NeuralNetwork:
 
         return err_func(target_value, self.output_layer.output)
 
-    def train_rprop(self, input_vector, target_value, epochs, threshold, loss_func, delt0, delt_max):
+    def train_rprop(self, input_vector, target_value, input_test, target_test, epochs, threshold, loss_func, delt0, delt_max):
         logger = logging.getLogger(__name__)
         loss = NeuralNetwork.mean_euclidean_err
         if loss_func == 'mean_euclidean':
@@ -401,6 +400,8 @@ class NeuralNetwork:
         errors = []
         accuracy = []
         epochs_plot = []
+        ts_errors = []
+        ts_accuracy = []
         weights_BT = {}  # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
         for epoch in range(epochs):
@@ -411,10 +412,15 @@ class NeuralNetwork:
             err = NeuralNetwork.rprop(self, input_vector, target_value, loss, delt0, delt_max)
             accuracy.append(acc)
             errors.append(err)
+
+            ts_err, ts_acc = NeuralNetwork.test_network(self, input_test, target_test)
+            ts_accuracy.append(acc)
+            ts_errors.append(ts_err)
+
             epochs_plot.append(epoch)
 
-        NeuralNetwork.plotError(self, epochs_plot, errors)
-        NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
+        NeuralNetwork.plotError(self, epochs_plot, errors, ts_errors)
+        NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
 
 
 
@@ -422,7 +428,7 @@ class NeuralNetwork:
 
 
 
-    def train_network(self, input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd,
+    def train_network(self, input_vector, target_value, input_test, target_test, epochs, threshold, loss_func, eta, alfa, lambd,
                       final=False):  # // aggiunti i target_values
         logger = logging.getLogger(__name__)
         loss = NeuralNetwork.mean_euclidean_err
@@ -435,6 +441,8 @@ class NeuralNetwork:
         errors = []
         accuracy = []
         epochs_plot = []
+        ts_errors = []
+        ts_accuracy = []
         weights_BT = {}  # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
         for epoch in range(epochs):
@@ -445,6 +453,11 @@ class NeuralNetwork:
             err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, alfa, lambd)
             accuracy.append(acc)
             errors.append(err)
+
+            ts_err, ts_acc = NeuralNetwork.test_network(self, input_test, target_test)
+            ts_accuracy.append(acc)
+            ts_errors.append(ts_err)
+
             epochs_plot.append(epoch)
 
             """sys.stdout.write('\r')
@@ -491,8 +504,8 @@ class NeuralNetwork:
         # NeuralNetwork.saveModel(self, weights)
         # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
         if final:
-            NeuralNetwork.plotError(self, epochs_plot, errors)
-            NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy)
+            NeuralNetwork.plotError(self, epochs_plot, errors, ts_errors)
+            NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
         print("Accuracy;", accuracy[len(accuracy) - 1])
         return weights, err
 
@@ -515,37 +528,50 @@ class NeuralNetwork:
         result = np.mean(result)
         return result
 
-
-
-    def test_existing_model(self, input, target):
+    @staticmethod
+    def test_existing_model(input_test, target_test):
         path = "models/finals/"
         dirs = os.listdir(path)
         for dir in dirs:
-            print(dir)
+            print("********", dir)
+            path_hyper = path + dir + "/hyperpar.npz"
+            npzfile = np.load(path_hyper)
+            eta = npzfile['eta']
+            alfa = npzfile['alfa']
+            labd = npzfile['lambd']
+            ntl = npzfile['ntl']
+            nhu = npzfile['nhu']
+            af = npzfile['af']
+            neural_net = NeuralNetwork.create_network(ntl, 17, nhu, 1, af, slope=1)
+            print(ntl, "hiddens", neural_net.hidden_layers)
+
             dir_wei = path + dir + "/weights"
-            print(dir_wei)
             wei_files = os.listdir(dir_wei)
             i = 0
             for file in wei_files:
-                print("FILES", file)
-                if file == 'output.npz':
-                    print("output ok")
-                    fileout = dir_wei + "/" + file
-                    npzfile = np.load(fileout)
-                    output_wei = npzfile['weights']
-                    self.output_layer.weights = output_wei
-                matchhidden = re.match(r'hidden([0-9]).npz', file)
-                if matchhidden:
+                print(dir_wei, "FILES", file)
+                match_hidden = re.match(r'hidden([0-9]).npz', file)
+                if match_hidden:
                     print("hidden ok")
                     print(file)
                     fileout = dir_wei + "/" + file
                     npzfile = np.load(fileout)
                     hidden_wei = npzfile['weights']
-                    self.hidden_layers[i].weights = hidden_wei
+                    neural_net.hidden_layers[i].weights = hidden_wei
                     i = i + 1
-            NeuralNetwork.forward_propagation(self, input)
-            acc = NeuralNetwork.accuracy(self.output_layer.output, target)
-            print("Accuracy su test set", acc)z
+                if file == 'output.npz':
+                    print("output ok")
+                    fileout = dir_wei + "/" + file
+                    npzfile = np.load(fileout)
+                    output_wei = npzfile['weights']
+                    neural_net.output_layer.weights = output_wei
+
+            neural_net.forward_propagation(input_test)
+            ts_err, ts_acc = neural_net.test_network(input_test, target_test)
+            print("Error su test set", ts_err)
+            print("Accuracy su test set", ts_acc)
+
+            print("************ fine di ", dir)
 
 
     """
@@ -610,15 +636,17 @@ class NeuralNetwork:
         np.savez(path, eta=eta, alfa=alfa, lambd=lambd, ntl=ntl, nhu=nhu, af=af)
 
 
-    def plotError(self, epochs_plot, errors):
+    def plotError(self, epochs_plot, errors, ts_error):
         plt.plot(epochs_plot, errors, color="blue", label="training error")
+        plt.plot(epochs_plot, ts_error, color="red", label="test error", linestyle="-.")
         plt.xlabel("epochs")
         plt.ylabel("error")
         plt.legend(loc='upper left', frameon=False)
         plt.show()
 
-    def plot_accuracy(self, epochs_plot, accuracy):
+    def plot_accuracy(self, epochs_plot, accuracy, ts_accuracy):
         plt.plot(epochs_plot, accuracy, color="blue", label="accuracy")
+        plt.plot(epochs_plot, ts_accuracy, color="red", label="test error", linestyle="-.")
         plt.xlabel("epochs")
         plt.ylabel("accuracy")
         plt.legend(loc='upper left', frameon=False)
