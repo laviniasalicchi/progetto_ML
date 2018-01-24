@@ -288,7 +288,7 @@ class NeuralNetwork:
             dW = np.dot(last_layer_out, layer.deltas.T)
 
             momentum = layer.last_dW * alfa
-            reg_term = (lambd * layer.weights)
+            reg_term = 2 * (lambd * layer.weights)
 
             layer.weights = layer.weights - (
             eta * dW) + momentum - reg_term  # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
