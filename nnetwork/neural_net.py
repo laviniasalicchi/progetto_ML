@@ -282,6 +282,8 @@ class NeuralNetwork:
             net_layers.append(h_layer)
         net_layers.append(self.output_layer)
 
+        weights_sum = 0  # somma dei pesi per Tikhonov regularization
+
         for layer in net_layers:
             dW = np.dot(last_layer_out, layer.deltas.T)
 
@@ -295,7 +297,15 @@ class NeuralNetwork:
             # print("DW post", layer.last_dW)
             last_layer_out = layer.output
 
-        return err_func(target_value, self.output_layer.output)
+            updated_w = layer.weights
+            updated_w = np.delete(updated_w, -1, 0)
+            updated_w = np.square(updated_w)
+            weights_sum = weights_sum + updated_w.sum()
+
+        error = err_func(target_value, self.output_layer.output) + lambd * weights_sum
+
+
+        return error
 
 
     def rprop(self, input_vect, target_value, err_func, delt0, delt_max):
