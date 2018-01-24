@@ -33,7 +33,7 @@ def __main__():
     monk_test_input = monk_test[1]
 
 
-    neural_net.train_network(monk_input, monk_targets, monk_test_input, monk_test_target, 200, 0.00, 'mean_squared_err', eta=0.1, alfa=0.9, lambd=0.01, final=True)
+    neural_net.train_network(monk_input, monk_targets, monk_test_input, monk_test_target, 500, 0.00, 'mean_squared_err', eta=0.02, alfa=0.0, lambd=0.00, final=True)
     #neural_net.train_rprop(monk_input, monk_targets, monk_test_input, monk_test_target, 50, 0.00, 'mean_squared_err', delt0=0.1, delt_max=90)
 
 

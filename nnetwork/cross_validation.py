@@ -209,7 +209,7 @@ def kfold_cv_mick(input_vect, target_vect, epochs, threshold, loss_func, eta, al
         start_idx = end_idx
 
         neural_net = NeuralNetwork.create_network(3, 17, 5, 1, 'sigmoid', slope=1)
-        train_res = neural_net.train_network(train_kfold, train_targets, epochs, threshold, loss_func, eta, alfa, lambd)
+        train_res = neural_net._train_no_test(train_kfold, train_targets, epochs, threshold, loss_func, eta, alfa, lambd)
 
         test_res = neural_net.test_network(test_kfold, test_targets)
         err_list.append(test_res[0])
@@ -250,7 +250,46 @@ def kfold_net_topology(input_vect, target_vect, epochs, threshold, loss_func, et
         start_idx = end_idx
 
         neural_net = NeuralNetwork.create_network(ntl, 17, nhu, 1, act_func, slope=1)
-        train_res = neural_net.train_network(train_kfold, train_targets, epochs, threshold, loss_func, eta, alfa, lambd)
+        train_res = neural_net._train_no_test(train_kfold, train_targets, epochs, threshold, loss_func, eta, alfa, lambd)
+
+        test_res = neural_net.test_network(test_kfold, test_targets)
+        err_list.append(test_res[0])
+        acc_list.append(test_res[1])
+
+    acc_mean = np.mean(acc_list)
+    err_mean = np.mean(err_list)
+    print(acc_list)
+    print(acc_mean)
+    print(err_list)
+    return acc_mean
+
+def kfold_adv_net_topology(input_vect, target_vect, epochs, threshold, loss_func, eta, alfa, lambd, ntl, nhu, act_func):
+    k = 8
+    input_size = input_vect.shape[1]
+    resto = input_size % k
+    fold_size = int(input_size / k)
+    start_idx = 0
+    acc_list = []
+    err_list = []
+
+    for index in range(1, k + 1):
+        if resto != 0:
+            end_idx = start_idx + (fold_size + 1) # uso il resto come contatore dei fold che devono avere un elemento in più
+            resto = resto - 1
+        else:
+            end_idx = start_idx + fold_size
+
+        test_kfold = input_vect[:, start_idx:end_idx]
+        test_targets = target_vect[:, start_idx:end_idx]
+
+        train_kfold = np.delete(input_vect, np.s_[start_idx:end_idx], axis=1)
+
+        train_targets = np.delete(target_vect, np.s_[start_idx:end_idx], axis=1)
+
+        start_idx = end_idx
+
+        neural_net = NeuralNetwork.create_advanced_net(ntl, nhu, act_func, 'xavier')
+        train_res = neural_net._train_no_test(train_kfold, train_targets, epochs, threshold, loss_func, eta, alfa, lambd)
 
         test_res = neural_net.test_network(test_kfold, test_targets)
         err_list.append(test_res[0])

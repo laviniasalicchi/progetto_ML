@@ -117,9 +117,7 @@ class Layer:
             deriv = (1 / (1 + np.exp(- a * x))) * (1 - (1 / (1 + np.exp(- a * x))))
             return deriv
         if self.activation_function == 'tanh':
-            #deriv = 1 - self.activation_function**2
-            #vectorized = np.vectorize(deriv)
-            #return vectorized(x)
+
             return 1 - (np.tanh(x))**2
 
     def activation_function_derivative(self, x):
