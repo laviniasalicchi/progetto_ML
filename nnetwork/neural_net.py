@@ -168,7 +168,7 @@ class NeuralNetwork:
         output_layer.set_activation_function(afs[last_idx])
         output_layer.set_sigmoid_slope(slope)
         net.add_output_layer(output_layer)
-        net.print_net_info()
+        #net.print_net_info()
         return net
 
 
@@ -426,6 +426,67 @@ class NeuralNetwork:
         NeuralNetwork.plotError(self, epochs_plot, errors, ts_errors)
         NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
 
+    def _train_no_test(self, input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, final=False):
+        logger = logging.getLogger(__name__)
+        loss = NeuralNetwork.mean_euclidean_err
+        if loss_func == 'mean_euclidean':
+            loss = NeuralNetwork.mean_euclidean_err
+        elif loss_func == 'mean_squared_err':
+            loss = NeuralNetwork.mean_squared_err
+        else:
+            print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
+        errors = []
+        accuracy = []
+        epochs_plot = []
+        ts_errors = []
+        ts_accuracy = []
+        weights_BT = {}  # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
+        err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
+        for epoch in range(epochs):
+            logger.info("Epoch %s", str(epoch))
+            forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
+            acc = NeuralNetwork.accuracy(self.output_layer.output, target_value)
+
+            err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, alfa, lambd)
+            accuracy.append(acc)
+            errors.append(err)
+            epochs_plot.append(epoch)
+
+            # // creazione dizionario {nomelayer : pesi}
+            for i in range(len(self.hidden_layers)):
+                layer = self.hidden_layers[i]
+                if i == 0:
+                    # // weights è un dizionario per poter avere i pesi aggiornati raggiungibili dal nome del layer
+                    key = "hidden" + str(i)
+                    weights = ({key: layer.weights})
+                else:
+                    key = "hidden" + str(i)
+                    weights.update({key: layer.weights})
+            weights.update({'output': self.output_layer.weights})
+
+            # // se l'errore scende sotto la soglia, si salva il modello che lo produce
+            if err < threshold:
+                print('lavinia puzzecchia! trallallero taralli e vino')
+                #   NeuralNetwork.saveModel(self, weights)
+                break
+            # // se l'errore del modello di turno supera il precedente, si sovrascrive a weights il modello precedente
+            # WARNING: l'errore può avere minimi locali, più avanti definiremo meglio questo if
+            elif err > err_BT:
+                weights = weights_BT
+                #   NeuralNetwork.saveModel(self, weights)
+            # // altrimenti, se l'errore continua a decrescere, si sovrascrive a weights_BT il modello corrente, si salva e si sovrascrive a error_BT l'errore del modello corrente
+            else:
+                weights_BT = weights
+                err_BT = err
+
+        if final:
+            NeuralNetwork.plotError(self, epochs_plot, errors, ts_errors)
+            NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
+        print("Accuracy;", accuracy[len(accuracy) - 1])
+        return weights, err
+
+
+
 
 
 
@@ -457,10 +518,10 @@ class NeuralNetwork:
             err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, alfa, lambd)
             accuracy.append(acc)
             errors.append(err)
-
-            ts_err, ts_acc = NeuralNetwork.test_network(self, input_test, target_test)
-            ts_accuracy.append(ts_acc)
-            ts_errors.append(ts_err)
+            if input_test != -1 and target_test != -1:
+                ts_err, ts_acc = NeuralNetwork.test_network(self, input_test, target_test)
+                ts_accuracy.append(ts_acc)
+                ts_errors.append(ts_err)
 
             epochs_plot.append(epoch)
 
