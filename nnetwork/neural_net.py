@@ -366,7 +366,7 @@ class NeuralNetwork:
             #print(err_prod.shape)
             #print(range(0, len(err_prod[0])))
             for i in range(0, err_prod.shape[0]):  # righe
-                for j in range(0, err_prod.shape[1]):  #  colonne
+                for j in range(0, err_prod.shape[1]):  # colonne
                     #print("i",i,"j",j)
                     if err_prod[i][j] > 0:
                         delt_ij = min(layer.delta_rprop[i][j] * npos, delt_max)
@@ -545,7 +545,7 @@ class NeuralNetwork:
                     i = i + 1
             NeuralNetwork.forward_propagation(self, input)
             acc = NeuralNetwork.accuracy(self.output_layer.output, target)
-            print("Accuracy su test set", acc)
+            print("Accuracy su test set", acc)z
 
 
     """
