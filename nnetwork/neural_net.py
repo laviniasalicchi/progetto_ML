@@ -24,123 +24,131 @@ import re
 import logging
 import sys
 
+
 class NeuralNetwork:
 
     def __init__(self):
         self.input_layer = []
         self.hidden_layers = []
         self.output_layer = []
+        self.logger = logging.getLogger(__name__)
 
-    """
-    Aggiunge un input layer alla rete,
-    se il layer precedente viene sovrascritto stampa un warning
-    """
     def add_input_layer(self, input_layer):
-        logger = logging.getLogger(__name__)
+        """
+        Aggiunge un input layer alla rete.
+
+        Se il layer precedente viene sovrascritto stampa un warning
+        """
         if isinstance(input_layer, list):
-            logger.debug('Input layer connected')
+            self.logger.debug('Input layer connected')
         else:
-            logger.debug('you could have overwritten previous input layer, you\'re doomed man!')
+            self.logger.debug('Previous input layer overwritten')
         self.input_layer = input_layer
 
-    """
-    Aggiunge un hidden layer alla lista di hidden layers
-    """
     def add_hidden_layer(self, hidden_layer):
+        """Aggiunge un hidden layer alla lista di hidden layers."""
         self.hidden_layers.append(hidden_layer)
 
-    """
-    Rimuove l'hidden layer alla posizione index della lista
-    """
     def remove_hidden_layer(self, index):
+        """Rimuove l'hidden layer alla posizione index della lista"""
         self.hidden_layers.pop(index)
 
-    """
-    Aggiunge un layer di output alla rete
-    """
     def add_output_layer(self, output_layer):
+        """Aggiunge un layer di output alla rete"""
         self.output_layer = output_layer
 
-    '''
-    Per specificare quale loss function utilizzare
-    '''
     def define_loss(self, loss_function):
+        """Specificare quale loss function utilizzare"""
         self.loss_function = loss_function
 
-
-
-    """
-    Factory method per istanziare una rete.
-    total_layers = numero totale di layers
-    units_hidden = numero di unità per gli hidden layers
-    units_out = unità di output
-    units_in = unità input
-    activ_func = funzione di attivazione dei layers
-    slope = sigmoid slope
-    """
     @staticmethod
-    def create_network(total_layers, units_in, units_hidden, units_out, activ_func, slope=1):
+    def create_network(
+            tot_layers,
+            units_in,
+            units_hid,
+            units_out,
+            activ_func,
+            slope=1
+            ):
+        """
+        Crea una rete neurale in base ai parametri.
+
+            tot_layers = numero di layer totali della rete
+            units_in = numero di unità dell'input layers
+            units_hid = numero di unità di ogni hidden layer
+            units_out = numero di unità dell'output layer
+            activ_func = nome della funzione di attivazione da utilizzare
+            slope = pendenza della funzione di attivazione. Usato per sigmoid
+        """
+
         neural_network = NeuralNetwork()
-        hidden_num = total_layers - 2
+        hidden_num = tot_layers - 2
         input_layer = InputLayer(units_in)
         input_layer.create_weights(units_in)
         input_layer.set_activation_function(activ_func)
-
         input_layer.set_sigmoid_slope(slope)
-
         neural_network.add_input_layer(input_layer)
-        hidden_l = HiddenLayer(units_hidden)
+
+        hidden_l = HiddenLayer(units_hid)
         hidden_l.create_weights(units_in)
         hidden_l.set_activation_function(activ_func)
         neural_network.add_hidden_layer(hidden_l)
 
         for i in range(1, hidden_num):
-            hidden_l = HiddenLayer(units_hidden)
-            hidden_l.create_weights(units_hidden)
+            hidden_l = HiddenLayer(units_hid)
+            hidden_l.create_weights(units_hid)
             hidden_l.set_activation_function(activ_func)
             hidden_l.set_sigmoid_slope(slope)
-
             neural_network.add_hidden_layer(hidden_l)
 
         output_layer = OutputLayer(units_out)
-        output_layer.create_weights(units_hidden)
+        output_layer.create_weights(units_hid)
         output_layer.set_activation_function(activ_func)
         output_layer.set_sigmoid_slope(slope)
         neural_network.add_output_layer(output_layer)
         # neural_network.print_net_info()
         return neural_network
 
-    """
-    tot_lays = number of total n_layer
-    un_lay = lista con numero di unità per layer. deve avere elementi = a num total n_layers
-    afs = lista di funzioni di attivazione: una per ogni layer a esclusione dell'input
-    init = tipo di inizializzazione dei pesi
-    xavier = fan_in --> Understanding the difficulty of training deep feedforward neural networks
-    http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf
-    """
     @staticmethod
     def create_advanced_net(tot_lays, un_lay, afs, init):
+        """
+        Crea una rete neurale con una topologia più complessa.
+            tot_lays = numero di layer totali
+            un_lay = lista del numero di unità per layer. Il primo elemento
+                     è associato al primo layer. Il numero di elementi della
+                     lista deve essere uguale al numero di layers
+            afs = lista di funzioni di attivazione: una per ogni layer.
+                  Il numero di elementi della
+                  lista deve essere uguale al numero di layers
+            init = tipo di inizializzazione dei pesi.
+                    xavier = fan_in
+                    Understanding the difficulty of training deep
+                    feedforward neural networks
+                    http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf
+        """
+
         logger = logging.getLogger(__name__)
         if tot_lays != len(un_lay):
-            logger.error("Il numero di layer e la lista di unità per layer non coincidono. Specificare un numero di unità e di funzini di attivazione per ogni layer della rete")
+            warn = ('Il numero di layer e la lista di unità per layer'
+                    'non coincidono. Specificare un numero di unità '
+                    'per ogni layer della rete')
+            logger.error(warn)
             return
         elif tot_lays != len(afs):
-            logger.error("numero di layer e lista di funzioni di attivazione non hanno la stessa lunghezza.")
-
+            warn = ('Numero di layer e lista di funzioni di attivazione '
+                    'non hanno la stessa lunghezza.')
+            logger.error(warn)
         if tot_lays == 2:
-            logger.error("numero di layer  minimo è tre")
+            logger.error('Il minimo numero di layer è 3')
             return
 
         slope = 1
         net = NeuralNetwork()
-
         fan_in = 2 / (un_lay[0] + un_lay[len(un_lay) - 1])
-
         hidden_num = tot_lays - 2
-
         input_layer = InputLayer(un_lay[0])
 
-        if init == "xavier":
+        if init == 'xavier':
             input_layer.create_weights_fan_in(un_lay[0], fan_in)
         else:
             input_layer.create_weights(un_lay[0])
@@ -152,7 +160,7 @@ class NeuralNetwork:
 
         for i in range(1, hidden_num + 1):
             hidden_l = HiddenLayer(un_lay[i])
-            if init == "xavier":
+            if init == 'xavier':
                 hidden_l.create_weights_fan_in(prev_un, fan_in)
             else:
                 hidden_l.create_weights(prev_un)
@@ -176,27 +184,27 @@ class NeuralNetwork:
         return forward_propagation(self, input_vector)
 
     def print_net_info(self):
-        print("**************** NETWORK ****************")
-        print("Input Layer: " + str(self.input_layer.n_units) + ' units')
+        """Stampa informazioni sulla topologia della rete"""
+
+        print('**************** NETWORK ****************')
+        print('Input Layer: ' + str(self.input_layer.n_units) + ' units')
         i = 1
         for h_layer in self.hidden_layers:
-            print("HiddenLayer " + str(i) + ": " + str(h_layer.n_units) + " units")
+            print('HiddenLayer ' + str(i) + ': ' + str(h_layer.n_units) + ' units')
             i = i + 1
-        print("Output Layer: " + str(self.output_layer.n_units) + ' units')
-        print("**************** NETWORK ***************")
+        print('Output Layer: ' + str(self.output_layer.n_units) + ' units')
+        print('**************** NETWORK ***************')
 
-
-
-    """
-    Implementa la forward propagation calcolando l'output di ogni unità della
-    Rete
-    """
     def forward_propagation(self, input_vector):
+        """
+        Implementa la forward propagation.
+
+        Il segnale di input viene propagato in avanti e viene calcolato
+        l'output di ogni layer.
+        """
         net = self.input_layer.net_function(input_vector)
         input_layer_out = self.input_layer.layer_output()
-        self.input_layer.output = input_layer_out  # // aggiunto il.output
-        # print('debug\t:inout_layer_out', self.input_layer.output.shape)
-
+        self.input_layer.output = input_layer_out
 
         if len(self.hidden_layers) <= 1:
 
@@ -204,7 +212,6 @@ class NeuralNetwork:
             h_layer.net = h_layer.net_function(input_layer_out)
             h_layer_out = h_layer.layer_output()
             h_layer.output = h_layer_out
-
             self.output_layer.net = self.output_layer.net_function(h_layer_out)
             out_layer_out = self.output_layer.layer_output()
             self.output_layer.output = out_layer_out
@@ -229,49 +236,47 @@ class NeuralNetwork:
     lambda = Tikhonov regularization
     """
     def backpropagation(self, input_vector, target_value, err_func, eta, alfa, lambd):
-        logger = logging.getLogger(__name__)
-
         # delt = deriv(E/out) * f'(net)
         err_deriv = err_func(target_value, self.output_layer.output, True)
-        logger.debug('Backprop: err_deriv.shape %s', str(err_deriv.shape))
+        self.logger.debug('Backprop: err_deriv.shape %s', str(err_deriv.shape))
 
         out_net = self.output_layer.net
 
-        logger.debug("Backprop: out_net.shape %s", str(out_net.shape))
+        self.logger.debug("Backprop: out_net.shape %s", str(out_net.shape))
 
         f_prime = self.output_layer.activation_function_derivative(out_net)
-        logger.debug("Backprop: f_prime shape %s", str(f_prime.shape))
+        self.logger.debug("Backprop: f_prime shape %s", str(f_prime.shape))
 
         delta_out = err_deriv * f_prime  # dovrebbe essere una matrice con colonne = numero di pattern // è pattern x n output units
         self.output_layer.deltas = delta_out
         prev_layer_delta = delta_out
         prev_layer_weights = self.output_layer.weights  # prev layer weights sono i pesi del layer precedente (quindi quello a destra quando si fa la backprop)
-        logger.debug("Backprop: delta_out.shape %s", str(delta_out.shape))
+        self.logger.debug("Backprop: delta_out.shape %s", str(delta_out.shape))
 
         for layer in reversed(self.hidden_layers):
             layer_net = layer.net
-            logger.debug("Backprop: layer_net.shape %s", str(layer_net.shape))
+            self.logger.debug("Backprop: layer_net.shape %s", str(layer_net.shape))
 
             f_prime = layer.activation_function_derivative(layer_net)
 
             prev_layer_weights = np.delete(prev_layer_weights, -1, 0)  # tolta la riga dei pesi del bias
             transpose_weights = np.transpose(prev_layer_weights)  # // trasposta fatta a parte senza motivo
 
-            logger.debug("Backprop: prev_layer_weights.shape %s", str(prev_layer_weights.shape))
-            logger.debug("Backprop: prev_layer_delta.shape %s", str(prev_layer_weights.shape))
-            logger.debug("Backprop: f_prime.shape %s", str(f_prime.shape))
+            self.logger.debug("Backprop: prev_layer_weights.shape %s", str(prev_layer_weights.shape))
+            self.logger.debug("Backprop: prev_layer_delta.shape %s", str(prev_layer_weights.shape))
+            self.logger.debug("Backprop: f_prime.shape %s", str(f_prime.shape))
 
             delta = np.dot(prev_layer_weights, prev_layer_delta) * f_prime
 
             layer.deltas = delta
 
-            logger.debug("Backprop: layer_deltas.shape %s", str(layer.deltas.shape))
+            self.logger.debug("Backprop: layer_deltas.shape %s", str(layer.deltas.shape))
 
             prev_layer_delta = delta
             prev_layer_weights = layer.weights
 
         # update weights
-        logger.debug("Backprop: layer.weights.shape %s", str(layer.weights.shape))
+        self.logger.debug("Backprop: layer.weights.shape %s", str(layer.weights.shape))
         ones_row = np.ones((1, layer.deltas.shape[1]))
 
         # update weights
