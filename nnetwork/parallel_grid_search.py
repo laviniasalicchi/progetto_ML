@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # ==============================================================================
-# QUesta classe utilizza un ThreadPoolExecutor per la ricerca degli
+# Questa classe utilizza un ThreadPoolExecutor per la ricerca degli
 # iperparametri nella rete neurale
 #
 # © 2017 Mick Hardins & Lavinia Salicchi
@@ -170,7 +170,7 @@ def kfold_task_adv_net_topology(input_vector, target_value, epochs, threshold, l
 def _tuple_generator(size, start, end, input_size, out_size):
     result = []
     values = range(start, end + 1)
-    perms = list(itertools.permutations(values, size - 2)) # size -2 perchè aggiungiamo a mano input e output
+    perms = list(itertools.permutations(values, size - 2))  # size -2 perchè aggiungiamo a mano input e output
     for tup in perms:
         tup_l = list(tup)
         new_tup = [input_size] + tup_l + [out_size]
