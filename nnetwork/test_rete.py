@@ -16,11 +16,12 @@ import re
 
 def __main__():
 
-    '''
+
     filename = 'ML-CUP17-TR.csv'
     x = ML_CUP_Dataset.load_ML_dataset(filename)[0]
     target_values = ML_CUP_Dataset.load_ML_dataset(filename)[1]
 
+    '''
     input_layer = InputLayer(x.shape[0])
     input_layer.create_weights(x.shape[0])
 
@@ -38,9 +39,6 @@ def __main__():
     neural_net.add_hidden_layer(hidden_layer)
     neural_net.add_output_layer(output_layer)'''
 
-
-
-
     monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
     monk_targets = monk_datas[0]
     monk_input = monk_datas[1]
@@ -51,12 +49,10 @@ def __main__():
     monk_targets_ts = monk_datas_ts[0]
     monk_input_ts = monk_datas_ts[1]
 
-    neural_net = NeuralNetwork.create_network(5, 17, 10, 1, 'sigmoid', slope=1)
+    neural_net = NeuralNetwork.create_network(3, 17, 10, 1, 'sigmoid', slope=1)
 
-    neural_net.train_network(monk_input, monk_targets, monk_input_ts, monk_targets_ts, 500, 0.00, 'mean_squared_err',
-                             eta=0.1, alfa=0.9, lambd=0.01, final=True)
-    err,acc = neural_net.test_network(monk_input_ts,monk_targets_ts)
-    print("dopo training - err",err, " // acc", acc )
+    #   neural_net.train_network(monk_input, monk_targets, monk_input_ts, monk_targets_ts, 300, 0.00, 'mean_squared_err', eta=0.1, alfa=0.9, lambd=0.01, final=True)
+    neural_net.train_rprop(monk_input, monk_targets, monk_input_ts, monk_targets_ts, 300, 0.00, 'mean_squared_err', 0, 500)
     #   neural_net.train_network(monk_input, monk_targets, 300, 0.00001, 'mean_squared_err', eta=0.4, alfa=0.9, lambd=0.1, final=True)
     #neural_net.test_existing_model(monk_input_ts,monk_targets_ts)
 

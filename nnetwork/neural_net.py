@@ -418,7 +418,7 @@ class NeuralNetwork:
             errors.append(err)
 
             ts_err, ts_acc = NeuralNetwork.test_network(self, input_test, target_test)
-            ts_accuracy.append(acc)
+            ts_accuracy.append(ts_acc)
             ts_errors.append(ts_err)
 
             epochs_plot.append(epoch)

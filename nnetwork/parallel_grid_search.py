@@ -74,30 +74,9 @@ def start_grid_search(input_vect, target_vect, epochs, threshold, loss_func):
                              (input_vect, target_vect, epochs, threshold, loss_func, e, a, l, ntl, nhu, af))
                             acc = res[key].get()
                             models.append({'id': i, 'accuracy': acc, 'ntl': ntl, 'nhu': nhu, 'af': af, 'eta': e, 'alfa': a, 'lambda': l})
-
-    print("fine for")
-    models = sorted(models, key=lambda k: k['accuracy'], reverse=True)
-    print("sorted models", models)
-    j = 0
-    for m in models:
-        ntl = m['ntl']
-        nhu = m['nhu']
-        af = m['af']
-        eta = m['eta']
-        alfa = m['alfa']
-        lambd = m['lambda']
-
-        neural_net = NeuralNetwork.create_network(ntl, 17, nhu, 1, af, slope=1)
-        weights, error = neural_net.train_network(input_vect, target_vect, epochs, threshold, loss_func, eta, alfa, lambd)  # , final=True)
-        accuracy = neural_net.accuracy(neural_net.output_layer.output, target_vect)
-        neural_net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, j, accuracy, final=True)
-        j += 1
-        if j == 5:
-            break
-
     executor.close()
     executor.join()
-    return res
+    return models
 
 def start_adv_grid_search(input_vect, target_vect, epochs, threshold, loss_func):
     etas = [0.01, 0.05, 0.1, 0.3, 0.5]
@@ -112,6 +91,7 @@ def start_adv_grid_search(input_vect, target_vect, epochs, threshold, loss_func)
     res = {}
     models = []
     for ntl in n_total_layers:
+        print("in nlt")
         permutations = _tuple_generator(ntl, min_hid, max_hid, 17, 1) #
 
         for nhu in permutations:
@@ -120,15 +100,20 @@ def start_adv_grid_search(input_vect, target_vect, epochs, threshold, loss_func)
                 for e in etas:
                     for a in alfas:
                         for l in lambds:
-                            print("GridSearch started eta=%f, alfas=%f, lambda=%f", e, a, l)
+                            #print("GridSearch started eta=%f, alfas=%f, lambda=%f", e, a, l)
+                            print("nhu:",nhu, " - af:", activ_func, "eta:", e, "alfa:", a,"lambda:", l)
                             key = "eta=" + str(e) + " alfa=" + str(a) + " lambda" +str(l) + " ntl=" + str(ntl) + " nhu=" + str(nhu) + " act=" + af + "\t"
                             #res[key] = executor.apply_async(kfold_task, (input_vect, target_vect, epochs, threshold, loss_func, e, a, l))
                             res[key] = executor.apply_async(kfold_task_adv_net_topology,
                              (input_vect, target_vect, epochs, threshold, loss_func, e, a, l, ntl, nhu, activ_func))
                             acc = res[key].get()
                             models.append({'id': 1, 'accuracy': acc, 'ntl': ntl, 'nhu': nhu, 'af': activ_func, 'eta': e, 'alfa': a, 'lambda': l})
+    executor.close()
+    executor.join()
+    return models
 
-    print("fine for")
+
+def retraining(models, input_vect, target_vect, input_test, target_test, epochs, threshold, loss_func):
     models = sorted(models, key=lambda k: k['accuracy'], reverse=True)
     print("sorted models", models)
     j = 0
@@ -141,16 +126,12 @@ def start_adv_grid_search(input_vect, target_vect, epochs, threshold, loss_func)
         lambd = m['lambda']
 
         neural_net = NeuralNetwork.create_network(ntl, 17, nhu, 1, af, slope=1)
-        weights, error = neural_net._train_no_test(input_vect, target_vect, epochs, threshold, loss_func, eta, alfa, lambd)  # , final=True)
+        weights, error = neural_net._train_no_test(input_vect, target_vect, input_test, target_test, epochs, threshold, loss_func, eta, alfa, lambd)  # , final=True)
         accuracy = neural_net.accuracy(neural_net.output_layer.output, target_vect)
         neural_net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, j, accuracy, final=True)
         j += 1
         if j == 5:
             break
-
-    executor.close()
-    executor.join()
-    return res
 
 
 
@@ -175,6 +156,7 @@ def _tuple_generator(size, start, end, input_size, out_size):
         tup_l = list(tup)
         new_tup = [input_size] + tup_l + [out_size]
         result.append(new_tup)
+    print(result)
     return result
 
 __main__()
