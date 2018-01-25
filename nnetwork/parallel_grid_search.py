@@ -88,12 +88,12 @@ def start_adv_grid_search(input_vect, target_vect, epochs, threshold, loss_func)
     etas = [0.01, 0.05, 0.1, 0.3, 0.5]
     alfas = [0.5, 0.7, 0.9]
     lambds = [0.01, 0.04, 0.07, 0.1]
-    n_total_layers = [3, 4, 5]
+    n_total_layers = [3]
     min_hid = 3
-    max_hid = 15
+    max_hid = 10
     act_func = ['sigmoid', 'tanh']
     # creo l'executor a cui mandare i task
-    executor = mp.Pool(processes=20)
+    executor = mp.Pool(processes=10)
     res = {}
     models = []
     for ntl in n_total_layers:

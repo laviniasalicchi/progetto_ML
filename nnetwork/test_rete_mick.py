@@ -10,6 +10,7 @@ from monk_dataset import *
 from ML_CUP_dataset import ML_CUP_Dataset
 import cross_validation
 import logging
+from trainer import *
 
 
 def __main__():
@@ -22,7 +23,12 @@ def __main__():
     #af = ['tanh', 'tanh', 'tanh', 'tanh', 'tanh']
     #neural_net = NeuralNetwork.create_advanced_net(5, unit_lay, af, "xavier")
 
-    neural_net = NeuralNetwork.create_network(5, 17, 10, 1, 'sigmoid', slope=1  )
+    neural_net = NeuralNetwork.create_network(5, 17, 10, 1, 'sigmoid', slope=1)
+    args = {
+        "eta": 0.1,
+        "epochs": 100
+        }
+    trainer = NeuralTrainer(neural_net, **args)
 
     monk_datas = MonkDataset.load_encode_monk('/Users/mick/Dati/Università/Pisa/Machine_learning/Prj_info/Progetto_ml/progetto_ML/datasets/monks-3.train')
     monk_targets = monk_datas[0]
@@ -31,6 +37,8 @@ def __main__():
     monk_test = MonkDataset.load_encode_monk('/Users/mick/Dati/Università/Pisa/Machine_learning/Prj_info/Progetto_ml/progetto_ML/datasets/monks-3.test')
     monk_test_target = monk_test[0]
     monk_test_input = monk_test[1]
+
+    trainer.train_network(monk_input, monk_targets, monk_test_input, monk_test_target)
 
 
     neural_net.train_network(monk_input, monk_targets, monk_test_input, monk_test_target, 500, 0.00, 'mean_squared_err', eta=0.02, alfa=0.0, lambd=0.00, final=True)
