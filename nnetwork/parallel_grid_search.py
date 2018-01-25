@@ -22,11 +22,17 @@ def __main__():
         monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
         monk_targets = monk_datas[0]
         monk_input = monk_datas[1]
+        monk_datas_ts = MonkDataset.load_encode_monk('../datasets/monks-1.test')
+        monk_targets_ts = monk_datas_ts[0]
+        monk_input_ts = monk_datas_ts[1]
         print(monk_targets.shape)
         print(monk_input.shape)
         input()
         start = time.time() * 1000  # benchmark
-        res = start_adv_grid_search(monk_input, monk_targets, 600, 0.0, 'mean_squared_err')
+        #res = start_adv_grid_search(monk_input, monk_targets, 600, 0.0, 'mean_squared_err')
+        mod = start_grid_search(monk_input, monk_targets, 600, 0.0, 'mean_squared_err')
+        retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts, 600, 0.0, 'mean_squared_err')
+
 
         #grid_search(monk_input, monk_targets, 1000, 0.0, 'mean_squared_err')
 
@@ -54,7 +60,7 @@ def start_grid_search(input_vect, target_vect, epochs, threshold, loss_func):
     alfas = [0.5, 0.7, 0.9]
     lambds = [0.01, 0.04, 0.07, 0.1]
     n_total_layers = [3, 4, 5]
-    n_hidden_units = range(5, 20)
+    n_hidden_units = [5, 10, 15] #range(5, 20)
     act_func = ['sigmoid', 'tanh']
     # creo l'executor a cui mandare i task
     executor = mp.Pool(processes=20)
@@ -126,9 +132,11 @@ def retraining(models, input_vect, target_vect, input_test, target_test, epochs,
         lambd = m['lambda']
 
         neural_net = NeuralNetwork.create_network(ntl, 17, nhu, 1, af, slope=1)
-        weights, error = neural_net._train_no_test(input_vect, target_vect, input_test, target_test, epochs, threshold, loss_func, eta, alfa, lambd)  # , final=True)
-        accuracy = neural_net.accuracy(neural_net.output_layer.output, target_vect)
-        neural_net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, j, accuracy, final=True)
+        #weights, error = neural_net._train_no_test(input_vect, target_vect, input_test, target_test, epochs, threshold, loss_func, eta, alfa, lambd)  # , final=True)
+        print("model: tot layer", ntl," - hidden units",nhu," - eta", eta, " - alfa", alfa," - lambda", lambd, " - activ func", af  )
+        weights, error = neural_net.train_network(input_vect, target_vect, input_test, target_test, epochs, threshold, loss_func, eta, alfa, lambd, final=True)
+        #accuracy = neural_net.accuracy(neural_net.output_layer.output, target_vect)
+        neural_net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, j, final=True)
         j += 1
         if j == 5:
             break

@@ -674,7 +674,7 @@ class NeuralNetwork:
     TODO decommentare.
     """
     @staticmethod
-    def saveModel(weights, eta, alfa, lambd, ntl, nhu, af, i, accuracy, final=False):
+    def saveModel(weights, eta, alfa, lambd, ntl, nhu, af, i, final=False):
         now_m = datetime.now().isoformat()
         now = (now_m.rpartition(':')[0]).replace(":", "")
         # print(now)
