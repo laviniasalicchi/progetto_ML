@@ -523,10 +523,10 @@ class NeuralNetwork:
             err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, alfa, lambd)
             accuracy.append(acc)
             errors.append(err)
-            if input_test != -1 and target_test != -1:
-                ts_err, ts_acc = NeuralNetwork.test_network(self, input_test, target_test)
-                ts_accuracy.append(ts_acc)
-                ts_errors.append(ts_err)
+
+            ts_err, ts_acc = NeuralNetwork.test_network(self, input_test, target_test)
+            ts_accuracy.append(ts_acc)
+            ts_errors.append(ts_err)
 
             epochs_plot.append(epoch)
 

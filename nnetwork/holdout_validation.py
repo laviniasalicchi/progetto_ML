@@ -71,3 +71,4 @@ def hold_out(input_vector, target_value, epochs, threshold, loss_func):
                             models.append({'id': i, 'accuracy': acc, 'ntl': ntl, 'nhu': nhu, 'af': af, 'eta': e, 'alfa': a, 'lambda': l})
     return models
 
+__main__()
