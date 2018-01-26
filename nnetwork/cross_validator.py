@@ -7,31 +7,18 @@
 # ==============================================================================
 
 import numpy as np
-
-from layer import Layer
-from input_layer import InputLayer
-from hidden_layer import HiddenLayer
-from output_layer import OutputLayer
 from neural_net import NeuralNetwork
-from monk_dataset import MonkDataset
-from ML_CUP_dataset import ML_CUP_Dataset
 from trainer import NeuralTrainer
+
 
 class CrossValidator:
 
     def __init__(self, neural_trainer):
         self.trainer = neural_trainer
 
-        """
-        train = trainer(kwargs)
-        trainer.train_net(input, tar, test,targ,false)
-        """
-
 
     def k_fold(self, input_vect, target_vect, k=4):
-
         trainer = self.trainer
-
         input_size = input_vect.shape[1]
         resto = input_size % k
         fold_size = int(input_size / k)
@@ -56,12 +43,9 @@ class CrossValidator:
             train_targets = np.delete(target_vect, np.s_[start_idx:end_idx], axis=1)
 
             start_idx = end_idx
-            print("train_k", train_kfold.shape)
-            print("test", test_targets.shape)
 
             trainer._train_no_test(train_kfold, train_targets)
             test_res = trainer.net.test_network(test_kfold, test_targets)
-
 
             err_list.append(test_res[0])
             acc_list.append(test_res[1])
@@ -82,8 +66,6 @@ class CrossValidator:
         units_hid = net_param.get('units_hid', 1)
         units_out = net_param.get('units_out', target_vect.shape[0])
         act_func = net_param.get('act_func', 'sigmoid')
-        # parametri training
-
         input_size = input_vect.shape[1]
         resto = input_size % k
         fold_size = int(input_size / k)
@@ -135,7 +117,6 @@ class CrossValidator:
         act_func = net_param.get('act_func', 'sigmoid')
         init = net_param.get('init', 'def')
         un_lays = net_param.get('un_lays', '')
-        # parametri training
 
         input_size = input_vect.shape[1]
         resto = input_size % k

@@ -7,6 +7,7 @@
 # ==============================================================================
 
 from neural_net import NeuralNetwork
+from plotter import Plotter
 
 class NeuralTrainer:
 
@@ -85,8 +86,8 @@ class NeuralTrainer:
         if save:
             # todo parte di salvetaggio del modello
 
-            NeuralNetwork.plotError(self, epochs_plot, errors, ts_errors)
-            NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
+            Plotter.plotError(self, epochs_plot, errors, ts_errors)
+            Plotter.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
         return weights, err
 
     def _train_no_test(self, input_vector, target_value, save=False):
@@ -145,8 +146,8 @@ class NeuralTrainer:
                 weights_BT = weights
                 err_BT = err
         if save:
-            NeuralNetwork.plotError(self, epochs_plot, errors, ts_errors)
-            NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
+            Plotter.plotError(self, epochs_plot, errors, ts_errors)
+            Plotter.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
         print("Accuracy;", accuracy[len(accuracy) - 1])
         return weights, err
 
@@ -180,8 +181,8 @@ class NeuralTrainer:
 
             epochs_plot.append(epoch)
 
-        NeuralNetwork.plotError(self, epochs_plot, errors, ts_errors)
-        NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
+        Plotter.plotError(self, epochs_plot, errors, ts_errors)
+        Plotter.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
 
     def train_rprop_no_test(self, input_vector, target_value, input_test, target_test):
         nn_net = self.net

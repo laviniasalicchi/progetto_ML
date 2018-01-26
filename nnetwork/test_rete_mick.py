@@ -41,8 +41,6 @@ def k_fold(trainer, input_vect, target_vect, k=4):
         train_targets = np.delete(target_vect, np.s_[start_idx:end_idx], axis=1)
 
         start_idx = end_idx
-        print("train_k", train_kfold.shape)
-        print("test", test_targets.shape)
 
         trainer._train_no_test(train_kfold, train_targets)
         test_res = trainer.net.test_network(test_kfold, test_targets)
