@@ -211,7 +211,6 @@ class NeuralNetwork:
             h_layer = self.hidden_layers[0]
             h_layer.net = h_layer.net_function(input_layer_out)
             h_layer_out = h_layer.layer_output()
-            print("SSSSSSSSSLKSLKASLKSLSKSLKSLSKLSKSLKSLKSLSKLS")
             h_layer.output = h_layer_out
             self.output_layer.net = self.output_layer.net_function(h_layer_out)
             out_layer_out = self.output_layer.layer_output()

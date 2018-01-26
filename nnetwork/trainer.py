@@ -108,7 +108,7 @@ class NeuralTrainer:
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
         for epoch in range(self.epochs):
             #logger.info("Epoch %s", str(epoch))
-            print("eweweweweweweweweweeweweew")
+            #print("eweweweweweweweweweeweweew")
             output = nn_net.forward_propagation(input_vector)
             acc = NeuralNetwork.accuracy(output, target_value)
             err = nn_net.backpropagation(input_vector, target_value, loss, self.eta, self.alfa, self.lambd)

@@ -222,7 +222,7 @@ def kfold_cv_mick(input_vect, target_vect, epochs, threshold, loss_func, eta, al
     print(err_list)
 
 def kfold_net_topology(input_vect, target_vect, epochs, threshold, loss_func, eta, alfa, lambd, ntl, nhu, act_func):
-    k = 8
+    k = 15
     input_size = input_vect.shape[1]
     resto = input_size % k
     fold_size = int(input_size / k)
@@ -264,7 +264,8 @@ def kfold_net_topology(input_vect, target_vect, epochs, threshold, loss_func, et
     return acc_mean
 
 def kfold_adv_net_topology(input_vect, target_vect, epochs, threshold, loss_func, eta, alfa, lambd, ntl, nhu, act_func):
-    k = 8
+    k = 10
+
     input_size = input_vect.shape[1]
     resto = input_size % k
     fold_size = int(input_size / k)

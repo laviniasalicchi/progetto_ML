@@ -15,6 +15,7 @@ from output_layer import OutputLayer
 from neural_net import NeuralNetwork
 from monk_dataset import MonkDataset
 from ML_CUP_dataset import ML_CUP_Dataset
+from trainer import NeuralTrainer
 
 class CrossValidator:
 
@@ -38,6 +39,9 @@ class CrossValidator:
         acc_list = []
         err_list = []
 
+        print(fold_size)
+        print(resto)
+
         for index in range(1, k + 1):
             if resto != 0:
                 end_idx = start_idx + (fold_size + 1) # uso il resto come contatore dei fold che devono avere un elemento in più
@@ -52,6 +56,115 @@ class CrossValidator:
             train_targets = np.delete(target_vect, np.s_[start_idx:end_idx], axis=1)
 
             start_idx = end_idx
+            print("train_k", train_kfold.shape)
+            print("test", test_targets.shape)
+
+            trainer._train_no_test(train_kfold, train_targets)
+            test_res = trainer.net.test_network(test_kfold, test_targets)
+
+
+            err_list.append(test_res[0])
+            acc_list.append(test_res[1])
+
+        acc_mean = np.mean(acc_list)
+        err_mean = np.mean(err_list)
+        # TODO remove printing
+        print(acc_list)
+        print(acc_mean)
+        print(err_list)
+        return acc_mean
+
+    @staticmethod
+    def k_fold_grid(net_param, train_param, input_vect, target_vect, k=4, **kwargs):
+        # parametri topologici rete
+        tot_lay = net_param.get('tot_lay', 3)
+        units_in = net_param.get('units_in', input_vect.shape[0])
+        units_hid = net_param.get('units_hid', 1)
+        units_out = net_param.get('units_out', target_vect.shape[0])
+        act_func = net_param.get('act_func', 'sigmoid')
+        # parametri training
+
+        input_size = input_vect.shape[1]
+        resto = input_size % k
+        fold_size = int(input_size / k)
+        start_idx = 0
+        acc_list = []
+        err_list = []
+
+        print(fold_size)
+        print(resto)
+
+        for index in range(1, k + 1):
+            if resto != 0:
+                end_idx = start_idx + (fold_size + 1) # uso il resto come contatore dei fold che devono avere un elemento in più
+                resto = resto - 1
+            else:
+                end_idx = start_idx + fold_size
+
+            net = NeuralNetwork.create_network(tot_lay, units_in, units_hid, units_out, act_func)
+            trainer = NeuralTrainer(net, **train_param)
+
+            test_kfold = input_vect[:, start_idx:end_idx]
+            test_targets = target_vect[:, start_idx:end_idx]
+
+            train_kfold = np.delete(input_vect, np.s_[start_idx:end_idx], axis=1)
+            train_targets = np.delete(target_vect, np.s_[start_idx:end_idx], axis=1)
+
+            start_idx = end_idx
+            print("train_k", train_kfold.shape)
+            print("test", test_targets.shape)
+
+            trainer._train_no_test(train_kfold, train_targets)
+            test_res = trainer.net.test_network(test_kfold, test_targets)
+
+
+            err_list.append(test_res[0])
+            acc_list.append(test_res[1])
+
+        acc_mean = np.mean(acc_list)
+        err_mean = np.mean(err_list)
+        # TODO remove printing
+        print(acc_list)
+        print(acc_mean)
+        print(err_list)
+        return acc_mean
+
+    def kfold_grid_adv(net_param, train_param, input_vect, target_vect, k=4):
+        # parametri topologici rete
+        tot_lay = net_param.get('tot_lay', 3)
+        act_func = net_param.get('act_func', 'sigmoid')
+        init = net_param.get('init', 'def')
+        un_lays = net_param.get('un_lays', '')
+        # parametri training
+
+        input_size = input_vect.shape[1]
+        resto = input_size % k
+        fold_size = int(input_size / k)
+        start_idx = 0
+        acc_list = []
+        err_list = []
+
+        print(fold_size)
+        print(resto)
+
+        for index in range(1, k + 1):
+            if resto != 0:
+                end_idx = start_idx + (fold_size + 1) # uso il resto come contatore dei fold che devono avere un elemento in più
+                resto = resto - 1
+            else:
+                end_idx = start_idx + fold_size
+
+            net = NeuralNetwork.create_advanced_net(tot_lay, un_lays, act_func, init)
+            trainer = NeuralTrainer(net, **train_param)
+
+            test_kfold = input_vect[:, start_idx:end_idx]
+            test_targets = target_vect[:, start_idx:end_idx]
+
+            train_kfold = np.delete(input_vect, np.s_[start_idx:end_idx], axis=1)
+            train_targets = np.delete(target_vect, np.s_[start_idx:end_idx], axis=1)
+
+            start_idx = end_idx
+
 
             trainer._train_no_test(train_kfold, train_targets)
             test_res = trainer.net.test_network(test_kfold, test_targets)
