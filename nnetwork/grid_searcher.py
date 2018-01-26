@@ -120,8 +120,10 @@ def grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
                             acc = res[key].get()
 
                             models.append({'id': 0, 'accuracy': acc, 'ntl': ntl, 'nhu': nhu, 'af': af, 'eta': e, 'alfa': a, 'lambda': l})
-                            progress = (count / float(tot_iter)) * 100
-                            print(count, ' of ', tot_iter, ' ', progress, '\% completed')
+                            progress = (count / tot_iter) * 100
+                            mess = 'Progress: {} %' + '    (' + str(count) + ' of ' + str(tot_iter) + ')'
+                            mess = mess.format(int(progress))
+                            print(mess)
                             count = count + 1
     executor.close()
     executor.join()
@@ -182,9 +184,10 @@ def adv_grid_search(input_vect, target_vect, epochs, trshld=0.00, k=4, **kwargs)
                             acc = res[key].get()
 
                             models.append({'id': 0, 'accuracy': acc, 'ntl': ntl, 'nhu': nhu, 'af': af, 'eta': e, 'alfa': a, 'lambda': l})
-                            progress = (count / float(tot_iter)) * 100
-
-                            print(count, ' of ', tot_iter, ' ', progress, '\% completed')
+                            progress = (count / tot_iter) * 100
+                            mess = 'Progress: {} %' + '    (' + str(count) + ' of ' + str(tot_iter) + ')'
+                            mess = mess.format(int(progress))
+                            print(mess)
                             count = count + 1
     executor.close()
     executor.join()
