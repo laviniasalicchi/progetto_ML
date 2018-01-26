@@ -106,7 +106,7 @@ class NeuralNetwork:
         output_layer.set_activation_function(activ_func)
         output_layer.set_sigmoid_slope(slope)
         neural_network.add_output_layer(output_layer)
-        # neural_network.print_net_info()
+        neural_network.print_net_info()
         return neural_network
 
     @staticmethod
@@ -176,7 +176,7 @@ class NeuralNetwork:
         output_layer.set_activation_function(afs[last_idx])
         output_layer.set_sigmoid_slope(slope)
         net.add_output_layer(output_layer)
-        #net.print_net_info()
+        net.print_net_info()
         return net
 
 
@@ -211,6 +211,7 @@ class NeuralNetwork:
             h_layer = self.hidden_layers[0]
             h_layer.net = h_layer.net_function(input_layer_out)
             h_layer_out = h_layer.layer_output()
+            print("SSSSSSSSSLKSLKASLKSLSKSLKSLSKLSKSLKSLKSLSKLS")
             h_layer.output = h_layer_out
             self.output_layer.net = self.output_layer.net_function(h_layer_out)
             out_layer_out = self.output_layer.layer_output()

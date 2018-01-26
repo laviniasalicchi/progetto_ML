@@ -27,7 +27,7 @@ class CrossValidator:
         """
 
 
-    def k_fold(input_vector, target_value, k=4):
+    def k_fold(self, input_vect, target_vect, k=4):
 
         trainer = self.trainer
 

@@ -44,6 +44,8 @@ def __main__():
         monk_input_ts = monk_datas_ts[1]
 
         params = {
+            #'unit_in': 17,
+            #'unit_out': 1,
             'loss': 'mean_euclidean',
             'etas': [0.01, 0.05, 0.1, 0.3, 0.5],
             'alfas': [0.5, 0.7, 0.9],
@@ -80,8 +82,9 @@ def __main__():
         print("TIME: ", end-start)
 
 def grid_search(input_vect, target_vect, epochs, trshld=0.00, k=4, **kwargs):
-    units_in = input_vect.shape[0] # shape dell'input_vector
-    units_out = input_vect.shape[1]
+    units_in = kwargs.get('unit_in', input_vect.shape[0])
+    units_out = kwargs.get('unit_out', target_vect.shape[0])
+    print('Units out', units_out)
     loss = kwargs.get('loss','mean_euclidean')
     etas = kwargs.get('etas', [0.01, 0.05, 0.1, 0.3, 0.5])
     alfas = kwargs.get('alfas', [0.5, 0.7, 0.9])
@@ -112,7 +115,7 @@ def grid_search(input_vect, target_vect, epochs, trshld=0.00, k=4, **kwargs):
                                 'threshold': trshld,
                                 'loss': loss
                             }
-                            trainer = NeuralTrainer(net, train_par)
+                            trainer = NeuralTrainer(net, **train_par)
 
 
                             key = "eta=" + str(e) + " alfa=" + str(a) + " lambda" +str(l) + " ntl=" + str(ntl) + " nhu=" + str(nhu) + " act=" + af + "\t"
