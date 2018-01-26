@@ -24,7 +24,7 @@ class Plotter:
         plt.legend(loc='upper left', frameon=False)
         plt.show()
 
-    @staticmethod    
+    @staticmethod
     def plot_accuracy(self, epochs_plot, accuracy, ts_accuracy):
         plt.plot(epochs_plot, accuracy, color="blue", label="accuracy TR")
         plt.plot(epochs_plot, ts_accuracy, color="red", label="accuracy TS", linestyle="-.")
