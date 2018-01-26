@@ -32,20 +32,20 @@ def __main__():
             'units_in': 17,
             'units_out': 1,
             'loss': 'mean_euclidean',
-            'etas': [0.01, 0.05, 0.1, 0.3, 0.5],
-            'alfas': [0.5, 0.7, 0.9],
-            'lambds': [0.01, 0.04, 0.07, 0.1],
-            'tot_lay': [3, 4, 5],
-            'n_hid': [5, 10, 15],
-            'epochs': 600,
-            'act_func': ['sigmoid,', 'tanh']
+            'etas': [0.01],
+            'alfas': [0.5],
+            'lambds': [0.01],
+            'tot_lay': [3],
+            'n_hid': [5],
+            'epochs': 100,
+            'act_func': ['sigmoid']
         }
 
 
 
         input()
         start = time.time() * 1000  # benchmark
-        mod = adv_grid_search(monk_input, monk_targets, 600, params)
+        mod = adv_grid_search(monk_input, monk_targets, params)
         retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts, 600, 0.0, 'mean_squared_err')
 
 
@@ -129,10 +129,10 @@ def grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
     executor.join()
     return models
 
-def adv_grid_search(input_vect, target_vect, epochs, trshld=0.00, k=4, **kwargs):
+def adv_grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
     units_in = kwargs.get('unit_in', input_vect.shape[0])
     units_out = kwargs.get('unit_out', target_vect.shape[0])
-
+    epochs = kwargs.get('epochs', 150)
     loss = kwargs.get('loss', 'mean_euclidean')
     etas = kwargs.get('etas', [0.01, 0.05, 0.1, 0.3, 0.5])
     alfas = kwargs.get('alfas', [0.5, 0.7, 0.9])
