@@ -7,8 +7,6 @@
 # © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
 
-from cross_validation import *
-import concurrent.futures
 import random
 import time
 from monk_dataset import *
@@ -18,6 +16,8 @@ import itertools
 from neural_net import NeuralNetwork
 from cross_validator import CrossValidator
 from trainer import NeuralTrainer
+import sys
+import datetime as date
 
 def __main__():
     if __name__ == '__main__':
@@ -45,11 +45,9 @@ def __main__():
 
         input()
         start = time.time() * 1000  # benchmark
-        mod = adv_grid_search(monk_input, monk_targets, params)
+        mod = grid_search(monk_input, monk_targets, params)
         retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts, 600, 0.0, 'mean_squared_err')
 
-
-        #grid_search(monk_input, monk_targets, 1000, 0.0, 'mean_squared_err')
 
         end = time.time() * 1000
         ''''# ottieni i valori
@@ -70,15 +68,17 @@ def __main__():
 
 
 def grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
+    now = date.datetime.now().strftime('%d-%m-%Y_%H:%M:%S')
+
     units_in = kwargs.get('unit_in', input_vect.shape[0])
     units_out = kwargs.get('unit_out', target_vect.shape[0])
-    loss = kwargs.get('loss','mean_euclidean')
+    loss = kwargs.get('loss', 'mean_euclidean')
     etas = kwargs.get('etas', [0.01, 0.05, 0.1, 0.3, 0.5])
     alfas = kwargs.get('alfas', [0.5, 0.7, 0.9])
     lambds = kwargs.get('lambds', [0.01, 0.04, 0.07, 0.1])
     n_total_layers = kwargs.get('tot_lay', [3, 4, 5])
     n_hidden_units = kwargs.get('n_hid', [5, 10, 15])
-    act_func = kwargs.get('act_func', ['sigmoid,', 'tanh'])
+    act_func = kwargs.get('act_func', ['sigmoid', 'tanh'])
     epochs = kwargs.get('epochs', 150)
 
     executor = mp.Pool(processes=20)
@@ -115,7 +115,7 @@ def grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
 
                             key = "eta=" + str(e) + " alfa=" + str(a) + " lambda" +str(l) + " ntl=" + str(ntl) + " nhu=" + str(nhu) + " act=" + af + "\t"
                             #res[key] = executor.apply_async(kfold_task, (input_vect, target_vect, epochs, threshold, loss_func, e, a, l))
-                            res[key] = executor.apply_async(kfold_task2,
+                            res[key] = executor.apply_async(kfold_task,
                              (net_topology, train_par, input_vect, target_vect, k))
                             acc = res[key].get()
 
@@ -123,13 +123,26 @@ def grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
                             progress = (count / tot_iter) * 100
                             mess = 'Progress: {} %' + '    (' + str(count) + ' of ' + str(tot_iter) + ')'
                             mess = mess.format(int(progress))
-                            print(mess)
+                            print(mess  , end='\r')
+                            sys.stdout.flush()
+                            if int(progress) > 0 and (int(progress) % 20) == 0:
+                                current_par = {
+                                    'eta': e,
+                                    'alfa': a,
+                                    'lambd': l,
+                                    'tot_lay': ntl,
+                                    'units_hid': nhu,
+                                    'act_func': af
+                                }
+                                _backup_grid_search(models, current_par, now)
                             count = count + 1
     executor.close()
     executor.join()
     return models
 
 def adv_grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
+    now = date.datetime.now().strftime('%d-%m-%Y_%H:%M:%S')
+
     units_in = kwargs.get('unit_in', input_vect.shape[0])
     units_out = kwargs.get('unit_out', target_vect.shape[0])
     epochs = kwargs.get('epochs', 150)
@@ -138,7 +151,7 @@ def adv_grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
     alfas = kwargs.get('alfas', [0.5, 0.7, 0.9])
     lambds = kwargs.get('lambds', [0.01, 0.04, 0.07, 0.1])
     n_total_layers = kwargs.get('tot_lay', [3, 4, 5])
-    act_func = kwargs.get('act_func', ['sigmoid,', 'tanh'])
+    act_func = kwargs.get('act_func', ['sigmoid', 'tanh'])
     init = kwargs.get('init', 'def')
     min_hid = 3
     max_hid = 10
@@ -187,22 +200,31 @@ def adv_grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
                             progress = (count / tot_iter) * 100
                             mess = 'Progress: {} %' + '    (' + str(count) + ' of ' + str(tot_iter) + ')'
                             mess = mess.format(int(progress))
-                            print(mess)
+                            print(mess, end='\r')
+                            sys.stdout.flush()
+                            if int(progress) > 0 and (int(progress) % 20) == 0:
+                                current_par = {
+                                    'eta': e,
+                                    'alfa': a,
+                                    'lambd': l,
+                                    'un_lays': nhu,
+                                    'units_out': units_out,
+                                    'tot_lay': ntl,
+                                    'init': init,
+                                    'act_func': af
+                                }
+                                _backup_grid_search(models, current_par, now)
                             count = count + 1
     executor.close()
     executor.join()
     return models
 
-def kfold_task(trainer, input_vect, target, k=4):
-    cross_validator = CrossValidator(trainer)
-    acc = cross_validator.k_fold(input_vect, target, k)
-    return acc
 
 def kfold_adv_task(net_topology, trainer_param, input_vect, target, k=4):
     acc = CrossValidator.kfold_grid_adv(net_topology, trainer_param, input_vect, target, k=4)
     return acc
 
-def kfold_task2(net_topology, trainer_param, input_vect, target, k=4):
+def kfold_task(net_topology, trainer_param, input_vect, target, k=4):
 
     acc = CrossValidator.k_fold_grid(net_topology, trainer_param, input_vect, target, k=4)
     return acc
@@ -222,5 +244,33 @@ def _tuple_count(size, start, end):
     values = range(start, end + 1)
     perms = list(itertools.permutations(values, size - 2))
     return len(perms)
+
+
+def _backup_grid_search(models, params, now):
+    """
+    Salva gli iperparametri dei modelli testati.
+    Copia la lista dei modelli e la ordina salvano i migliori 5 trovati.
+    in un file separato salva l'ultimo valore degli iperparametri testato
+    """
+    modelli = sorted(list(models), key=lambda k: k['accuracy'], reverse=True)
+    filename = 'grid_sear_' + now + '.txt'
+    filename2 = 'last_params_' + now + '.txt'
+    with open(filename, mode='w') as models_backup:
+        for i in range(1, 6):
+            mod = str(str(modelli[i]))
+            models_backup.write('%s\n' % mod)
+    with open(filename2, mode='w') as par_backup:
+        par = str(params)
+        par_backup.write('%s\n' % par)
+
+
+
+
+    #for dict in modelli:
+
+
+
+
+
 
 __main__()

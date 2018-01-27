@@ -13,49 +13,6 @@ import logging
 from trainer import *
 from cross_validator import CrossValidator
 
-def k_fold(trainer, input_vect, target_vect, k=4):
-
-
-
-    input_size = input_vect.shape[1]
-    resto = input_size % k
-    fold_size = int(input_size / k)
-    start_idx = 0
-    acc_list = []
-    err_list = []
-
-    print(fold_size)
-    print(resto)
-
-    for index in range(1, k + 1):
-        if resto != 0:
-            end_idx = start_idx + (fold_size + 1) # uso il resto come contatore dei fold che devono avere un elemento in più
-            resto = resto - 1
-        else:
-            end_idx = start_idx + fold_size
-
-        test_kfold = input_vect[:, start_idx:end_idx]
-        test_targets = target_vect[:, start_idx:end_idx]
-
-        train_kfold = np.delete(input_vect, np.s_[start_idx:end_idx], axis=1)
-        train_targets = np.delete(target_vect, np.s_[start_idx:end_idx], axis=1)
-
-        start_idx = end_idx
-
-        trainer._train_no_test(train_kfold, train_targets)
-        test_res = trainer.net.test_network(test_kfold, test_targets)
-
-
-        err_list.append(test_res[0])
-        acc_list.append(test_res[1])
-
-    acc_mean = np.mean(acc_list)
-    err_mean = np.mean(err_list)
-    # TODO remove printing
-    print(acc_list)
-    print(acc_mean)
-    print(err_list)
-    return acc_mean
 
 
 
@@ -72,7 +29,9 @@ def __main__():
     neural_net = NeuralNetwork.create_network(3, 17, 10, 1, 'sigmoid', slope=1)
     args = {
         "eta": 0.1,
-        "epochs": 100
+        'alfa': 0.9,
+        'lambd': 0.01,
+        "epochs": 150
         }
     trainer = NeuralTrainer(neural_net, **args)
 
@@ -84,7 +43,7 @@ def __main__():
     monk_test_target = monk_test[0]
     monk_test_input = monk_test[1]
 
-    trainer._train_no_test(monk_input, monk_targets)
+    trainer.train_network(monk_input, monk_targets, monk_test_input, monk_test_target, True)
     cross = CrossValidator(trainer)
     cross.k_fold(monk_input, monk_targets)
 

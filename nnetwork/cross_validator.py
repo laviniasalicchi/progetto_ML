@@ -44,7 +44,8 @@ class CrossValidator:
 
             start_idx = end_idx
 
-            trainer._train_no_test(train_kfold, train_targets)
+            #trainer._train_no_test(train_kfold, train_targets)
+            trainer.train_network(train_kfold, train_targets, test_kfold, test_targets)
             test_res = trainer.net.test_network(test_kfold, test_targets)
 
             err_list.append(test_res[0])
@@ -53,9 +54,9 @@ class CrossValidator:
         acc_mean = np.mean(acc_list)
         err_mean = np.mean(err_list)
         # TODO remove printing
-        print(acc_list)
-        print(acc_mean)
-        print(err_list)
+        #print(acc_list)
+        #print(acc_mean)
+        #print(err_list)
         return acc_mean
 
     @staticmethod
@@ -73,8 +74,8 @@ class CrossValidator:
         acc_list = []
         err_list = []
 
-        print(fold_size)
-        print(resto)
+        #print(fold_size)
+        #print(resto)
 
         for index in range(1, k + 1):
             if resto != 0:
@@ -93,10 +94,10 @@ class CrossValidator:
             train_targets = np.delete(target_vect, np.s_[start_idx:end_idx], axis=1)
 
             start_idx = end_idx
-            print("train_k", train_kfold.shape)
-            print("test", test_targets.shape)
 
             trainer._train_no_test(train_kfold, train_targets)
+
+
             test_res = trainer.net.test_network(test_kfold, test_targets)
 
 
@@ -106,9 +107,9 @@ class CrossValidator:
         acc_mean = np.mean(acc_list)
         err_mean = np.mean(err_list)
         # TODO remove printing
-        print(acc_list)
-        print(acc_mean)
-        print(err_list)
+        #print(acc_list)
+        #print(acc_mean)
+        #print(err_list)
         return acc_mean
 
     def kfold_grid_adv(net_param, train_param, input_vect, target_vect, k=4):
@@ -125,8 +126,8 @@ class CrossValidator:
         acc_list = []
         err_list = []
 
-        print(fold_size)
-        print(resto)
+        #print(fold_size)
+        #print(resto)
 
         for index in range(1, k + 1):
             if resto != 0:
@@ -146,7 +147,6 @@ class CrossValidator:
 
             start_idx = end_idx
 
-
             trainer._train_no_test(train_kfold, train_targets)
             test_res = trainer.net.test_network(test_kfold, test_targets)
 
@@ -156,8 +156,3 @@ class CrossValidator:
 
         acc_mean = np.mean(acc_list)
         err_mean = np.mean(err_list)
-        # TODO remove printing
-        print(acc_list)
-        print(acc_mean)
-        print(err_list)
-        return acc_mean
