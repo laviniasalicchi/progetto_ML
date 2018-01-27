@@ -9,9 +9,23 @@
 from neural_net import NeuralNetwork
 from plotter import Plotter
 
+"""
+La classe Trainer gestisce il training di una rete.
+Trainer accetta una lista di parametri passati come dizionario nel costruttore
+"""
+
+
 class NeuralTrainer:
 
     def __init__(self, neural_net, **kwargs):
+        """
+        eta: Learning rate
+        alfa: Weight decay
+        lambd: Tikhonov regularization
+        threshold: Soglia dell'errore. Se l'errore scende sotto la soglia
+                   si interrompe il training
+        loss: funzione di errore della rete Neurale
+        """
         self.net = neural_net
         self.eta = kwargs.get('eta', 0.01)
         self.lambd = kwargs.get('lambd', 0.00)
@@ -86,8 +100,8 @@ class NeuralTrainer:
         if save:
             # todo parte di salvetaggio del modello
 
-            Plotter.plotError(self, epochs_plot, errors, ts_errors)
-            Plotter.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
+            Plotter.plotError(epochs_plot, errors, ts_errors)
+            Plotter.plot_accuracy(epochs_plot, accuracy, ts_accuracy)
         return weights, err
 
     def _train_no_test(self, input_vector, target_value, save=False):
@@ -146,9 +160,9 @@ class NeuralTrainer:
                 weights_BT = weights
                 err_BT = err
         if save:
-            Plotter.plotError(self, epochs_plot, errors, ts_errors)
-            Plotter.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
-        print("Accuracy;", accuracy[len(accuracy) - 1])
+            Plotter.plotError(epochs_plot, errors, ts_errors)
+            Plotter.plot_accuracy(epochs_plot, accuracy, ts_accuracy)
+        #print("Accuracy;", accuracy[len(accuracy) - 1])
         return weights, err
 
     def train_rprop(self, input_vector, target_value, input_test, target_test):

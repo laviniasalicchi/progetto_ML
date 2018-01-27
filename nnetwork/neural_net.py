@@ -106,7 +106,7 @@ class NeuralNetwork:
         output_layer.set_activation_function(activ_func)
         output_layer.set_sigmoid_slope(slope)
         neural_network.add_output_layer(output_layer)
-        neural_network.print_net_info()
+        #neural_network.print_net_info()
         return neural_network
 
     @staticmethod
@@ -176,7 +176,7 @@ class NeuralNetwork:
         output_layer.set_activation_function(afs[last_idx])
         output_layer.set_sigmoid_slope(slope)
         net.add_output_layer(output_layer)
-        net.print_net_info()
+        #net.print_net_info()
         return net
 
 
@@ -230,12 +230,12 @@ class NeuralNetwork:
         return self.output_layer.output
 
 
-    """
-    eta = learning rate
-    alfa = momentum
-    lambda = Tikhonov regularization
-    """
     def backpropagation(self, input_vector, target_value, err_func, eta, alfa, lambd):
+        """
+        eta = learning rate
+        alfa = momentum
+        lambda = Tikhonov regularization
+        """
         # delt = deriv(E/out) * f'(net)
         err_deriv = err_func(target_value, self.output_layer.output, True)
         self.logger.debug('Backprop: err_deriv.shape %s', str(err_deriv.shape))
@@ -704,7 +704,7 @@ class NeuralNetwork:
 
         path = folder + "hyperpar"
         np.savez(path, eta=eta, alfa=alfa, lambd=lambd, ntl=ntl, nhu=nhu, af=af)
-
+"""
 
     def plotError(self, epochs_plot, errors, ts_error):
         plt.plot(epochs_plot, errors, color="blue", label="training error")
@@ -721,3 +721,4 @@ class NeuralNetwork:
         plt.ylabel("accuracy")
         plt.legend(loc='upper left', frameon=False)
         plt.show()
+"""
