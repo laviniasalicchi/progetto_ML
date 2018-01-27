@@ -45,8 +45,8 @@ def __main__():
 
         input()
         start = time.time() * 1000  # benchmark
-        mod = grid_search(monk_input, monk_targets, params)
-        retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts, 600, 0.0, 'mean_squared_err')
+        mod = grid_search_groups(monk_input, monk_targets,2, params)
+        retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts)
 
 
         end = time.time() * 1000
@@ -68,7 +68,8 @@ def __main__():
 
 
 def grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
-    now = date.datetime.now().strftime('%d-%m-%Y_%H:%M:%S')
+    now_m = date.datetime.now().strftime('%d-%m-%Y_%H:%M:%S')
+    now = (now_m.rpartition(':')[0]).replace(":", "_")
 
     units_in = kwargs.get('unit_in', input_vect.shape[0])
     units_out = kwargs.get('unit_out', target_vect.shape[0])
@@ -76,7 +77,7 @@ def grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
     etas = kwargs.get('etas', [0.01, 0.05, 0.1, 0.3, 0.5])
     alfas = kwargs.get('alfas', [0.5, 0.7, 0.9])
     lambds = kwargs.get('lambds', [0.01, 0.04, 0.07, 0.1])
-    n_total_layers = kwargs.get('tot_lay', [3, 4, 5])
+    n_total_layers = kwargs.get('tot_lay', [3, 4])
     n_hidden_units = kwargs.get('n_hid', [5, 10, 15])
     act_func = kwargs.get('act_func', ['sigmoid', 'tanh'])
     epochs = kwargs.get('epochs', 150)
@@ -87,6 +88,7 @@ def grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
     tot_iter = len(etas) * len(alfas) * len(lambds) * len(act_func) * len(n_hidden_units) * len(n_total_layers)
     count = 1
 
+    print("start grid search")
     for ntl in n_total_layers:
         for nhu in n_hidden_units:
             for af in act_func:
@@ -112,14 +114,17 @@ def grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
                             }
                             #trainer = NeuralTrainer(net, **train_par)
 
-
                             key = "eta=" + str(e) + " alfa=" + str(a) + " lambda" +str(l) + " ntl=" + str(ntl) + " nhu=" + str(nhu) + " act=" + af + "\t"
                             #res[key] = executor.apply_async(kfold_task, (input_vect, target_vect, epochs, threshold, loss_func, e, a, l))
                             res[key] = executor.apply_async(kfold_task,
                              (net_topology, train_par, input_vect, target_vect, k))
                             acc = res[key].get()
+                            print("ntl:", ntl, "nhu:", nhu, " - af:", af, "eta:", e, "alfa:", a, "lambda:", l, "ACCURACY:", acc)
 
-                            models.append({'id': 0, 'accuracy': acc, 'ntl': ntl, 'nhu': nhu, 'af': af, 'eta': e, 'alfa': a, 'lambda': l})
+                            models.append({'id': 0, 'accuracy': acc,
+                                           'ntl': ntl, 'nhu': nhu, 'u_in': units_in, 'u_out': units_out, 'af': af,
+                                           'eta': e, 'alfa': a, 'lambda': l,
+                                           'epochs': epochs, 'trshld': trshld, 'loss': loss})
                             progress = (count / tot_iter) * 100
                             mess = 'Progress: {} %' + '    (' + str(count) + ' of ' + str(tot_iter) + ')'
                             mess = mess.format(int(progress))
@@ -196,7 +201,10 @@ def adv_grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
                              (net_topology, train_par, input_vect, target_vect, k))
                             acc = res[key].get()
 
-                            models.append({'id': 0, 'accuracy': acc, 'ntl': ntl, 'nhu': nhu, 'af': af, 'eta': e, 'alfa': a, 'lambda': l})
+                            models.append({'id': 0, 'accuracy': acc,
+                                           'ntl': ntl, 'nhu': nhu, 'u_in': units_in, 'u_out': units_out, 'af': af,
+                                           'eta': e, 'alfa': a, 'lambda': l,
+                                           'epochs': epochs, 'trshld': trshld, 'loss': loss})
                             progress = (count / tot_iter) * 100
                             mess = 'Progress: {} %' + '    (' + str(count) + ' of ' + str(tot_iter) + ')'
                             mess = mess.format(int(progress))
@@ -269,8 +277,140 @@ def _backup_grid_search(models, params, now):
     #for dict in modelli:
 
 
+def retraining(models, input_vect, target_vect, input_test, target_test):
+    models = sorted(models, key=lambda k: k['accuracy'], reverse=True)
+    print("sorted models", models)
+    j = 0
+    for m in models:
+        ntl = m['ntl']
+        nhu = m['nhu']
+        u_in = m['u_in']
+        u_out = m['u_out']
+        af = m['af']
+        eta = m['eta']
+        alfa = m['alfa']
+        lambd = m['lambda']
+        epochs = m['epochs']
+        threshold = m['trshld']
+        loss = m['loss']
+
+        train_par = {
+            'eta': eta,
+            'alfa': alfa,
+            'lambd': lambd,
+            'epochs': epochs,
+            'threshold': threshold,
+            'loss': loss
+        }
+        print("model: tot layer", ntl, " - hidden units", nhu, " - eta", eta, " - alfa", alfa, " - lambda", lambd, " - activ func", af)
+        net = NeuralNetwork.create_network(ntl, u_in, nhu, u_out, af, slope=1)
+        trainer = NeuralTrainer(net, **train_par)
+        weights, error = trainer.train_network(input_vect, target_vect, input_test, target_test, save=True)
 
 
+        print("model: tot layer", ntl," - hidden units",nhu," - eta", eta, " - alfa", alfa," - lambda", lambd, " - activ func", af  )
 
+        net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, u_in, u_out, epochs, threshold, loss, j, final=True)
+        j += 1
+        if j == 5:
+            break
+
+def grid_search_groups(input_vect, target_vect, g, trshld=0.00, k=4, **kwargs):
+    now_m = date.datetime.now().strftime('%d-%m-%Y_%H:%M:%S')
+    now = (now_m.rpartition(':')[0]).replace(":", "_")
+
+    units_in = kwargs.get('unit_in', input_vect.shape[0])
+    units_out = kwargs.get('unit_out', target_vect.shape[0])
+
+    if(g==1):
+        # gruppo 1
+        loss = kwargs.get('loss', 'mean_euclidean')
+        etas = kwargs.get('etas', [0.01, 0.03])
+        alfas = kwargs.get('alfas', [0.7, 0.9])
+        lambds = kwargs.get('lambds', [0.01, 0.04])
+        n_total_layers = kwargs.get('tot_lay', [3, 4])
+        n_hidden_units = kwargs.get('n_hid', [5, 10])
+        act_func = kwargs.get('act_func', ['sigmoid'])
+        epochs = kwargs.get('epochs', 200)
+
+    elif(g==2):
+        # gruppo 2
+        print("in gruppo 2")
+        loss = kwargs.get('loss', 'mean_euclidean')
+        etas = kwargs.get('etas', [0.05, 0.07, 0.1])
+        alfas = kwargs.get('alfas', [0.7, 0.9])
+        lambds = kwargs.get('lambds', [0.01, 0.04])
+        n_total_layers = kwargs.get('tot_lay', [3, 4])
+        n_hidden_units = kwargs.get('n_hid', [5, 10])
+        act_func = kwargs.get('act_func', ['sigmoid'])
+        epochs = kwargs.get('epochs', 200)
+
+    executor = mp.Pool(processes=20)
+    res = {}
+    models = []
+    tot_iter = len(etas) * len(alfas) * len(lambds) * len(act_func) * len(n_hidden_units) * len(n_total_layers)
+    count = 1
+
+    print("start grid search")
+    for ntl in n_total_layers:
+        for nhu in n_hidden_units:
+            for af in act_func:
+                for e in etas:
+                    for a in alfas:
+                        for l in lambds:
+
+                            net_topology = {
+                                'units_in': units_in,
+                                'units_out': units_out,
+                                'tot_lay': ntl,
+                                'units_hid': nhu,
+                                'act_func': af
+                            }
+
+                            train_par = {
+                                'eta': e,
+                                'alfa': a,
+                                'lambd': l,
+                                'epochs': epochs,
+                                'threshold': trshld,
+                                'loss': loss
+                            }
+                            #trainer = NeuralTrainer(net, **train_par)
+
+                            key = "eta=" + str(e) + " alfa=" + str(a) + " lambda" +str(l) + " ntl=" + str(ntl) + " nhu=" + str(nhu) + " act=" + af + "\t"
+                            #res[key] = executor.apply_async(kfold_task, (input_vect, target_vect, epochs, threshold, loss_func, e, a, l))
+                            acc_tmp = []
+                            # 3 kfold e acc = media dei 3
+                            for rep in range(3):
+                                res[key] = executor.apply_async(kfold_task,(net_topology, train_par, input_vect, target_vect, k))
+                                acc = res[key].get()
+                                acc_tmp = np.append(acc_tmp, acc)
+                            acc = np.mean(acc_tmp)
+                            print("ntl:", ntl, "nhu:", nhu, " - af:", af, "eta:", e, "alfa:", a, "lambda:", l, "ACCURACY:", acc)
+
+
+                            models.append({'id': 0, 'accuracy': acc,
+                                           'ntl': ntl, 'nhu': nhu, 'u_in': units_in, 'u_out': units_out, 'af': af,
+                                           'eta': e, 'alfa': a, 'lambda': l,
+                                           'epochs': epochs, 'trshld': trshld, 'loss': loss})
+                            progress = (count / tot_iter) * 100
+                            mess = 'Progress: {} %' + '    (' + str(count) + ' of ' + str(tot_iter) + ')'
+                            mess = mess.format(int(progress))
+                            print(mess  , end='\r')
+                            sys.stdout.flush()
+                            if int(progress) > 0 and (int(progress) % 20) == 0:
+                                current_par = {
+                                    'eta': e,
+                                    'alfa': a,
+                                    'lambd': l,
+                                    'tot_lay': ntl,
+                                    'units_hid': nhu,
+                                    'act_func': af
+                                }
+                                _backup_grid_search(models, current_par, now)
+                            count = count + 1
+    executor.close()
+    executor.join()
+    return models
 
 __main__()

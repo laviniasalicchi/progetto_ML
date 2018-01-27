@@ -679,7 +679,7 @@ class NeuralNetwork:
     TODO decommentare.
     """
     @staticmethod
-    def saveModel(weights, eta, alfa, lambd, ntl, nhu, af, i, final=False):
+    def saveModel(weights, eta, alfa, lambd, ntl, nhu, af, u_in, u_out, epochs, threshold, loss, i, final=False):
         now_m = datetime.now().isoformat()
         now = (now_m.rpartition(':')[0]).replace(":", "")
         # print(now)
@@ -703,7 +703,12 @@ class NeuralNetwork:
                 os.makedirs(folder)
 
         path = folder + "hyperpar"
-        np.savez(path, eta=eta, alfa=alfa, lambd=lambd, ntl=ntl, nhu=nhu, af=af)
+        np.savez(path, eta=eta, alfa=alfa, lambd=lambd, epochs=epochs, threshold=threshold, loss=loss)
+
+        path = folder + "topology"
+        np.savez(path, ntl=ntl, nhu=nhu, af=af, u_in=u_in, u_out=u_out)
+
+
 """
 
     def plotError(self, epochs_plot, errors, ts_error):
