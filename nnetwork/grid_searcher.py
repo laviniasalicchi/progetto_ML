@@ -21,17 +21,17 @@ import datetime as date
 
 def __main__():
     if __name__ == '__main__':
-        monk_datas = MonkDataset.load_encode_monk('../datasets/monks-3.train')
+        monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
         monk_targets = monk_datas[0]
         monk_input = monk_datas[1]
-        monk_datas_ts = MonkDataset.load_encode_monk('../datasets/monks-3.test')
+        monk_datas_ts = MonkDataset.load_encode_monk('../datasets/monks-1.test')
         monk_targets_ts = monk_datas_ts[0]
         monk_input_ts = monk_datas_ts[1]
 
         params = {
             'units_in': 17,
             'units_out': 1,
-            'loss': 'mean_euclidean',
+            'loss': 'mean_squared_err',
             'etas': [0.01],
             'alfas': [0.5],
             'lambds': [0.01],
@@ -73,7 +73,7 @@ def grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
 
     units_in = kwargs.get('unit_in', input_vect.shape[0])
     units_out = kwargs.get('unit_out', target_vect.shape[0])
-    loss = kwargs.get('loss', 'mean_euclidean')
+    loss = kwargs.get('loss', 'mean_squared_err')
     etas = kwargs.get('etas', [0.01, 0.05, 0.1, 0.3, 0.5])
     alfas = kwargs.get('alfas', [0.5, 0.7, 0.9])
     lambds = kwargs.get('lambds', [0.01, 0.04, 0.07, 0.1])
@@ -151,7 +151,7 @@ def adv_grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
     units_in = kwargs.get('unit_in', input_vect.shape[0])
     units_out = kwargs.get('unit_out', target_vect.shape[0])
     epochs = kwargs.get('epochs', 150)
-    loss = kwargs.get('loss', 'mean_euclidean')
+    loss = kwargs.get('loss', 'mean_squared_err')
     etas = kwargs.get('etas', [0.01, 0.05, 0.1, 0.3, 0.5])
     alfas = kwargs.get('alfas', [0.5, 0.7, 0.9])
     lambds = kwargs.get('lambds', [0.01, 0.04, 0.07, 0.1])
@@ -327,7 +327,7 @@ def grid_search_groups(input_vect, target_vect, g, trshld=0.00, k=4, **kwargs):
     if(g==1):
         # gruppo 1
         print("in gruppo 1")
-        loss = kwargs.get('loss', 'mean_euclidean')
+        loss = kwargs.get('loss', 'mean_squared_err')
         etas = kwargs.get('etas', [0.01, 0.03])
         alfas = kwargs.get('alfas', [0.5, 0.7, 0.9])
         lambds = kwargs.get('lambds', [0.01, 0.04])
@@ -339,7 +339,7 @@ def grid_search_groups(input_vect, target_vect, g, trshld=0.00, k=4, **kwargs):
     elif(g==2):
         # gruppo 2
         print("in gruppo 2")
-        loss = kwargs.get('loss', 'mean_euclidean')
+        loss = kwargs.get('loss', 'mean_squared_err')
         etas = kwargs.get('etas', [0.05, 0.07, 0.1])
         alfas = kwargs.get('alfas', [0.7, 0.9])
         lambds = kwargs.get('lambds', [0.01, 0.04, 0.07])
@@ -351,7 +351,7 @@ def grid_search_groups(input_vect, target_vect, g, trshld=0.00, k=4, **kwargs):
     elif(g==3):
         # gruppo 3
         print("in gruppo 3")
-        loss = kwargs.get('loss', 'mean_euclidean')
+        loss = kwargs.get('loss', 'mean_squared_err')
         etas = kwargs.get('etas', [0.3, 0.5])
         alfas = kwargs.get('alfas', [0.7, 0.9])
         lambds = kwargs.get('lambds', [0.01, 0.04, 0.07])
