@@ -21,10 +21,10 @@ import datetime as date
 
 def __main__():
     if __name__ == '__main__':
-        monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
+        monk_datas = MonkDataset.load_encode_monk('../datasets/monks-3.train')
         monk_targets = monk_datas[0]
         monk_input = monk_datas[1]
-        monk_datas_ts = MonkDataset.load_encode_monk('../datasets/monks-1.test')
+        monk_datas_ts = MonkDataset.load_encode_monk('../datasets/monks-3.test')
         monk_targets_ts = monk_datas_ts[0]
         monk_input_ts = monk_datas_ts[1]
 
@@ -45,7 +45,7 @@ def __main__():
 
         input()
         start = time.time() * 1000  # benchmark
-        mod = grid_search_groups(monk_input, monk_targets,2, params)
+        mod = grid_search_groups(monk_input, monk_targets,3, params)
         retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts)
 
 
@@ -305,8 +305,11 @@ def retraining(models, input_vect, target_vect, input_test, target_test):
         print("model: tot layer", ntl, " - hidden units", nhu, " - eta", eta, " - alfa", alfa, " - lambda", lambd, " - activ func", af)
         net = NeuralNetwork.create_network(ntl, u_in, nhu, u_out, af, slope=1)
         trainer = NeuralTrainer(net, **train_par)
-        weights, error = trainer.train_network(input_vect, target_vect, input_test, target_test, save=True)
 
+        n_mod = str(j)
+        folder = str("models/finals/Model" +n_mod+ "/")
+        weights, error = trainer.train_network(input_vect, target_vect, input_test, target_test, folder, save=True)
+        print("in retraining - fine train_network")
 
         print("model: tot layer", ntl," - hidden units",nhu," - eta", eta, " - alfa", alfa," - lambda", lambd, " - activ func", af  )
 
@@ -316,17 +319,17 @@ def retraining(models, input_vect, target_vect, input_test, target_test):
             break
 
 def grid_search_groups(input_vect, target_vect, g, trshld=0.00, k=4, **kwargs):
-    now_m = date.datetime.now().strftime('%d-%m-%Y_%H:%M:%S')
-    now = (now_m.rpartition(':')[0]).replace(":", "_")
+    now = date.datetime.now().strftime('%d-%m-%Y_%H_%M_%S')
 
     units_in = kwargs.get('unit_in', input_vect.shape[0])
     units_out = kwargs.get('unit_out', target_vect.shape[0])
 
     if(g==1):
         # gruppo 1
+        print("in gruppo 1")
         loss = kwargs.get('loss', 'mean_euclidean')
         etas = kwargs.get('etas', [0.01, 0.03])
-        alfas = kwargs.get('alfas', [0.7, 0.9])
+        alfas = kwargs.get('alfas', [0.5, 0.7, 0.9])
         lambds = kwargs.get('lambds', [0.01, 0.04])
         n_total_layers = kwargs.get('tot_lay', [3, 4])
         n_hidden_units = kwargs.get('n_hid', [5, 10])
@@ -339,7 +342,19 @@ def grid_search_groups(input_vect, target_vect, g, trshld=0.00, k=4, **kwargs):
         loss = kwargs.get('loss', 'mean_euclidean')
         etas = kwargs.get('etas', [0.05, 0.07, 0.1])
         alfas = kwargs.get('alfas', [0.7, 0.9])
-        lambds = kwargs.get('lambds', [0.01, 0.04])
+        lambds = kwargs.get('lambds', [0.01, 0.04, 0.07])
+        n_total_layers = kwargs.get('tot_lay', [3, 4])
+        n_hidden_units = kwargs.get('n_hid', [5, 10])
+        act_func = kwargs.get('act_func', ['sigmoid'])
+        epochs = kwargs.get('epochs', 200)
+
+    elif(g==3):
+        # gruppo 3
+        print("in gruppo 3")
+        loss = kwargs.get('loss', 'mean_euclidean')
+        etas = kwargs.get('etas', [0.3, 0.5])
+        alfas = kwargs.get('alfas', [0.7, 0.9])
+        lambds = kwargs.get('lambds', [0.01, 0.04, 0.07])
         n_total_layers = kwargs.get('tot_lay', [3, 4])
         n_hidden_units = kwargs.get('n_hid', [5, 10])
         act_func = kwargs.get('act_func', ['sigmoid'])

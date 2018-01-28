@@ -36,7 +36,7 @@ class NeuralTrainer:
         self.rprop_delt0 = 0.1
         self.rprop_delt_max = 50
 
-    def train_network(self, input_vector, target_value, input_test, target_test, save=False):
+    def train_network(self, input_vector, target_value, input_test, target_test, folder, save=False):
 
         nn_net = self.net
 
@@ -100,8 +100,8 @@ class NeuralTrainer:
         if save:
             # todo parte di salvetaggio del modello
 
-            Plotter.plotError(epochs_plot, errors, ts_errors)
-            Plotter.plot_accuracy(epochs_plot, accuracy, ts_accuracy)
+            Plotter.plotError(epochs_plot, errors, ts_errors, folder)
+            Plotter.plot_accuracy(epochs_plot, accuracy, ts_accuracy, folder)
         return weights, err
 
     def _train_no_test(self, input_vector, target_value, save=False):

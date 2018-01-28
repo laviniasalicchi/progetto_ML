@@ -708,6 +708,12 @@ class NeuralNetwork:
         path = folder + "topology"
         np.savez(path, ntl=ntl, nhu=nhu, af=af, u_in=u_in, u_out=u_out)
 
+        path = folder + "info.txt"
+        with open(path, mode='w') as info_model:
+            inf = "tot layer", ntl," \n- hidden units",nhu," \n- eta", eta, " \n- alfa", alfa," \n- lambda", lambd, " \n- activ func", af
+            inf = str(inf)
+            info_model.write('%s\n' % inf)
+
 
 """
 
