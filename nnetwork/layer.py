@@ -83,10 +83,14 @@ class Layer:
     """
     def layer_output(self):
         #print(self.activation_function)
-        if self.activation_function is 'sigmoid':
+        if self.activation_function == 'sigmoid':
             self.output = Layer.sigmoid(self.net, self.sigmoid_slope)
-        elif self.activation_function is 'tanh':
+        elif self.activation_function == 'tanh':
             self.output = Layer.tanh(self.net)
+        elif self.activation_function == 'softplus':
+            self.output = Layer.softplus(self.net)
+        elif self.activation_function == 'relu':
+            self.output = Layer.relu(self.net)
         # aggiungiamo il bias
 
         ones_row = np.ones((1, self.output.shape[1]))
@@ -104,6 +108,10 @@ class Layer:
             self.activation_function = 'sigmoid'
         elif f_name == 'tanh':
             self.activation_function = 'tanh'
+        elif f_name == 'softplus':
+            self.activation_function = 'softplus'
+        elif f_name == 'relu':
+            self.activation_function = 'relu'
         else:
             self.activation_function = 'sigmoid'
             print('WARNING:\tf_name not recognized. Using sigmoid as activation function')
@@ -117,7 +125,6 @@ class Layer:
             deriv = (1 / (1 + np.exp(- a * x))) * (1 - (1 / (1 + np.exp(- a * x))))
             return deriv
         if self.activation_function == 'tanh':
-
             return 1 - (np.tanh(x))**2
 
     def activation_function_derivative(self, x):
@@ -125,8 +132,13 @@ class Layer:
             deriv = (1 / (1 + np.exp(- self.sigmoid_slope * x))) * (1 - (1 / (1 + np.exp(- self.sigmoid_slope * x))))
             return deriv
         if self.activation_function == 'tanh':
-
             return 1 - (np.tanh(x))**2
+        if self.activation_function == 'softplus':
+            deriv = 1 / (1 + np.exp(- x))
+            return deriv
+        if self.activation_function == 'relu':
+            deriv = 1 / (1 + np.exp(- x))
+            return deriv
 
     def set_sigmoid_slope(self, slope):
         self.sigmoid_slope = slope
@@ -145,3 +157,12 @@ class Layer:
     @staticmethod
     def tanh(x):
         return np.tanh(x)
+
+    @staticmethod
+    def softplus(x):
+        return np.log(1 + np.exp(x))
+
+    @staticmethod
+    def relu(x):
+        y = x.copy()
+        return y * (y > 0)

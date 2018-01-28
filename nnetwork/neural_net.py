@@ -494,10 +494,6 @@ class NeuralNetwork:
 
 
 
-
-
-
-
     def train_network(self, input_vector, target_value, input_test, target_test, epochs, threshold, loss_func, eta, alfa, lambd,
                       final=False):  # // aggiunti i target_values
         logger = logging.getLogger(__name__)
@@ -592,10 +588,20 @@ class NeuralNetwork:
         return error, accuracy
 
     @staticmethod
-    def accuracy(output_net, target):
-        out_rounded = np.rint(output_net)
-        result = np.where(out_rounded == target, 1, 0)
-        result = np.mean(result)
+    def accuracy(output_net, target, tanh=True):
+        if tanh:
+            out_rounded = np.rint(output_net)
+            print(output_net)
+            print("---------------------------------")
+            print(out_rounded)
+            out_r = out_rounded.copy()
+            out_r = (out_r > 0).astype(int)
+            result = np.where(out_r == target, 1, 0)
+            result = np.mean(result)
+        else:
+            out_rounded = np.rint(output_net)
+            result = np.where(out_rounded == target, 1, 0)
+            result = np.mean(result)
         return result
 
     @staticmethod
