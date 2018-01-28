@@ -39,10 +39,10 @@ def __main__():
         'lambd': 0.01,
         'epochs': 100,
         'threshold': 0.0,
-        'loss': 'mean_euclidean'
+        'loss': 'mean_squared_err'
     }
     trainer = NeuralTrainer(neural_net, **train_par)
-    trainer.train_network(monk_input,monk_targets, monk_input_ts, monk_targets_ts, save=True)
+    trainer.train_network(monk_input,monk_targets, monk_input_ts, monk_targets_ts,"/prova", save=True)
 
 
 __main__()
