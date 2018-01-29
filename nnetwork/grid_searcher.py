@@ -10,6 +10,7 @@
 import random
 import time
 from monk_dataset import *
+from ML_CUP_dataset import ML_CUP_Dataset
 import multiprocessing as mp
 import operator
 import itertools
@@ -28,16 +29,20 @@ def __main__():
         monk_targets_ts = monk_datas_ts[0]
         monk_input_ts = monk_datas_ts[1]
 
+        filename = 'ML-CUP17-TR.csv'
+        x = ML_CUP_Dataset.load_ML_dataset(filename)[0]
+        target_values = ML_CUP_Dataset.load_ML_dataset(filename)[1]
+
         params = {
-            'units_in': 17,
-            'units_out': 1,
-            'loss': 'mean_squared_err',
-            'etas': [0.01],
-            'alfas': [0.5],
-            'lambds': [0.01],
-            'tot_lay': [3],
-            'n_hid': [5],
-            'epochs': 100,
+            'units_in': 10, # !!
+            'units_out': 2, #!!
+            'loss': 'mean_euclidean',
+            'etas': [0.01, 0.05, 0.1, 0.3, 0.5],
+            'alfas': [0.5, 0.7, 0.9],
+            'lambds': [0.01, 0.04, 0.07, 0.1],
+            'tot_lay': [3, 4, 5],
+            'n_hid': list(range(1,25)),
+            'epochs': 500,
             'act_func': ['sigmoid']
         }
 
@@ -45,9 +50,12 @@ def __main__():
 
         input()
         start = time.time() * 1000  # benchmark
-        mod = grid_search_groups(monk_input, monk_targets,3, params)
-        retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts)
+        #   mod = grid_search(monk_input, monk_targets, params)
+        #   retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts)
 
+
+        mod = grid_search(x, target_values, params)
+        retraining(mod, x, target_values)
 
         end = time.time() * 1000
         ''''# ottieni i valori
@@ -73,7 +81,7 @@ def grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
 
     units_in = kwargs.get('unit_in', input_vect.shape[0])
     units_out = kwargs.get('unit_out', target_vect.shape[0])
-    loss = kwargs.get('loss', 'mean_squared_err')
+    loss = kwargs.get('loss', 'mean_euclidean')
     etas = kwargs.get('etas', [0.01, 0.05, 0.1, 0.3, 0.5])
     alfas = kwargs.get('alfas', [0.5, 0.7, 0.9])
     lambds = kwargs.get('lambds', [0.01, 0.04, 0.07, 0.1])
@@ -308,12 +316,13 @@ def retraining(models, input_vect, target_vect, input_test, target_test):
 
         n_mod = str(j)
         folder = str("models/finals/Model" +n_mod+ "/")
-        weights, error = trainer.train_network(input_vect, target_vect, input_test, target_test, folder, save=True)
+        trainer._train_no_test(input_vect, target_vect, save=True)
+        #   DECOMM  weights, error = trainer.train_network(input_vect, target_vect, input_test, target_test, folder, save=True)
         print("in retraining - fine train_network")
 
         print("model: tot layer", ntl," - hidden units",nhu," - eta", eta, " - alfa", alfa," - lambda", lambd, " - activ func", af  )
 
-        net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, u_in, u_out, epochs, threshold, loss, j, final=True)
+        #   DEOMM   net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, u_in, u_out, epochs, threshold, loss, j, final=True)
         j += 1
         if j == 5:
             break

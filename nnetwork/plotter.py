@@ -44,3 +44,20 @@ class Plotter:
         file = path+"acc.png"
         plt.savefig(file)
         plt.show()
+
+    @staticmethod
+    def plotError_noTS(epochs_plot, errors):
+        plt.plot(epochs_plot, errors, color="blue", label="training error")
+        plt.xlabel("epochs")
+        plt.ylabel("error")
+        plt.legend(loc='upper left', frameon=False)
+
+        plt.show()
+
+    @staticmethod
+    def plot_accuracy_noTS(epochs_plot, accuracy):
+        plt.plot(epochs_plot, accuracy, color="blue", label="accuracy TR")
+        plt.xlabel("epochs")
+        plt.ylabel("accuracy")
+        plt.legend(loc='upper left', frameon=False)
+        plt.show()

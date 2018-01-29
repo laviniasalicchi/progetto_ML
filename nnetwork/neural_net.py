@@ -245,7 +245,7 @@ class NeuralNetwork:
         self.logger.debug("Backprop: out_net.shape %s", str(out_net.shape))
 
         f_prime = self.output_layer.activation_function_derivative(out_net)
-        self.logger.debug("Backprop: f_prime shape %s", str(f_prime.shape))
+        #self.logger.debug("Backprop: f_prime shape %s", str(f_prime.shape))
 
         delta_out = err_deriv * f_prime  # dovrebbe essere una matrice con colonne = numero di pattern // è pattern x n output units
         self.output_layer.deltas = delta_out
@@ -264,7 +264,7 @@ class NeuralNetwork:
 
             self.logger.debug("Backprop: prev_layer_weights.shape %s", str(prev_layer_weights.shape))
             self.logger.debug("Backprop: prev_layer_delta.shape %s", str(prev_layer_weights.shape))
-            self.logger.debug("Backprop: f_prime.shape %s", str(f_prime.shape))
+            #self.logger.debug("Backprop: f_prime.shape %s", str(f_prime.shape))
 
             delta = np.dot(prev_layer_weights, prev_layer_delta) * f_prime
 
@@ -494,10 +494,6 @@ class NeuralNetwork:
 
 
 
-
-
-
-
     def train_network(self, input_vector, target_value, input_test, target_test, epochs, threshold, loss_func, eta, alfa, lambd,
                       final=False):  # // aggiunti i target_values
         logger = logging.getLogger(__name__)
@@ -592,10 +588,19 @@ class NeuralNetwork:
         return error, accuracy
 
     @staticmethod
-    def accuracy(output_net, target):
-        out_rounded = np.rint(output_net)
-        result = np.where(out_rounded == target, 1, 0)
-        result = np.mean(result)
+    def accuracy(output_net, target, tanh=False):
+        if tanh:
+            out_rounded = np.rint(output_net)
+            '''out_r = out_rounded.copy()
+            out_r = (out_r >= 0).astype(int)'''
+            out_r = out_rounded > 0
+            out_r = out_r.astype(int)
+            result = np.where(out_r == target, 1, 0)
+            result = np.mean(result)
+        else:
+            out_rounded = np.rint(output_net)
+            result = np.where(out_rounded == target, 1, 0)
+            result = np.mean(result)
         return result
 
     @staticmethod
@@ -670,7 +675,7 @@ class NeuralNetwork:
             return np.subtract(neurons_out, target_value) * (1 / err)
         res = np.subtract(neurons_out, target_value) ** 2  # matrice con righe = numero neuroni e colonne = numero di pattern  // è al contrario
         res = np.sqrt(res)
-        res = np.sum(res,                     axis=0)  # somma sulle colonne. ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
+        res = np.sum(res, axis=0)  # somma sulle colonne. ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
         res = np.sum(res, axis=0)  # somma sulle righe
         return (res / target_value.shape[1])
 

@@ -160,19 +160,20 @@ class NeuralTrainer:
                 weights_BT = weights
                 err_BT = err
         if save:
-            Plotter.plotError(epochs_plot, errors, ts_errors)
-            Plotter.plot_accuracy(epochs_plot, accuracy, ts_accuracy)
+            Plotter.plotError_noTS(epochs_plot, errors)
+            #Plotter.plot_accuracy_noTS(epochs_plot, accuracy)
         #print("Accuracy;", accuracy[len(accuracy) - 1])
         return weights, err
 
     def train_rprop(self, input_vector, target_value, input_test, target_test):
         nn_net = self.net
-        loss = NeuralNetwork.mean_euclidean_err
-        if loss_func == 'mean_euclidean':
+
+        if self.loss == 'mean_euclidean':
             loss = NeuralNetwork.mean_euclidean_err
-        elif loss_func == 'mean_squared_err':
+        elif self.loss == 'mean_squared_err':
             loss = NeuralNetwork.mean_squared_err
         else:
+            loss = NeuralNetwork.mean_squared_err
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
         errors = []
         accuracy = []
@@ -180,8 +181,7 @@ class NeuralTrainer:
         ts_errors = []
         ts_accuracy = []
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
-        for epoch in range(epochs):
-            logger.info("Epoch %s", str(epoch))
+        for epoch in range(self.epochs):
             output = nn_net.forward_propagation(input_vector)
             acc = NeuralNetwork.accuracy(output, target_value)
 
@@ -198,22 +198,21 @@ class NeuralTrainer:
         Plotter.plotError(self, epochs_plot, errors, ts_errors)
         Plotter.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
 
-    def train_rprop_no_test(self, input_vector, target_value, input_test, target_test):
+    def train_rprop_no_test(self, input_vector, target_value):
         nn_net = self.net
-        loss = NeuralNetwork.mean_euclidean_err
-        if loss_func == 'mean_euclidean':
+        if self.loss == 'mean_euclidean':
             loss = NeuralNetwork.mean_euclidean_err
-        elif loss_func == 'mean_squared_err':
+        elif self.loss == 'mean_squared_err':
             loss = NeuralNetwork.mean_squared_err
         else:
+            loss = NeuralNetwork.mean_squared_err
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
         errors = []
         accuracy = []
         epochs_plot = []
 
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
-        for epoch in range(epochs):
-            logger.info("Epoch %s", str(epoch))
+        for epoch in range(self.epochs):
             output = nn_net.forward_propagation(input_vector)
             acc = NeuralNetwork.accuracy(output, target_value)
 
@@ -221,3 +220,5 @@ class NeuralTrainer:
             accuracy.append(acc)
             errors.append(err)
             epochs_plot.append(epoch)
+        Plotter.plotError_noTS(epochs_plot, errors)
+        Plotter.plot_accuracy_noTS(epochs_plot, accuracy)

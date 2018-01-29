@@ -26,12 +26,12 @@ def __main__():
     #af = ['tanh', 'tanh', 'tanh', 'tanh', 'tanh']
     #neural_net = NeuralNetwork.create_advanced_net(5, unit_lay, af, "xavier")
 
-    neural_net = NeuralNetwork.create_network(3, 17, 10, 1, 'sigmoid', slope=1)
+    neural_net = NeuralNetwork.create_network(3, 17, 10, 1, 'tanh', slope=1)
     args = {
         "eta": 0.1,
         'alfa': 0.9,
         'lambd': 0.01,
-        "epochs": 150
+        "epochs": 1
         }
     trainer = NeuralTrainer(neural_net, **args)
 
@@ -43,7 +43,7 @@ def __main__():
     monk_test_target = monk_test[0]
     monk_test_input = monk_test[1]
 
-    trainer.train_network(monk_input, monk_targets, monk_test_input, monk_test_target, True)
+    trainer.train_network(monk_input, monk_targets, monk_test_input, monk_test_target,'d', True)
     cross = CrossValidator(trainer)
     cross.k_fold(monk_input, monk_targets)
 

@@ -2,6 +2,7 @@
 
 import numpy as np
 from monk_dataset import *
+from ML_CUP_dataset import *
 from keras.models import *
 from keras.layers import *
 from keras.optimizers import *
@@ -11,8 +12,27 @@ import matplotlib.pyplot as plt
 from neural_net import NeuralNetwork
 from keras.regularizers import *
 
+filename = 'ML-CUP17-TR.csv'
+x = ML_CUP_Dataset.load_ML_dataset(filename)[0].T
+target_values = ML_CUP_Dataset.load_ML_dataset(filename)[1].T
 
-#   load dataset
+neural_net_k = Sequential()
+hidden_layer = Dense(10, input_dim=x.shape[1], activation='sigmoid')
+output_layer = Dense(2, activation='sigmoid')
+neural_net_k.add(hidden_layer)
+neural_net_k.add(output_layer)
+
+def mean_euc_dist(y_true, y_pred):
+    return K.mean(K.sqrt(K.sum(K.square(y_true - y_pred), axis=-1, keepdims=True)))
+
+
+sgd_n = optimizers.SGD(lr=0.07, momentum=0.9, nesterov=False)
+neural_net_k.compile(loss=mean_euc_dist, optimizer=sgd_n, metrics = ['accuracy'])
+training = neural_net_k.fit(x, target_values, batch_size=1016, epochs=500)
+
+
+
+''''#   load dataset
 monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
 monk_targets = monk_datas[0].T      # keras.utils.to_categorical(y, num_classes=None) --> potrebbe servire
 monk_input = monk_datas[1].T
@@ -60,7 +80,7 @@ neural_net_k.compile(loss='mean_squared_error', optimizer=sgd_n, metrics = ['acc
 #   training della rete        fit(dati, targets, grandezza batch, epochs)
 training = neural_net_k.fit(monk_input, monk_targets, batch_size=124, epochs=1000)
 
-print("ERRORE NET", err_net)
+print("ERRORE NET", err_net)'''
 
 # plots
 # error
@@ -76,3 +96,5 @@ plt.title("accuracy")
 plt.ylabel("accuracy")
 plt.xlabel("epochs")
 plt.show()
+
+
