@@ -583,7 +583,8 @@ class NeuralNetwork:
     def test_network(self, x, target_value):
         # solo forward + calcolo dell'errore
         NeuralNetwork.forward_propagation(self, x)
-        error = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
+        #   error = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
+        error = NeuralNetwork.mean_squared_err(target_value, self.output_layer.output)
         accuracy = NeuralNetwork.accuracy(self.output_layer.output, target_value)
         return error, accuracy
 
