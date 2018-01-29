@@ -29,14 +29,17 @@ def __main__():
         monk_targets_ts = monk_datas_ts[0]
         monk_input_ts = monk_datas_ts[1]
 
-        filename = 'ML-CUP17-TR.csv'
+        '''filename = 'ML-CUP17-TR.csv'
         x = ML_CUP_Dataset.load_ML_dataset(filename)[0]
         target_values = ML_CUP_Dataset.load_ML_dataset(filename)[1]
 
+        mod = grid_search(x, target_values, params)
+        retraining(mod, x, target_values)'''
+
         params = {
-            'units_in': 10, # !!
-            'units_out': 2, #!!
-            'loss': 'mean_euclidean',
+            'units_in': 17, # !!
+            'units_out': 1, #!!
+            'loss': 'mean_squared_err', #!!
             'etas': [0.01, 0.05, 0.1, 0.3, 0.5],
             'alfas': [0.5, 0.7, 0.9],
             'lambds': [0.01, 0.04, 0.07, 0.1],
@@ -50,12 +53,8 @@ def __main__():
 
         input()
         start = time.time() * 1000  # benchmark
-        #   mod = grid_search(monk_input, monk_targets, params)
-        #   retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts)
-
-
-        mod = grid_search(x, target_values, params)
-        retraining(mod, x, target_values)
+        mod = grid_search_groups(monk_input, monk_targets,1, params)
+        retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts)
 
         end = time.time() * 1000
         ''''# ottieni i valori
@@ -316,13 +315,13 @@ def retraining(models, input_vect, target_vect, input_test, target_test):
 
         n_mod = str(j)
         folder = str("models/finals/Model" +n_mod+ "/")
-        trainer._train_no_test(input_vect, target_vect, save=True)
-        #   DECOMM  weights, error = trainer.train_network(input_vect, target_vect, input_test, target_test, folder, save=True)
+        #   DECOMM  trainer._train_no_test(input_vect, target_vect, save=True)
+        weights, error = trainer.train_network(input_vect, target_vect, input_test, target_test, folder, save=True)
         print("in retraining - fine train_network")
 
         print("model: tot layer", ntl," - hidden units",nhu," - eta", eta, " - alfa", alfa," - lambda", lambd, " - activ func", af  )
 
-        #   DEOMM   net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, u_in, u_out, epochs, threshold, loss, j, final=True)
+        net.saveModel(weights, eta, alfa, lambd, ntl, nhu, af, u_in, u_out, epochs, threshold, loss, j, final=True)
         j += 1
         if j == 5:
             break
@@ -338,7 +337,7 @@ def grid_search_groups(input_vect, target_vect, g, trshld=0.00, k=4, **kwargs):
         print("in gruppo 1")
         loss = kwargs.get('loss', 'mean_squared_err')
         etas = kwargs.get('etas', [0.01, 0.03])
-        alfas = kwargs.get('alfas', [0.5, 0.7, 0.9])
+        alfas = kwargs.get('alfas', [0.3, 0.5, 0.7, 0.9])
         lambds = kwargs.get('lambds', [0.01, 0.04])
         n_total_layers = kwargs.get('tot_lay', [3, 4])
         n_hidden_units = kwargs.get('n_hid', [5, 10])
