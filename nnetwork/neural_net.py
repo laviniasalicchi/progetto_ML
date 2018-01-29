@@ -589,6 +589,7 @@ class NeuralNetwork:
         return error, accuracy
 
     @staticmethod
+<<<<<<< HEAD
     def accuracy(output_net, target, tanh=False):
         if tanh:
             out_rounded = np.rint(output_net)
@@ -596,6 +597,16 @@ class NeuralNetwork:
             out_r = (out_r >= 0).astype(int)'''
             out_r = out_rounded > 0
             out_r = out_r.astype(int)
+=======
+    def accuracy(output_net, target, tanh=True):
+        if tanh:
+            out_rounded = np.rint(output_net)
+            print(output_net)
+            print("---------------------------------")
+            print(out_rounded)
+            out_r = out_rounded.copy()
+            out_r = (out_r > 0).astype(int)
+>>>>>>> 20d112a21c0c6a3b36d0e8e8bcae68bd07c40b2a
             result = np.where(out_r == target, 1, 0)
             result = np.mean(result)
         else:

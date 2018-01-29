@@ -86,8 +86,11 @@ class Layer:
             self.output = Layer.softplus(self.net)
         elif self.activation_function == 'relu':
             self.output = Layer.relu(self.net)
+<<<<<<< HEAD
         elif self.activation_function == 'linear':
             self.output = Layer.linear(self.net)
+=======
+>>>>>>> 20d112a21c0c6a3b36d0e8e8bcae68bd07c40b2a
         # aggiungiamo il bias
 
         ones_row = np.ones((1, self.output.shape[1]))
@@ -109,8 +112,11 @@ class Layer:
             self.activation_function = 'softplus'
         elif f_name == 'relu':
             self.activation_function = 'relu'
+<<<<<<< HEAD
         elif f_name == 'linear':
             self.activation_function = 'linear'
+=======
+>>>>>>> 20d112a21c0c6a3b36d0e8e8bcae68bd07c40b2a
         else:
             self.activation_function = 'sigmoid'
             print('WARNING:\tf_name not recognized. Using sigmoid as activation function')
@@ -137,6 +143,7 @@ class Layer:
             return deriv
         if self.activation_function == 'relu':
             deriv = 1 / (1 + np.exp(- x))
+<<<<<<< HEAD
             '''if (x>=0):
                 deriv = 1
             else:
@@ -144,6 +151,8 @@ class Layer:
             return deriv
         if self.activation_function == 'linear':
             deriv = 1
+=======
+>>>>>>> 20d112a21c0c6a3b36d0e8e8bcae68bd07c40b2a
             return deriv
 
     def set_sigmoid_slope(self, slope):
@@ -172,8 +181,11 @@ class Layer:
     def relu(x):
         y = x.copy()
         return y * (y > 0)
+<<<<<<< HEAD
         #return np.maximum(0, x)
 
     @staticmethod
     def linear(x):
         return x
+=======
+>>>>>>> 20d112a21c0c6a3b36d0e8e8bcae68bd07c40b2a

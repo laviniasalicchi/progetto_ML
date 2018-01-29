@@ -37,15 +37,25 @@ def __main__():
         retraining(mod, x, target_values)'''
 
         params = {
+<<<<<<< HEAD
             'units_in': 17, # !!
             'units_out': 1, #!!
             'loss': 'mean_squared_err', #!!
+=======
+            'units_in': 17,
+            'units_out': 1,
+            'loss': 'mean_squared_err',
+>>>>>>> 20d112a21c0c6a3b36d0e8e8bcae68bd07c40b2a
             'etas': [0.01, 0.05, 0.1, 0.3, 0.5],
             'alfas': [0.5, 0.7, 0.9],
             'lambds': [0.01, 0.04, 0.07, 0.1],
             'tot_lay': [3, 4, 5],
             'n_hid': list(range(1,25)),
+<<<<<<< HEAD
             'epochs': 500,
+=======
+            'epochs': 100,
+>>>>>>> 20d112a21c0c6a3b36d0e8e8bcae68bd07c40b2a
             'act_func': ['sigmoid']
         }
 
@@ -53,7 +63,11 @@ def __main__():
 
         input()
         start = time.time() * 1000  # benchmark
+<<<<<<< HEAD
         mod = grid_search_groups(monk_input, monk_targets,1, params)
+=======
+        mod = grid_search(monk_input, monk_targets, params)
+>>>>>>> 20d112a21c0c6a3b36d0e8e8bcae68bd07c40b2a
         retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts)
 
         end = time.time() * 1000
