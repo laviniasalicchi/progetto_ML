@@ -22,6 +22,7 @@ import datetime as date
 
 def __main__():
     if __name__ == '__main__':
+        '''
         monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
         monk_targets = monk_datas[0]
         monk_input = monk_datas[1]
@@ -29,33 +30,21 @@ def __main__():
         monk_targets_ts = monk_datas_ts[0]
         monk_input_ts = monk_datas_ts[1]
 
-        '''filename = 'ML-CUP17-TR.csv'
+        '''
+        filename = 'ML-CUP17-TR.csv'
         x = ML_CUP_Dataset.load_ML_dataset(filename)[0]
         target_values = ML_CUP_Dataset.load_ML_dataset(filename)[1]
 
-        mod = grid_search(x, target_values, params)
-        retraining(mod, x, target_values)'''
-
         params = {
-<<<<<<< HEAD
-            'units_in': 17, # !!
+            'units_in': 10, # !!
             'units_out': 1, #!!
-            'loss': 'mean_squared_err', #!!
-=======
-            'units_in': 17,
-            'units_out': 1,
-            'loss': 'mean_squared_err',
->>>>>>> 20d112a21c0c6a3b36d0e8e8bcae68bd07c40b2a
+            'loss': 'mean_euclidean', #!!
             'etas': [0.01, 0.05, 0.1, 0.3, 0.5],
             'alfas': [0.5, 0.7, 0.9],
             'lambds': [0.01, 0.04, 0.07, 0.1],
             'tot_lay': [3, 4, 5],
             'n_hid': list(range(1,25)),
-<<<<<<< HEAD
             'epochs': 500,
-=======
-            'epochs': 100,
->>>>>>> 20d112a21c0c6a3b36d0e8e8bcae68bd07c40b2a
             'act_func': ['sigmoid']
         }
 
@@ -63,12 +52,12 @@ def __main__():
 
         input()
         start = time.time() * 1000  # benchmark
-<<<<<<< HEAD
-        mod = grid_search_groups(monk_input, monk_targets,1, params)
-=======
-        mod = grid_search(monk_input, monk_targets, params)
->>>>>>> 20d112a21c0c6a3b36d0e8e8bcae68bd07c40b2a
-        retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts)
+        '''mod = grid_search_groups(monk_input, monk_targets,1, params)
+        #mod = grid_search(monk_input, monk_targets, params)
+        retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts)'''
+
+        mod = grid_search(x, target_values, params)
+        retraining(mod, x, target_values)
 
         end = time.time() * 1000
         ''''# ottieni i valori

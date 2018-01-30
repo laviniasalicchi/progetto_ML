@@ -21,7 +21,7 @@ class Plotter:
         plt.plot(epochs_plot, ts_error, color="red", label="test error", linestyle="-.")
         plt.xlabel("epochs")
         plt.ylabel("error")
-        plt.legend(loc='upper left', frameon=False)
+        plt.legend(loc='upper right', frameon=False)
 
         path = folder+"plots/"
         if not os.path.exists(path):
@@ -36,7 +36,7 @@ class Plotter:
         plt.plot(epochs_plot, ts_accuracy, color="red", label="accuracy TS", linestyle="-.")
         plt.xlabel("epochs")
         plt.ylabel("accuracy")
-        plt.legend(loc='upper left', frameon=False)
+        plt.legend(loc='lower right', frameon=False)
 
         path = folder + "plots/"
         if not os.path.exists(folder):
@@ -50,7 +50,7 @@ class Plotter:
         plt.plot(epochs_plot, errors, color="blue", label="training error")
         plt.xlabel("epochs")
         plt.ylabel("error")
-        plt.legend(loc='upper left', frameon=False)
+        plt.legend(loc='upper right', frameon=False)
 
         plt.show()
 
@@ -59,5 +59,5 @@ class Plotter:
         plt.plot(epochs_plot, accuracy, color="blue", label="accuracy TR")
         plt.xlabel("epochs")
         plt.ylabel("accuracy")
-        plt.legend(loc='upper left', frameon=False)
+        plt.legend(loc='lower right', frameon=False)
         plt.show()

@@ -1,0 +1,1 @@
+('tot layer', 4, ' \n- hidden units', 10, ' \n- eta', 0.03, ' \n- alfa', 0.9, ' \n- lambda', 0.01, ' \n- activ func', 'sigmoid')

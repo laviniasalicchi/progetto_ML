@@ -96,7 +96,8 @@ class NeuralTrainer:
             else:
                 weights_BT = weights
                 err_BT = err
-
+        print("TR",err, " - ", acc)
+        print("TS", ts_err, " - ", ts_acc)
         if save:
             # todo parte di salvetaggio del modello
 
@@ -121,16 +122,26 @@ class NeuralTrainer:
         ts_accuracy = []
         weights_BT = {}  # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
+
         for epoch in range(self.epochs):
-            #logger.info("Epoch %s", str(epoch))
-            #print("eweweweweweweweweweeweweew")
-            output = nn_net.forward_propagation(input_vector)
-            acc = NeuralNetwork.accuracy(output, target_value)
-            err = nn_net.backpropagation(input_vector, target_value, loss, self.eta, self.alfa, self.lambd)
+
+            mb = 8
+            batch_size = int(input_vector.shape[1] / mb)
+            start_idx = 0
+            for minib in range(1, mb + 1):
+                end_idx = start_idx + batch_size
+                input_mb = input_vector[:, start_idx:end_idx]
+                target_mb = target_value[:, start_idx:end_idx]
+                output = nn_net.forward_propagation(input_mb)
+                acc = NeuralNetwork.accuracy(output, target_mb)
+                err = nn_net.backpropagation(input_mb, target_mb, loss, self.eta, self.alfa, self.lambd)
+                start_idx = end_idx
+
+            #   output = nn_net.forward_propagation(input_vector)
+            #   acc = NeuralNetwork.accuracy(output, target_value)
+            #   err = nn_net.backpropagation(input_vector, target_value, loss, self.eta, self.alfa, self.lambd)
             accuracy.append(acc)
             errors.append(err)
-
-
             epochs_plot.append(epoch)
 
             # // creazione dizionario {nomelayer : pesi}
@@ -163,6 +174,8 @@ class NeuralTrainer:
             Plotter.plotError_noTS(epochs_plot, errors)
             #Plotter.plot_accuracy_noTS(epochs_plot, accuracy)
         #print("Accuracy;", accuracy[len(accuracy) - 1])
+        print("OUT\n", nn_net.output_layer.output,"\n")
+        print("err\n", err)
         return weights, err
 
     def train_rprop(self, input_vector, target_value, input_test, target_test):
@@ -194,9 +207,10 @@ class NeuralTrainer:
             ts_errors.append(ts_err)
 
             epochs_plot.append(epoch)
-
-        Plotter.plotError(self, epochs_plot, errors, ts_errors)
-        Plotter.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
+        print("TR:", err, " - ", acc)
+        print("TS:", ts_err, " - ", ts_acc)
+        Plotter.plotError(epochs_plot, errors, ts_errors, "d/")
+        Plotter.plot_accuracy(epochs_plot, accuracy, ts_accuracy, "d/")
 
     def train_rprop_no_test(self, input_vector, target_value):
         nn_net = self.net
@@ -213,6 +227,17 @@ class NeuralTrainer:
 
         err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
         for epoch in range(self.epochs):
+            '''mb = 8
+            batch_size = int(input_vector.shape[1] / mb)
+            start_idx = 0
+            for minib in range(1, mb + 1):
+                end_idx = start_idx + batch_size
+                input_mb = input_vector[:, start_idx:end_idx]
+                target_mb = target_value[:, start_idx:end_idx]
+                output = nn_net.forward_propagation(input_mb)
+                acc = NeuralNetwork.accuracy(output, target_mb)
+                err = nn_net.rprop(input_mb, target_mb, loss, self.rprop_delt0, self.rprop_delt_max)
+                start_idx = end_idx'''
             output = nn_net.forward_propagation(input_vector)
             acc = NeuralNetwork.accuracy(output, target_value)
 
