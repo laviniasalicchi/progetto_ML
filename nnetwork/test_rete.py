@@ -24,8 +24,6 @@ def __main__():
     #x = x[:, 0:5]
     #target_values = target_values[:, 0:5]
 
-    print(x.shape, target_values.shape)
-
     unit_lay=[10,10,10,2]
     af = [ 'relu', 'relu', 'relu', 'linear']
     neural_net = NeuralNetwork.create_advanced_net(4, unit_lay, af, "xavier")
@@ -40,10 +38,12 @@ def __main__():
         'loss': 'mean_euclidean'
     }
     trainer = NeuralTrainer(neural_net, **train_par)
+    '''inp, tar = trainer.shuffles(x, target_values)
+    trainer._train_no_test(inp, tar, save=True)'''
     trainer._train_no_test(x, target_values, save=True)
     #   trainer.train_rprop_no_test(x, target_values)
 
-    print("TARGET\n",target_values)
+    print("output", neural_net.output_layer.output)
 
 
 '''

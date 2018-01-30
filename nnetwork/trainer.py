@@ -8,7 +8,8 @@
 
 from neural_net import NeuralNetwork
 from plotter import Plotter
-
+import random as rn
+import numpy as np
 """
 La classe Trainer gestisce il training di una rete.
 Trainer accetta una lista di parametri passati come dizionario nel costruttore
@@ -132,6 +133,7 @@ class NeuralTrainer:
                 end_idx = start_idx + batch_size
                 input_mb = input_vector[:, start_idx:end_idx]
                 target_mb = target_value[:, start_idx:end_idx]
+                input_mb, target_mb = NeuralTrainer.shuffles(input_mb, target_mb)
                 output = nn_net.forward_propagation(input_mb)
                 acc = NeuralNetwork.accuracy(output, target_mb)
                 err = nn_net.backpropagation(input_mb, target_mb, loss, self.eta, self.alfa, self.lambd)
@@ -174,7 +176,6 @@ class NeuralTrainer:
             Plotter.plotError_noTS(epochs_plot, errors)
             #Plotter.plot_accuracy_noTS(epochs_plot, accuracy)
         #print("Accuracy;", accuracy[len(accuracy) - 1])
-        print("OUT\n", nn_net.output_layer.output,"\n")
         print("err\n", err)
         return weights, err
 
@@ -247,3 +248,21 @@ class NeuralTrainer:
             epochs_plot.append(epoch)
         Plotter.plotError_noTS(epochs_plot, errors)
         Plotter.plot_accuracy_noTS(epochs_plot, accuracy)
+
+    @staticmethod
+    def shuffles(input_d, target_d):
+        copy_in = input_d.copy()
+        copy_tar = target_d.copy()
+        new_input = np.zeros((input_d.shape[0], input_d.shape[1]))
+        new_target = np.zeros((target_d.shape[0], target_d.shape[1]))
+        col = 0
+        while copy_in!=[]:
+            indx = rn.randint(0, copy_in.shape[1]-1)
+            new_input[:,col]=copy_in[:,indx]
+            copy_in = np.delete(copy_in, indx, axis=1)
+            new_target[:,col] = copy_tar[:, indx]
+            copy_tar = np.delete(copy_tar, indx, axis=1)
+            col=col+1
+        new_input[:, col] = copy_in[:,0]
+        new_target[:, col] = copy_tar[:,0]
+        return new_input, new_target
