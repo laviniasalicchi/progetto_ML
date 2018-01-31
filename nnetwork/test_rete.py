@@ -21,19 +21,19 @@ def __main__():
     filename = 'ML-CUP17-TR.csv'
     x, target_values = ML_CUP_Dataset.load_ML_dataset(filename)
 
-    #x = x[:, 0:5]
-    #target_values = target_values[:, 0:5]
+    #x = x[:, 0:500]
+    #target_values = target_values[:, 0:500]
 
     unit_lay=[10,10,10,2]
-    af = [ 'relu', 'relu', 'relu', 'linear']
-    neural_net = NeuralNetwork.create_advanced_net(4, unit_lay, af, "xavier")
+    af = ['tanh', 'tanh', 'tanh', 'linear']
+    neural_net = NeuralNetwork.create_advanced_net(4, unit_lay, af,"no")
     #neural_net = NeuralNetwork.create_network(5, 10, 3, 2, 'relu', slope=1)
 
     train_par = {
         'eta': 0.01,
         'alfa': 0.9,
         'lambd': 0.01,
-        'epochs': 50,
+        'epochs': 500,
         'threshold': 0.0,
         'loss': 'mean_euclidean'
     }
@@ -43,7 +43,7 @@ def __main__():
     trainer._train_no_test(x, target_values, save=True)
     #   trainer.train_rprop_no_test(x, target_values)
 
-    print("output", neural_net.output_layer.output)
+    print(neural_net.output_layer.output)
 
 
 '''
