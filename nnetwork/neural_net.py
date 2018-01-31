@@ -674,8 +674,11 @@ class NeuralNetwork:
     @staticmethod
     def mean_euclidean_err(target_value, neurons_out, deriv=False):
         if deriv:
-            err = NeuralNetwork.mean_euclidean_err(target_value, neurons_out)
-            return np.subtract(neurons_out, target_value) * (1 / err)
+            res = np.subtract(neurons_out, target_value) ** 2  # matrice con righe = numero neuroni e colonne = numero di pattern  // è al contrario
+            res = np.sum(res, axis=0)  # somma sulle righe ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
+            res = np.sqrt(res)
+            res = np.sum(res, axis=0)
+            return (np.subtract(neurons_out, target_value) * (1 / (res*target_value.shape[1])))
         res = np.subtract(neurons_out, target_value) ** 2  # matrice con righe = numero neuroni e colonne = numero di pattern  // è al contrario
         res = np.sum(res, axis=0)  # somma sulle righe ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
         res = np.sqrt(res)

@@ -133,7 +133,7 @@ class NeuralTrainer:
                 end_idx = start_idx + batch_size
                 input_mb = input_vector[:, start_idx:end_idx]
                 target_mb = target_value[:, start_idx:end_idx]
-                input_mb, target_mb = NeuralTrainer.shuffles(input_mb, target_mb)
+                #input_mb, target_mb = NeuralTrainer.shuffles(input_mb, target_mb)
                 output = nn_net.forward_propagation(input_mb)
                 acc = NeuralNetwork.accuracy(output, target_mb)
                 err = nn_net.backpropagation(input_mb, target_mb, loss, self.eta, self.alfa, self.lambd)
