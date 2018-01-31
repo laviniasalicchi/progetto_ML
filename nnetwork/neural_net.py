@@ -660,7 +660,8 @@ class NeuralNetwork:
         if deriv:
             return - (np.subtract(target_value, neuron_out))
         res = np.subtract(target_value, neuron_out) ** 2
-        res = np.sum(res, axis=1)
+        res = np.sum(res, axis=0)
+        res = np.sum(res, axis=0)
         return res / target_value.shape[1]
 
 
@@ -676,11 +677,9 @@ class NeuralNetwork:
             err = NeuralNetwork.mean_euclidean_err(target_value, neurons_out)
             return np.subtract(neurons_out, target_value) * (1 / err)
         res = np.subtract(neurons_out, target_value) ** 2  # matrice con righe = numero neuroni e colonne = numero di pattern  // è al contrario
-        #res = np.sqrt(res)
-        res = np.sum(res, axis=0)  # somma sulle colonne. ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
-        res = np.sum(res, axis=0)  # somma sulle righe
+        res = np.sum(res, axis=0)  # somma sulle righe ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
         res = np.sqrt(res)
-
+        res = np.sum(res, axis=0)  # somma sulle colonne
         return (res / target_value.shape[1])
 
 
