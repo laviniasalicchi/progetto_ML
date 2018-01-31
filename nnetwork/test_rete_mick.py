@@ -31,7 +31,7 @@ def __main__():
         "eta": 0.1,
         'alfa': 0.9,
         'lambd': 0.01,
-        "epochs": 1
+        "epochs": 500
         }
     trainer = NeuralTrainer(neural_net, **args)
 
@@ -44,6 +44,7 @@ def __main__():
     monk_test_input = monk_test[1]
 
     trainer.train_network(monk_input, monk_targets, monk_test_input, monk_test_target,'d', True)
+    print(neural_net.output_layer.output)
     cross = CrossValidator(trainer)
     cross.k_fold(monk_input, monk_targets)
 
