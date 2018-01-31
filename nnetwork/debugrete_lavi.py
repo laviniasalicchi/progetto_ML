@@ -1,5 +1,6 @@
 import numpy as np
 from ML_CUP_dataset import ML_CUP_Dataset
+import matplotlib.pyplot as plt
 
 def activ_func(f_name, x):
     if f_name == 'sigmoid':
@@ -71,9 +72,10 @@ def __main__():
     out_lay_w = np.ones((3, 2), dtype=np.float64)
     out_lay_w = out_lay_w*0.7
 
-
+    errors = []
+    epochs_plot=[]
     #   TRAINING
-    for epoch in range(500):
+    for epoch in range(150):
         # forward
         hid_lay_net = np.dot(hid_lay_w.T, in_lay_out)
         hid_lay_out = activ_func('relu', hid_lay_net)
@@ -98,7 +100,16 @@ def __main__():
         out_lay_dW = np.dot(hid_lay_out, delta_out.T)
         out_lay_w = out_lay_w - eta*out_lay_dW
 
-        print (mean_euclidean_err(target_vect, out_lay_out))
+        err = mean_euclidean_err(target_vect, out_lay_out)
+        errors.append(err)
+        epochs_plot.append(epoch)
+        #print (err)
+
+    plt.plot(epochs_plot, errors, color="blue", label="training error")
+    plt.xlabel("epochs")
+    plt.ylabel("error")
+    plt.legend(loc='upper right', frameon=False)
+    plt.show()
 
     print(out_lay_out)
 
