@@ -25,7 +25,7 @@ def __main__():
     #target_values = target_values[:, 0:500]
 
     unit_lay=[10, 10,2]
-    af = ['tanh', 'tanh', 'tanh', 'linear']
+    af = ['relu', 'relu', 'linear']
     neural_net = NeuralNetwork.create_advanced_net(3, unit_lay, af,"no")
     #neural_net = NeuralNetwork.create_network(5, 10, 3, 2, 'relu', slope=1)
 
@@ -33,7 +33,7 @@ def __main__():
         'eta': 0.05,
         'alfa': 0.9,
         'lambd': 0.01,
-        'epochs': 500,
+        'epochs': 1000,
         'threshold': 0.0,
         'loss': 'mean_euclidean'
     }

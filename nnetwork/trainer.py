@@ -126,7 +126,7 @@ class NeuralTrainer:
 
         for epoch in range(self.epochs):
 
-            mb = 8
+            '''mb = 8
             batch_size = int(input_vector.shape[1] / mb)
             start_idx = 0
             for minib in range(1, mb + 1):
@@ -137,11 +137,11 @@ class NeuralTrainer:
                 output = nn_net.forward_propagation(input_mb)
                 acc = NeuralNetwork.accuracy(output, target_mb)
                 err = nn_net.backpropagation(input_mb, target_mb, loss, self.eta, self.alfa, self.lambd)
-                start_idx = end_idx
+                start_idx = end_idx'''
 
-            #   output = nn_net.forward_propagation(input_vector)
-            #   acc = NeuralNetwork.accuracy(output, target_value)
-            #   err = nn_net.backpropagation(input_vector, target_value, loss, self.eta, self.alfa, self.lambd)
+            output = nn_net.forward_propagation(input_vector)
+            acc = NeuralNetwork.accuracy(output, target_value)
+            err = nn_net.backpropagation(input_vector, target_value, loss, self.eta, self.alfa, self.lambd)
             accuracy.append(acc)
             errors.append(err)
             epochs_plot.append(epoch)

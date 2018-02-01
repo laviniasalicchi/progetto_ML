@@ -238,46 +238,28 @@ class NeuralNetwork:
         """
         # delt = deriv(E/out) * f'(net)
         err_deriv = err_func(target_value, self.output_layer.output, True)
-        self.logger.debug('Backprop: err_deriv.shape %s', str(err_deriv.shape))
 
         out_net = self.output_layer.net
 
-        self.logger.debug("Backprop: out_net.shape %s", str(out_net.shape))
-
         f_prime = self.output_layer.activation_function_derivative(out_net)
-        #self.logger.debug("Backprop: f_prime shape %s", str(f_prime.shape))
 
-        delta_out = err_deriv * f_prime  # dovrebbe essere una matrice con colonne = numero di pattern // è pattern x n output units
+        delta_out = - err_deriv * f_prime
         self.output_layer.deltas = delta_out
         prev_layer_delta = delta_out
-        prev_layer_weights = self.output_layer.weights  # prev layer weights sono i pesi del layer precedente (quindi quello a destra quando si fa la backprop)
-        self.logger.debug("Backprop: delta_out.shape %s", str(delta_out.shape))
+        prev_layer_weights = self.output_layer.weights
 
         for layer in reversed(self.hidden_layers):
             layer_net = layer.net
-            self.logger.debug("Backprop: layer_net.shape %s", str(layer_net.shape))
 
             f_prime = layer.activation_function_derivative(layer_net)
 
-            prev_layer_weights = np.delete(prev_layer_weights, -1, 0)  # tolta la riga dei pesi del bias
-            transpose_weights = np.transpose(prev_layer_weights)  # // trasposta fatta a parte senza motivo
-
-            self.logger.debug("Backprop: prev_layer_weights.shape %s", str(prev_layer_weights.shape))
-            self.logger.debug("Backprop: prev_layer_delta.shape %s", str(prev_layer_weights.shape))
-            #self.logger.debug("Backprop: f_prime.shape %s", str(f_prime.shape))
-
+            prev_layer_weights = np.delete(prev_layer_weights, -1, 0)
             delta = np.dot(prev_layer_weights, prev_layer_delta) * f_prime
 
             layer.deltas = delta
 
-            self.logger.debug("Backprop: layer_deltas.shape %s", str(layer.deltas.shape))
-
             prev_layer_delta = delta
             prev_layer_weights = layer.weights
-
-        # update weights
-        self.logger.debug("Backprop: layer.weights.shape %s", str(layer.weights.shape))
-        ones_row = np.ones((1, layer.deltas.shape[1]))
 
         # update weights
         # d(E)/d(w_ji) = sum_p(delta_j * out_i)
@@ -289,15 +271,13 @@ class NeuralNetwork:
 
 
         for layer in net_layers:
-            dW = np.dot(last_layer_out, layer.deltas.T) /
+            dW = np.dot(last_layer_out, layer.deltas.T) * eta/input_vector.shape[1]
 
             momentum = layer.last_dW * alfa
             reg_term = (lambd * layer.weights)
 
-            layer.weights = layer.weights - (eta * dW) + momentum - reg_term  # +/- 2*lambda*layer.weights (per Tikhonov reg.)  //  + (alfa * prev_layer_delta)  (per momentum)
-            # print("DW pre", layer.last_dW)
-            layer.last_dW = - (eta * dW) + momentum
-            # print("DW post", layer.last_dW)
+            layer.weights = layer.weights + dW + momentum - reg_term
+            layer.last_dW = dW + momentum
             last_layer_out = layer.output
 
         error = err_func(target_value, self.output_layer.output)
@@ -674,15 +654,12 @@ class NeuralNetwork:
     @staticmethod
     def mean_euclidean_err(target_value, neurons_out, deriv=False):
         if deriv:
-            res = np.subtract(neurons_out, target_value) ** 2  # matrice con righe = numero neuroni e colonne = numero di pattern  // è al contrario
-            res = np.sum(res, axis=0)  # somma sulle righe ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
-            res = np.sqrt(res)
-            res = np.sum(res, axis=0)
-            return (np.subtract(neurons_out, target_value) * (1 / (res*target_value.shape[1])))
-        res = np.subtract(neurons_out, target_value) ** 2  # matrice con righe = numero neuroni e colonne = numero di pattern  // è al contrario
-        res = np.sum(res, axis=0)  # somma sulle righe ora res = vettore con 1 riga e colonne = numero di pattern. ogni elemento è (t-o)^2
+            err = NeuralNetwork.mean_euclidean_err(target_value, neurons_out)
+            return np.subtract(neurons_out, target_value) * (1 / err)
+        res = np.subtract(neurons_out, target_value) ** 2
+        res = np.sum(res, axis=0)
         res = np.sqrt(res)
-        res = np.sum(res, axis=0)  # somma sulle colonne
+        res = np.sum(res, axis=0)
         return (res / target_value.shape[1])
 
 
