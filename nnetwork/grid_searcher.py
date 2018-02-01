@@ -37,15 +37,15 @@ def __main__():
 
         params = {
             'units_in': 10, # !!
-            'units_out': 1, #!!
+            'units_out': 2, #!!
             'loss': 'mean_euclidean', #!!
             'etas': [0.01, 0.05, 0.1, 0.3, 0.5],
             'alfas': [0.5, 0.7, 0.9],
             'lambds': [0.01, 0.04, 0.07, 0.1],
             'tot_lay': [3, 4, 5],
-            'n_hid': list(range(1,25)),
-            'epochs': 500,
-            'act_func': ['sigmoid']
+            'n_hid': list(range(1,10)),
+            'epochs': 200,
+            'act_func': ['sigmoid','relu','tanh']
         }
 
 
@@ -185,7 +185,8 @@ def adv_grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
 
         for nhu in permutations:
             for af in act_func:
-                activ_func = [af] * ntl
+                activ_func = [af] * (ntl - 1)
+                activ_func = activ_func + ['linear']
                 for e in etas:
                     for a in alfas:
                         for l in lambds:

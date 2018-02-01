@@ -138,7 +138,7 @@ def __main__():
 
 
 
-    sgd_n = optimizers.SGD(lr=0.03, momentum=0.0, nesterov=False)
+    sgd_n = optimizers.SGD(lr=0.03, momentum=0.9, nesterov=False)
     neural_net_k.compile(loss=mean_euc_dist, optimizer=sgd_n, metrics = ['accuracy'])
     training = neural_net_k.fit(x, target_values, batch_size=1016, epochs=500)
 
