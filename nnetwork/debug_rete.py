@@ -53,8 +53,8 @@ def activ_func_derivative(name, x):
         deriv = 1 -(np.tanh(y)**2)
         return deriv
     elif name == 'linear':
-        deriv = 1
-        return 1
+        deriv = np.ones(shape=(x.shape[0], x.shape[1]))
+        return deriv
 
 
 
@@ -62,7 +62,9 @@ def mean_squared_err(target_value, neuron_out, deriv=False):
     if deriv:
         return - (np.subtract(target_value, neuron_out))
     res = np.subtract(target_value, neuron_out) ** 2
-    res = np.sum(res, axis=0)
+    #print(res)
+
+    res = np.sum(res, axis=1)
     res = np.sum(res, axis=0)
     return res / target_value.shape[1]
 
@@ -84,13 +86,18 @@ def _test_loss_func():
     output = np.array([[1,3,5], [2,1,1], [1,1,1]], dtype=np.float64)
     print('\n----------- test loss: keras-------------', mean_euc_dist(output, target))
     print(mean_euc_dist(output, target))
-    print('\------------ ours loss -----------------', mean_euclidean_err(target, output))
+    print('\------------ ours loss -----------------', mean_squared_err(target, output))
     print()
 
 
 
 
 def __main__():
+    # Molto bene.
+    #TESTLEOCIAO()
+    _test_loss_func()
+    #return
+
     filename = 'ML-CUP17-TR.csv'
 
     #---------------- keras --------------------------------------------------
@@ -100,39 +107,55 @@ def __main__():
 
     filename = 'ML-CUP17-TR.csv'
     input_vect, target_vect = ML_CUP_Dataset.load_ML_dataset(filename)
-    #input_vect = input_vect[:, 0:2]
-    #target_vect = target_vect[:, 0:2]
+    # input_vect = input_vect[:, 0:2  ]
+    # target_vect = target_vect[:, 0:2]
 
-    '''
+    # input_vect = input_vect[0:15, 0:500]
+    # target_vect = target_vect[0:15, 0:500]
+
+
     #---------------------keras ----------------------------------------------
     neural_net_k = Sequential()
-    hidden_layer = Dense(2, input_dim=x.shape[1], activation='sigmoid')
+    hidden_layer = Dense(3, input_dim=x.shape[1], activation='relu')
     output_layer = Dense(2, activation='linear')
     neural_net_k.add(hidden_layer)
     neural_net_k.add(output_layer)
 
     hidden_k_bias = hidden_layer.get_weights()[1].reshape(1, len(hidden_layer.get_weights()[1]))
     output_k_bias = output_layer.get_weights()[1].reshape(1, len(output_layer.get_weights()[1]))
-    hidden_k_wei = np.concatenate((hidden_layer.get_weights()[0], hidden_k_bias))
-    output_k_wei = np.concatenate((output_layer.get_weights()[0], output_k_bias))
+    hidden_k_wei = hidden_layer.get_weights()[0]
+    output_k_wei = output_layer.get_weights()[0]
+
+    print('\n\n================= keras hid shape===================\n', hidden_k_wei.shape)
+    print('\n\n================= keras out shape===================\n', output_k_wei.shape)
+    print('\n\n================= keras hid_b shape===================\n', hidden_k_bias.shape)
+    print('\n\n================= keras out_b shape===================\n', output_k_bias.shape)
+
+
+
+
+
+
 
 
     sgd_n = optimizers.SGD(lr=0.03, momentum=0.0, nesterov=False)
-    neural_net_k.compile(loss=losses.mean_squared_error, optimizer=sgd_n, metrics = ['accuracy'])
-    #training = neural_net_k.fit(x, target_values, batch_size=1016, epochs=500)
+    neural_net_k.compile(loss=mean_euc_dist, optimizer=sgd_n, metrics = ['accuracy'])
+    training = neural_net_k.fit(x, target_values, batch_size=1016, epochs=500)
 
     plt.plot(training.history["loss"])
     plt.xlabel("epochs")
     plt.ylabel("error")
     plt.legend(loc='upper left', frameon=False)
-    plt.show()'''
+    plt.show()
+
+    _test_loss_func()
 
 
     '''params '''
-    η = 0.01
+    η = 0.03
     net_err_epochs = []
     epochs = 500
-    hid_lay_af = 'sigmoid'
+    hid_lay_af = 'relu'
     out_lay_af = 'linear'
     hid_lay_units = 3
     out_lay_units = 2
@@ -140,18 +163,26 @@ def __main__():
     input_dim = input_vect.shape[0]
     output_dim = target_vect.shape[0]
 
-    hid_lay_w = np.ones(shape=(input_dim, hid_lay_units)) * 0.7
+    '''hid_lay_w = np.ones(shape=(input_dim, hid_lay_units)) * 0.7
     out_lay_w = np.ones(shape=(hid_lay_units, out_lay_units)) * 0.7
 
     in_lay_bias = np.zeros((1, hid_lay_units)).T
-    out_lay_bias = np.zeros((1, out_lay_units)).T
+    out_lay_bias = np.zeros((1, out_lay_units)).T'''
+
+    hid_lay_w = hidden_k_wei
+    out_lay_w = output_k_wei
+
+    in_lay_bias = hidden_k_bias.T
+    out_lay_bias = output_k_bias.T
 
     for e in range(epochs):
+
+
         # ############## FORWARD PROPAGATION #################################
         input_lay_out = input_vect.copy()
         #hid_lay_net = np.dot(hid_lay_w.T, input_lay_out) + in_lay_bias
 
-        hid_lay_net = np.dot(hid_lay_w.T, input_lay_out,) + in_lay_bias
+        hid_lay_net = np.dot(hid_lay_w.T, input_lay_out) + in_lay_bias
         print('\n\n================= in_lay bias ===================\n', in_lay_bias)
 
 
@@ -167,6 +198,9 @@ def __main__():
         net_error = mean_squared_err(target_vect, out_lay_out.copy())
         net_err_epochs.append(net_error)
 
+        print('----------------------___________---------------------------__________-----> epoch:', e)
+
+
         print('\n\n================= Error ===================\n', net_error)
         # ############### BACKPROPAGATION ##########################################
 
@@ -174,9 +208,13 @@ def __main__():
         f_prime_out = activ_func_derivative(out_lay_af, out_lay_net.copy())
         print('\n\n================= F_prime out ===================\n', f_prime_out)
 
+        print('\n\n================= Err deriv ===================\n', err_deriv)
+
+
+
 
         #delt = deriv(E/out) * f'(net)
-        out_lay_delta = err_deriv * f_prime_out
+        out_lay_delta = - err_deriv * f_prime_out
         print('\n\n================= out_layer deltas ===================\n', out_lay_delta)
 
         f_prime_hid = activ_func_derivative(hid_lay_af, hid_lay_net.copy())
@@ -184,18 +222,18 @@ def __main__():
 
         hid_lay_delta = np.dot(out_lay_w.copy(), out_lay_delta.copy()) * f_prime_hid
 
-        print('\n\n================= hid_layer deltas ===================\n', out_lay_delta)
+        print('\n\n================= hid_layer deltas ===================\n', hid_lay_delta)
 
-        Δw_hid = np.dot(input_lay_out, hid_lay_delta.T) * η
+        Δw_hid = np.dot(input_lay_out, hid_lay_delta.T) * η / input_vect.shape[1]
 
         print('\n\n================= Δw_hid  ===================\n', Δw_hid)
 
-        Δw_out = np.dot(hid_lay_out, out_lay_delta.T) * η
+        Δw_out = np.dot(hid_lay_out, out_lay_delta.T) * η / input_vect.shape[1]  # *** ANACARDO ARROSTO [CENSORED]!!! [CENSORED] IMBURRATA CHE CASCA DI FACCIA COME UNA FETTA BISCOTTATA
 
         print('\n\n================= Δw_out  ===================\n', Δw_out)
 
-        Δw_hid_bias = hid_lay_delta * η
-        Δw_out_bias = out_lay_delta * η
+        Δw_hid_bias = hid_lay_delta * η / input_vect.shape[1]
+        Δw_out_bias = out_lay_delta * η / input_vect.shape[1]
 
 
 
@@ -203,16 +241,11 @@ def __main__():
 
         # weights update
 
-        hid_lay_w = hid_lay_w - Δw_hid
-        out_lay_w = out_lay_w - Δw_out
+        hid_lay_w = hid_lay_w + Δw_hid
+        out_lay_w = out_lay_w + Δw_out
 
-        in_lay_bias = in_lay_bias - Δw_hid_bias
-        out_lay_bias = out_lay_bias - Δw_out_bias
-
-
-
-
-
+        in_lay_bias = in_lay_bias + Δw_hid_bias
+        out_lay_bias = out_lay_bias + Δw_out_bias
 
 
 
@@ -310,6 +343,105 @@ def __main__():
 
 
     #_prova_backprop_new()
+
+def print_arr(name, arr):
+    print('\n\n===== %s\n' % name, arr[:,0], '\n', arr.shape)
+
+def TESTLEOCIAO():
+
+    filename = 'ML-CUP17-TR.csv'
+    input_vect, target_vect = ML_CUP_Dataset.load_ML_dataset(filename)
+
+    input_vect = input_vect[0:15, 0:500]
+    target_vect = target_vect[0:15, 0:500]
+
+    '''params '''
+    η = 0.04
+    net_err_epochs = []
+    epochs = 100
+    hid_lay_af = 'sigmoid'
+    out_lay_af = 'linear'
+    hid_lay_units = 3
+    out_lay_units = 2
+
+    input_dim = input_vect.shape[0]
+    output_dim = target_vect.shape[0]
+
+    hid_lay_w = np.ones(shape=(input_dim, hid_lay_units)) * 0.7
+    out_lay_w = np.ones(shape=(hid_lay_units, out_lay_units)) * 0.7
+
+    in_lay_bias = np.zeros((1, hid_lay_units)).T
+    out_lay_bias = np.zeros((1, out_lay_units)).T
+
+    np.set_printoptions(linewidth=200)
+
+    for e in range(epochs):
+        print('\n\n#####\nEPOCH %s\n#####\n\n' % e)
+
+
+        # ############## FORWARD PROPAGATION #################################
+        input_lay_out = input_vect.copy()
+        #hid_lay_net = np.dot(hid_lay_w.T, input_lay_out) + in_lay_bias
+
+        hid_lay_net = np.dot(hid_lay_w.T, input_lay_out) + in_lay_bias
+        print_arr('in_lay_bias', in_lay_bias)
+
+        print_arr('hid_lay_net', hid_lay_net)
+
+        hid_lay_out = activ_func(hid_lay_af, hid_lay_net)
+        print_arr('hid_lay_out', hid_lay_out)
+
+        out_lay_net = np.dot(out_lay_w.T, hid_lay_out) + out_lay_bias
+        out_lay_out = activ_func(out_lay_af, out_lay_net)
+        print_arr('out_lay_net', out_lay_net)
+
+        print_arr('out_lay_out', out_lay_out)
+
+        net_error = mean_squared_err(target_vect, out_lay_out.copy())
+        net_err_epochs.append(net_error)
+
+        print('\n\n================= Error ===================\n', net_error)
+        # ############### BACKPROPAGATION ##########################################
+
+        err_deriv = mean_squared_err(target_vect.copy(), out_lay_out.copy(), True)
+        print_arr('err_deriv', err_deriv)
+        f_prime_out = activ_func_derivative(out_lay_af, out_lay_net.copy())
+        print_arr('F_prime out', f_prime_out)
+
+        print_arr('target', target_vect)
+        print_arr('output', out_lay_out)
+
+
+        #delt = deriv(E/out) * f'(net)
+        out_lay_delta = - err_deriv * f_prime_out
+        print_arr('out_lay_delta', out_lay_delta)
+
+        f_prime_hid = activ_func_derivative(hid_lay_af, hid_lay_net.copy())
+        print_arr('f_prime_hid', f_prime_hid)
+
+        hid_lay_delta = np.dot(out_lay_w, out_lay_delta) * f_prime_hid
+
+        print_arr('hid_layer deltas', hid_lay_delta)
+
+        Δw_hid = input_lay_out * hid_lay_delta  * η
+
+        print_arr('Δw_hid', Δw_hid)
+
+        Δw_out = hid_lay_out *  out_lay_delta * η
+
+        print_arr('Δw_out', Δw_out)
+
+        Δw_hid_bias = hid_lay_delta * η
+        Δw_out_bias = out_lay_delta * η
+
+        # weights update
+
+        hid_lay_w = hid_lay_w + Δw_hid
+        out_lay_w = out_lay_w + Δw_out
+
+        in_lay_bias = in_lay_bias + Δw_hid_bias
+        out_lay_bias = out_lay_bias + Δw_out_bias
+
 
 
 __main__()
