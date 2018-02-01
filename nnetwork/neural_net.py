@@ -289,7 +289,7 @@ class NeuralNetwork:
 
 
         for layer in net_layers:
-            dW = np.dot(last_layer_out, layer.deltas.T)
+            dW = np.dot(last_layer_out, layer.deltas.T) /
 
             momentum = layer.last_dW * alfa
             reg_term = (lambd * layer.weights)
