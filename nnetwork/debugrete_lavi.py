@@ -98,7 +98,7 @@ def __main__():
         hid_lay_w = hid_lay_w - eta*hid_lay_dW
 
         out_lay_dW = np.dot(hid_lay_out, delta_out.T)
-        out_lay_w = out_lay_w - eta*out_lay_dW
+        out_lay_w = out_lay_w - eta* (out_lay_dW / input_vect.shape[1])  #  
 
         err = mean_euclidean_err(target_vect, out_lay_out)
         errors.append(err)
