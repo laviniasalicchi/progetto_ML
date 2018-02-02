@@ -97,13 +97,13 @@ class NeuralTrainer:
             else:
                 weights_BT = weights
                 err_BT = err
-        print("TR",err, " - ", acc)
-        print("TS", ts_err, " - ", ts_acc)
+        print("TR",err)
+        print("TS", ts_err)
         if save:
             # todo parte di salvetaggio del modello
 
             Plotter.plotError(epochs_plot, errors, ts_errors, folder)
-            Plotter.plot_accuracy(epochs_plot, accuracy, ts_accuracy, folder)
+            #Plotter.plot_accuracy(epochs_plot, accuracy, ts_accuracy, folder)
         return weights, err
 
     def _train_no_test(self, input_vector, target_value, save=False):
@@ -172,11 +172,12 @@ class NeuralTrainer:
             else:
                 weights_BT = weights
                 err_BT = err
+
+        print("err\n", err)
         if save:
             Plotter.plotError_noTS(epochs_plot, errors)
             #Plotter.plot_accuracy_noTS(epochs_plot, accuracy)
         #print("Accuracy;", accuracy[len(accuracy) - 1])
-        print("err\n", err)
         return weights, err
 
     def train_rprop(self, input_vector, target_value, input_test, target_test):

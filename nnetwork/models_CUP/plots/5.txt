@@ -1,0 +1,12 @@
+unit_lay=[10,10,2]
+    af = ['relu', 'relu', 'linear']
+    neural_net = NeuralNetwork.create_advanced_net(3, unit_lay, af,"no")
+
+    train_par = {
+        'eta': 0.3,
+        'alfa': 0.9,
+        'lambd': 0.01,
+        'epochs': 200,
+
+TR 4.161261370961908
+TS 3.652322042430174

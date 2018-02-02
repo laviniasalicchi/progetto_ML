@@ -17,8 +17,8 @@ class Plotter:
 
     @staticmethod
     def plotError(epochs_plot, errors, ts_error, folder):
-        plt.plot(epochs_plot, errors, color="blue", label="training error")
-        plt.plot(epochs_plot, ts_error, color="red", label="test error", linestyle="-.")
+        plt.plot(epochs_plot, errors, color="blue", label="error TR")
+        plt.plot(epochs_plot, ts_error, color="red", label="error VL", linestyle="-.")
         plt.xlabel("epochs")
         plt.ylabel("error")
         plt.legend(loc='upper right', frameon=False)

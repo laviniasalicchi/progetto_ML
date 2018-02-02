@@ -15,7 +15,8 @@ from output_layer import OutputLayer
 from neural_net import NeuralNetwork
 from monk_dataset import MonkDataset
 from ML_CUP_dataset import ML_CUP_Dataset
-from parallel_grid_search import *
+from grid_searcher import *
+import os
 
 '''
     HOLD-OUT VALIDATION
@@ -33,7 +34,7 @@ from parallel_grid_search import *
 '''
 def __main__():
     if __name__ == '__main__':
-        monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
+        '''monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
         monk_targets = monk_datas[0]
         monk_input = monk_datas[1]
         monk_datas_ts = MonkDataset.load_encode_monk('../datasets/monks-1.test')
@@ -41,7 +42,14 @@ def __main__():
         monk_input_ts = monk_datas_ts[1]
 
         mod = hold_out(monk_input, monk_targets, 600, 0.0, 'mean_squared_err')
-        retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts, 600, 0.0, 'mean_squared_err')
+        retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts, 600, 0.0, 'mean_squared_err')'''
+
+        filename = 'ML-CUP17-TR.csv'
+        x = ML_CUP_Dataset.load_ML_dataset(filename)[0]
+        target_values = ML_CUP_Dataset.load_ML_dataset(filename)[1]
+
+        mod = hold_out(x, target_values, 500, 0.0, 'mean_euclidean')
+        #retraining_noTS(mod, x, target_values)
 
 
 def hold_out(input_vector, target_value, epochs, threshold, loss_func):
@@ -51,24 +59,68 @@ def hold_out(input_vector, target_value, epochs, threshold, loss_func):
     valid_set = input_vector[:, bound:input_vector.shape[1]]
     target_valid = target_value[:, bound:input_vector.shape[1]]
 
-    etas = [0.01, 0.05, 0.1, 0.3, 0.5]
-    alfas = [0.5, 0.7, 0.9]
-    lambds = [0.01, 0.04, 0.07, 0.1]
-    n_total_layers = [3, 4, 5]
-    n_hidden_units = [5, 10, 15]  # range(5, 20)
-    act_func = ['sigmoid', 'tanh']
+    folder = str("models_CUP/RELAZIONE/")
+
+    models = []
+
+    unit_lay = [10, 5, 5, 2]
+    af = ['relu', 'relu', 'relu', 'linear']
+    neural_net = NeuralNetwork.create_advanced_net(4, unit_lay, af,"no")
+
+    train_par = {
+        'eta': 0.1,
+        'alfa': 0.7,
+        'lambd': 0.01,
+        'epochs': 200,
+        'threshold': 0.0,
+        'loss': 'mean_euclidean'
+    }
+    trainer = NeuralTrainer(neural_net, **train_par)
+    #trainer.train_network(training_set, target_training, valid_set, target_valid, "", save=True)
+    trainer.train_rprop(training_set,target_training, valid_set, target_valid)
+
+
+def hold_out_grid(input_vector, target_value, epochs, threshold, loss_func):
+    bound = int(np.rint((input_vector.shape[1]/100)*60))
+    training_set = input_vector[:, 0:bound]
+    target_training = target_value[:, 0:bound]
+    valid_set = input_vector[:, bound:input_vector.shape[1]]
+    target_valid = target_value[:, bound:input_vector.shape[1]]
+
+    grid_layers =[[10,5,2],[10,10,2],[10,5,5,2]]
+    #af = ['relu','relu', 'relu', 'linear']
+    af = ['relu']
+
+    etas = [0.01, 0.05, 0.1]
+    alfas = [0.7, 0.9]
     models = []
     i = 0
-    for ntl in n_total_layers:
-        for nhu in n_hidden_units:
-            for af in act_func:
-                for e in etas:
-                    for a in alfas:
-                        for l in lambds:
-                            neural_net = NeuralNetwork.create_network(ntl, 17, nhu, 1, af, slope=1)
-                            trained = neural_net._train_no_test(training_set, target_training, epochs, threshold, loss_func, eta=e, alfa=a, lambd=l)
-                            err, acc = neural_net.test_network(valid_set, target_valid)
-                            models.append({'id': i, 'accuracy': acc, 'ntl': ntl, 'nhu': nhu, 'af': af, 'eta': e, 'alfa': a, 'lambda': l})
+    for unit_lay in grid_layers:
+        for e in etas:
+            for a in alfas:
+                folder = str("models_CUP/RELAZIONE/"+str(i))
+                train_par = {
+                    'eta': e,
+                    'alfa': a,
+                    'lambd': 0.01,
+                    'epochs': 200,
+                    'threshold': 0.0,
+                    'loss': 'mean_euclidean'
+                }
+                file = folder+"info.txt"
+                print(i,")""eta", e,"alfa", a,"lambda", 0.01, "arr layers", unit_lay)
+                with open(file, mode='w') as infomodel:
+                    inf = str("eta:"+str(e)+" - alfa:"+str(a)+" - lambda: 0.01")
+                    infomodel.write('%s\n' % inf)
+                tot_lay = len(unit_lay)
+                ac_f = af * (len(unit_lay) - 1)
+                ac_f.append('linear')
+                neural_net = NeuralNetwork.create_advanced_net(tot_lay, unit_lay, ac_f, "no")
+                trainer = NeuralTrainer(neural_net, **train_par)
+                trainer.train_network(training_set, target_training, valid_set, target_valid, folder, save=True)
+                i=i+1
+
     return models
+
 
 __main__()

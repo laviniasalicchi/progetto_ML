@@ -1,0 +1,1 @@
+eta:0.01 - alfa:0.5 - lambda: 0.01
