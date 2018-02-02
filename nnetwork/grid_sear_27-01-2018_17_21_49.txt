@@ -1,5 +1,0 @@
-{'id': 0, 'accuracy': 0.71774193548387089, 'ntl': 3, 'nhu': 8, 'af': 'sigmoid', 'eta': 0.3, 'alfa': 0.5, 'lambda': 0.1}
-{'id': 0, 'accuracy': 0.70967741935483863, 'ntl': 3, 'nhu': 15, 'af': 'sigmoid', 'eta': 0.3, 'alfa': 0.7, 'lambda': 0.01}
-{'id': 0, 'accuracy': 0.70967741935483863, 'ntl': 4, 'nhu': 15, 'af': 'sigmoid', 'eta': 0.3, 'alfa': 0.5, 'lambda': 0.01}
-{'id': 0, 'accuracy': 0.69354838709677413, 'ntl': 3, 'nhu': 10, 'af': 'sigmoid', 'eta': 0.1, 'alfa': 0.7, 'lambda': 0.04}
-{'id': 0, 'accuracy': 0.68548387096774199, 'ntl': 3, 'nhu': 6, 'af': 'sigmoid', 'eta': 0.3, 'alfa': 0.7, 'lambda': 0.07}

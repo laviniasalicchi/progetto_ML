@@ -1,0 +1,10 @@
+{'id': 0, 'accuracy': 1.8599557310141024, 'ntl': 3, 'nhu': 25, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.1, 'lambda': 0.01, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_euclidean'}
+{'id': 0, 'accuracy': 1.8599663874366477, 'ntl': 3, 'nhu': 20, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.1, 'lambda': 0.01, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_euclidean'}
+{'id': 0, 'accuracy': 1.8616926312585118, 'ntl': 3, 'nhu': 17, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.1, 'lambda': 0.01, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_euclidean'}
+{'id': 0, 'accuracy': 1.8669785077808618, 'ntl': 3, 'nhu': 24, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.1, 'lambda': 0.01, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_euclidean'}
+{'id': 0, 'accuracy': 1.8765581556226074, 'ntl': 3, 'nhu': 15, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.1, 'lambda': 0.01, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_euclidean'}
+{'id': 0, 'accuracy': 1.8807127984233187, 'ntl': 3, 'nhu': 22, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.1, 'lambda': 0.01, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_euclidean'}
+{'id': 0, 'accuracy': 1.8831666144185981, 'ntl': 3, 'nhu': 16, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.1, 'lambda': 0.01, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_euclidean'}
+{'id': 0, 'accuracy': 1.9107350924132187, 'ntl': 3, 'nhu': 14, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.1, 'lambda': 0.01, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_euclidean'}
+{'id': 0, 'accuracy': 1.9175633547634505, 'ntl': 3, 'nhu': 27, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.1, 'lambda': 0.01, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_euclidean'}
+{'id': 0, 'accuracy': 1.9182178994193524, 'ntl': 3, 'nhu': 18, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.1, 'lambda': 0.01, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_euclidean'}

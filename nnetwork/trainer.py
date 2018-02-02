@@ -104,7 +104,7 @@ class NeuralTrainer:
 
             Plotter.plotError(epochs_plot, errors, ts_errors, folder)
             Plotter.plot_accuracy(epochs_plot, accuracy, ts_accuracy, folder)
-        return weights, err
+        return weights, err, ts_errors, errors
 
     def _train_no_test(self, input_vector, target_value, save=False):
         nn_net = self.net
@@ -176,7 +176,7 @@ class NeuralTrainer:
             Plotter.plotError_noTS(epochs_plot, errors)
             #Plotter.plot_accuracy_noTS(epochs_plot, accuracy)
         #print("Accuracy;", accuracy[len(accuracy) - 1])
-        print("err\n", err)
+        #print("err", err)
         return weights, err
 
     def train_rprop(self, input_vector, target_value, input_test, target_test):

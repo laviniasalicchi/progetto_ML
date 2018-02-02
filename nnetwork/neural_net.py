@@ -133,6 +133,7 @@ class NeuralNetwork:
                     'non coincidono. Specificare un numero di unità '
                     'per ogni layer della rete')
             logger.error(warn)
+            logger.error('tot lay:' + str(tot_lays) + ' un_lay:' + str(un_lay))
             return
         elif tot_lays != len(afs):
             warn = ('Numero di layer e lista di funzioni di attivazione '
@@ -153,7 +154,9 @@ class NeuralNetwork:
         else:
             input_layer.create_weights(un_lay[0])
 
+
         input_layer.set_activation_function(afs[0])
+
         net.add_input_layer(input_layer)
 
         prev_un = un_lay[0]
@@ -167,6 +170,7 @@ class NeuralNetwork:
             prev_un = un_lay[i]
 
             hidden_l.set_activation_function(afs[i])
+
             hidden_l.set_sigmoid_slope(slope)
             net.add_hidden_layer(hidden_l)
 

@@ -41,9 +41,9 @@ def __main__():
             'loss': 'mean_euclidean', #!!
             'etas': [0.01, 0.05, 0.1, 0.3, 0.5],
             'alfas': [0.5, 0.7, 0.9],
-            'lambds': [0.01, 0.04, 0.07, 0.1],
+            'lambds': [0.01, 0.04, 0.07 ],
             'tot_lay': [3, 4, 5],
-            'n_hid': list(range(1,10)),
+            'n_hid': list(range(4,10)),
             'epochs': 200,
             'act_func': ['sigmoid','relu','tanh']
         }
@@ -56,8 +56,8 @@ def __main__():
         #mod = grid_search(monk_input, monk_targets, params)
         retraining(mod, monk_input, monk_targets, monk_input_ts, monk_targets_ts)'''
 
-        mod = grid_search(x, target_values, params)
-        retraining(mod, x, target_values)
+        mod = adv_grid_search(x, target_values, params)
+        #retraining(mod, x, target_values)
 
         end = time.time() * 1000
         ''''# ottieni i valori
@@ -126,8 +126,7 @@ def grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
 
                             key = "eta=" + str(e) + " alfa=" + str(a) + " lambda" +str(l) + " ntl=" + str(ntl) + " nhu=" + str(nhu) + " act=" + af + "\t"
                             #res[key] = executor.apply_async(kfold_task, (input_vect, target_vect, epochs, threshold, loss_func, e, a, l))
-                            res[key] = executor.apply_async(kfold_task,
-                             (net_topology, train_par, input_vect, target_vect, k))
+                            res[key] = executor.apply_async(kfold_task, (net_topology, train_par, input_vect, target_vect, k))
                             acc = res[key].get()
                             print("ntl:", ntl, "nhu:", nhu, " - af:", af, "eta:", e, "alfa:", a, "lambda:", l, "ACCURACY:", acc)
 
@@ -168,35 +167,40 @@ def adv_grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
     n_total_layers = kwargs.get('tot_lay', [3, 4, 5])
     act_func = kwargs.get('act_func', ['sigmoid', 'tanh'])
     init = kwargs.get('init', 'def')
-    min_hid = 3
-    max_hid = 10
+    # min_hid = 3
+    # max_hid = 10
+    unit_hid = kwargs.get('nhid', [10])
     # creo l'executor a cui mandare i task
-    executor = mp.Pool(processes=10)
+    executor = mp.Pool(processes=30)
     res = {}
     models = []
     tot_perms = 1
     for n in n_total_layers:
-        tot_perms = tot_perms * _tuple_count(n, min_hid, max_hid)
-    tot_iter = len(etas) * len(alfas) * len(lambds) * len(act_func) * tot_perms
-    count = 1
+        #tot_perms = tot_perms * _tuple_count(n, min_hid, max_hid)
+        tot_iter = len(etas) * len(alfas) * len(lambds) * len(act_func) * len(unit_hid)
+        count = 1
 
     for ntl in n_total_layers:
-        permutations = _tuple_generator(ntl, min_hid, max_hid, units_in, units_out)
+        #permutations = _tuple_generator(ntl, min_hid, max_hid, units_in, units_out)
 
-        for nhu in permutations:
+        for nhu in unit_hid:
+            units_per_lay = generate_unit_per_layer(units_in, nhu, units_out, ntl)
+            print(units_per_lay)
+
             for af in act_func:
                 activ_func = [af] * (ntl - 1)
                 activ_func = activ_func + ['linear']
+                print(activ_func)
                 for e in etas:
                     for a in alfas:
                         for l in lambds:
 
                             net_topology = {
-                                'un_lays': nhu,
+                                'un_lays': units_per_lay,
                                 'units_out': units_out,
                                 'tot_lay': ntl,
                                 'init': init,
-                                'act_func': af
+                                'act_func': activ_func
                             }
                             train_par = {
                                 'eta': e,
@@ -206,11 +210,17 @@ def adv_grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
                                 'threshold': trshld,
                                 'loss': loss
                             }
-                            key = "eta=" + str(e) + " alfa=" + str(a) + " lambda" +str(l) + " ntl=" + str(ntl) + " nhu=" + str(nhu) + " act=" + af + "\t"
+
+                            key = "eta=" + str(e) + " alfa=" + str(a) + " lambda" +str(l) + " ntl=" + str(ntl) + " nhu=" + str(nhu) + " act=" + af
                             #res[key] = executor.apply_async(kfold_task, (input_vect, target_vect, epochs, threshold, loss_func, e, a, l))
+                            print(key)
+                            acc = kfold_adv_task(net_topology, train_par, input_vect, target_vect, k)
+
                             res[key] = executor.apply_async(kfold_adv_task,
                              (net_topology, train_par, input_vect, target_vect, k))
+                            print('debug')
                             acc = res[key].get()
+                            print('sent to executor:', str(key),'\n')
 
                             models.append({'id': 0, 'accuracy': acc,
                                            'ntl': ntl, 'nhu': nhu, 'u_in': units_in, 'u_out': units_out, 'af': af,
@@ -220,7 +230,7 @@ def adv_grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
                             mess = 'Progress: {} %' + '    (' + str(count) + ' of ' + str(tot_iter) + ')'
                             mess = mess.format(int(progress))
                             print(mess, end='\r')
-                            sys.stdout.flush()
+                            #sys.stdout.flush()
                             if int(progress) > 0 and (int(progress) % 20) == 0:
                                 current_par = {
                                     'eta': e,
@@ -258,6 +268,10 @@ def _tuple_generator(size, start, end, input_size, out_size):
         result.append(new_tup)
     #print(result)
     return result
+def generate_unit_per_layer(n_in, n_hid, n_out, tot_lay):
+    res = []
+    res = [n_in] + ([n_hid] * (tot_lay - 2)) + [n_out]
+    return res
 
 def _tuple_count(size, start, end):
     values = range(start, end + 1)
