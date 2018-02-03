@@ -1,0 +1,1 @@
+{'eta': 0.2, 'alfa': 0.9, 'lambd': 0.02, 'un_lays': 57, 'units_out': 2, 'tot_lay': 4, 'init': 'def', 'act_func': 'sigmoid'}

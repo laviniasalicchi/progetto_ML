@@ -7,6 +7,7 @@
 # ==============================================================================
 
 import os
+import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('TkAgg')  # mac osx need this backend
@@ -14,6 +15,34 @@ matplotlib.use('TkAgg')  # mac osx need this backend
 
 
 class Plotter:
+
+    @staticmethod
+    def plot_kfold(kfold_res):
+
+        tr_folds_err_h = kfold_res['tr_folds_err_h']
+        vl_folds_err_h = kfold_res['vl_folds_err_h']
+        epochs_count = len(tr_folds_err_h[0])
+        k = len(tr_folds_err_h) # fold number
+        epochs_l = range(0, epochs_count)
+        tr_arr = np.array(tr_folds_err_h)
+        tr_mean_err = np.mean(tr_arr, axis=0)
+        vl_arr = np.array(vl_folds_err_h)
+        vl_mean_err = np.mean(vl_arr, axis=0)
+        for i in range(0, k):
+            tr_err = tr_folds_err_h[i]
+            vl_err = vl_folds_err_h[i]
+            plt.plot(epochs_l, tr_err, color='xkcd:sky')
+            plt.plot(epochs_l, vl_err, color='xkcd:peach')
+        plt.plot(epochs_l, tr_mean_err, color='xkcd:blue', label='avg training err')
+        plt.plot(epochs_l, vl_mean_err, color='xkcd:red', label='avg test err')
+
+        plt.xlabel("epochs")
+        plt.ylabel("error")
+        plt.legend(loc='upper right', frameon=False)
+        plt.show()
+
+
+
 
     @staticmethod
     def plotError(epochs_plot, errors, ts_error, folder):

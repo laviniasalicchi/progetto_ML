@@ -180,10 +180,13 @@ class CrossValidator:
         resto = input_size % k
         fold_size = int(input_size / k)
         start_idx = 0
-        acc_list = []
-        err_list = []
-        err_per_epoch_tr = [] #curva di errore tr per ogni fold
-        err_per_epoch_vl = [] #curva di errore ts per ogni fold
+        tr_acc_list = [] # accuracy su tr
+        vl_acc_list = [] # accuracy su vl
+        tr_err_list = []
+        vl_err_list = []
+        err_per_epoch_tr = [] # curva di errore tr per ogni fold (lista di lista di errori)
+        err_per_epoch_vl = [] # curva di errore ts per ogni fold (lista di lista di errori)
+
 
         #print(fold_size)
         #print(resto)
@@ -197,7 +200,7 @@ class CrossValidator:
 
             net = NeuralNetwork.create_advanced_net(tot_lay, un_lays, act_func, init)
             trainer = NeuralTrainer(net, **train_param)
-
+            # dataset splitting
             test_kfold = input_vect[:, start_idx:end_idx]
             test_targets = target_vect[:, start_idx:end_idx]
 
@@ -206,26 +209,38 @@ class CrossValidator:
 
             start_idx = end_idx
 
-            # trainer._train_no_test(train_kfold, train_targets) # true to print
-            res = trainer.train_network(train_kfold, train_targets,test_kfold, test_targets, 'none')
-            test_res = trainer.net.test_network(test_kfold, test_targets)
+            trainer.train_network(train_kfold, train_targets,test_kfold, test_targets)
+            train_res = trainer.get_training_history()
 
+            err_per_epoch_tr.append(train_res['tr_err_h'])
+            err_per_epoch_vl.append(train_res['ts_err_h'])
+            tr_acc_list.append(train_res['tr_acc'])
+            vl_acc_list.append(train_res['ts_acc'])
+            tr_err_list.append(train_res['tr_err'])
+            vl_err_list.append(train_res['ts_err'])
 
+        # medie
+        tr_mean_err = np.mean(tr_err_list)
+        vl_mean_err = np.mean(vl_err_list)
+        tr_mean_acc = np.mean(tr_acc_list)
+        vl_mean_acc = np.mean(vl_acc_list)
+        # deviazioni standard
+        tr_std_err = np.std(tr_err_list)
+        vl_std_err = np.std(vl_err_list)
+        tr_std_acc = np.std(tr_acc_list)
+        vl_std_acc = np.std(vl_acc_list)
+        # risultato
+        kfold_res = {
+            'tr_mean_err': tr_mean_err,
+            'vl_mean_err': vl_mean_err,
+            'tr_mean_acc': tr_mean_acc,
+            'vl_mean_acc': vl_mean_acc,
+            'tr_folds_err_h': err_per_epoch_tr,
+            'vl_folds_err_h': err_per_epoch_vl,
+            'tr_std_err': tr_std_err,
+            'vl_std_err': vl_std_err,
+            'tr_std_acc': tr_std_acc,
+            'vl_std_acc': vl_std_acc
+        }
 
-
-            err_list.append(test_res[0])
-            acc_list.append(test_res[1])
-
-        acc_mean = np.mean(acc_list)
-        err_mean = np.mean(err_list)
-
-        acc_std = np.std(acc_list)
-        err_std = np.std(err_list)
-
-        err_per_epoch_tr.append(res[3])
-        err_per_epoch_vl.append(res[2])
-        #print(err_per_epoch_vl)
-
-
-
-        return err_mean, err_std, err_per_epoch_tr, err_per_epoch_vl
+        return kfold_res

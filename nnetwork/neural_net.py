@@ -184,6 +184,7 @@ class NeuralNetwork:
         return net
 
 
+    """todo safe to delete??? """
     def predict(self, input_vector):
         return forward_propagation(self, input_vector)
 
@@ -380,183 +381,7 @@ class NeuralNetwork:
 
         return err_func(target_value, self.output_layer.output)
 
-    def train_rprop(self, input_vector, target_value, input_test, target_test, epochs, threshold, loss_func, delt0, delt_max):
-        logger = logging.getLogger(__name__)
-        loss = NeuralNetwork.mean_euclidean_err
-        if loss_func == 'mean_euclidean':
-            loss = NeuralNetwork.mean_euclidean_err
-        elif loss_func == 'mean_squared_err':
-            loss = NeuralNetwork.mean_squared_err
-        else:
-            print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
-        errors = []
-        accuracy = []
-        epochs_plot = []
-        ts_errors = []
-        ts_accuracy = []
-        weights_BT = {}  # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
-        err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
-        for epoch in range(epochs):
-            logger.info("Epoch %s", str(epoch))
-            forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
-            acc = NeuralNetwork.accuracy(self.output_layer.output, target_value)
 
-            err = NeuralNetwork.rprop(self, input_vector, target_value, loss, delt0, delt_max)
-            accuracy.append(acc)
-            errors.append(err)
-
-            ts_err, ts_acc = NeuralNetwork.test_network(self, input_test, target_test)
-            ts_accuracy.append(ts_acc)
-            ts_errors.append(ts_err)
-
-            epochs_plot.append(epoch)
-
-        NeuralNetwork.plotError(self, epochs_plot, errors, ts_errors)
-        NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
-
-    def _train_no_test(self, input_vector, target_value, epochs, threshold, loss_func, eta, alfa, lambd, final=False):
-        logger = logging.getLogger(__name__)
-        loss = NeuralNetwork.mean_euclidean_err
-        if loss_func == 'mean_euclidean':
-            loss = NeuralNetwork.mean_euclidean_err
-        elif loss_func == 'mean_squared_err':
-            loss = NeuralNetwork.mean_squared_err
-        else:
-            print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
-        errors = []
-        accuracy = []
-        epochs_plot = []
-        ts_errors = []
-        ts_accuracy = []
-        weights_BT = {}  # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
-        err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
-        for epoch in range(epochs):
-            logger.info("Epoch %s", str(epoch))
-            forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
-            acc = NeuralNetwork.accuracy(self.output_layer.output, target_value)
-
-            err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, alfa, lambd)
-            accuracy.append(acc)
-            errors.append(err)
-            epochs_plot.append(epoch)
-
-            # // creazione dizionario {nomelayer : pesi}
-            for i in range(len(self.hidden_layers)):
-                layer = self.hidden_layers[i]
-                if i == 0:
-                    # // weights è un dizionario per poter avere i pesi aggiornati raggiungibili dal nome del layer
-                    key = "hidden" + str(i)
-                    weights = ({key: layer.weights})
-                else:
-                    key = "hidden" + str(i)
-                    weights.update({key: layer.weights})
-            weights.update({'output': self.output_layer.weights})
-
-            # // se l'errore scende sotto la soglia, si salva il modello che lo produce
-            if err < threshold:
-                print('lavinia puzzecchia! trallallero taralli e vino')
-                #   NeuralNetwork.saveModel(self, weights)
-                break
-            # // se l'errore del modello di turno supera il precedente, si sovrascrive a weights il modello precedente
-            # WARNING: l'errore può avere minimi locali, più avanti definiremo meglio questo if
-            elif err > err_BT:
-                weights = weights_BT
-                #   NeuralNetwork.saveModel(self, weights)
-            # // altrimenti, se l'errore continua a decrescere, si sovrascrive a weights_BT il modello corrente, si salva e si sovrascrive a error_BT l'errore del modello corrente
-            else:
-                weights_BT = weights
-                err_BT = err
-
-        if final:
-            NeuralNetwork.plotError(self, epochs_plot, errors, ts_errors)
-            NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
-        print("Accuracy;", accuracy[len(accuracy) - 1])
-        return weights, err
-
-
-
-
-
-    def train_network(self, input_vector, target_value, input_test, target_test, epochs, threshold, loss_func, eta, alfa, lambd,
-                      final=False):  # // aggiunti i target_values
-        logger = logging.getLogger(__name__)
-        loss = NeuralNetwork.mean_euclidean_err
-        if loss_func == 'mean_euclidean':
-            loss = NeuralNetwork.mean_euclidean_err
-        elif loss_func == 'mean_squared_err':
-            loss = NeuralNetwork.mean_squared_err
-        else:
-            print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
-        errors = []
-        accuracy = []
-        epochs_plot = []
-        ts_errors = []
-        ts_accuracy = []
-        weights_BT = {}  # // dizionario inizialmente vuoto per salvare il modello con l'errore più basso
-        err_BT = 4.51536876901e+19  # // errore con valore inizialmente enorme, servirà per il backtracking
-        for epoch in range(epochs):
-            logger.info("Epoch %s", str(epoch))
-            forward_prop = NeuralNetwork.forward_propagation(self, input_vector)
-            acc = NeuralNetwork.accuracy(self.output_layer.output, target_value)
-
-            err = NeuralNetwork.backpropagation(self, input_vector, target_value, loss, eta, alfa, lambd)
-            accuracy.append(acc)
-            errors.append(err)
-
-            ts_err, ts_acc = NeuralNetwork.test_network(self, input_test, target_test)
-            ts_accuracy.append(ts_acc)
-            ts_errors.append(ts_err)
-
-            epochs_plot.append(epoch)
-
-            """sys.stdout.write('\r')
-            j = (epoch + 1 / epochs)
-            sys.stdout.write("[%-20s] %d%%" % ('='*int(j), 100*j))
-            sys.stdout.flush()"""
-
-
-            # // creazione dizionario {nomelayer : pesi}
-            for i in range(len(self.hidden_layers)):
-                layer = self.hidden_layers[i]
-                if i == 0:
-                    # // weights è un dizionario per poter avere i pesi aggiornati raggiungibili dal nome del layer
-                    key = "hidden" + str(i)
-                    weights = ({key: layer.weights})
-                else:
-                    key = "hidden" + str(i)
-                    weights.update({key: layer.weights})
-            weights.update({'output': self.output_layer.weights})
-
-            # // se l'errore scende sotto la soglia, si salva il modello che lo produce
-            if err < threshold:
-                print('lavinia puzzecchia! trallallero taralli e vino')
-                #   NeuralNetwork.saveModel(self, weights)
-                break
-            # // se l'errore del modello di turno supera il precedente, si sovrascrive a weights il modello precedente
-            # WARNING: l'errore può avere minimi locali, più avanti definiremo meglio questo if
-            elif err > err_BT:
-                weights = weights_BT
-                #   NeuralNetwork.saveModel(self, weights)
-            # // altrimenti, se l'errore continua a decrescere, si sovrascrive a weights_BT il modello corrente, si salva e si sovrascrive a error_BT l'errore del modello corrente
-            else:
-                weights_BT = weights
-                err_BT = err
-
-
-
-            '''
-            NB: l'errore nel training non dovrebbe mai aumentare col passare delle epoch
-            la precedente serie di if è però riutilizzabile quando guardiamo l'errore sul test set
-            '''
-
-        # NeuralNetwork.saveModel(self, weights)
-        # NeuralNetwork.saveModel(self, weights)
-        # // in ogni caso si plotta l'andamento dell'errore su tutte le epoch
-        if final:
-            NeuralNetwork.plotError(self, epochs_plot, errors, ts_errors)
-            NeuralNetwork.plot_accuracy(self, epochs_plot, accuracy, ts_accuracy)
-        print("Accuracy;", accuracy[len(accuracy) - 1])
-        return weights, err
 
     """
     tests the network
@@ -635,7 +460,7 @@ class NeuralNetwork:
             print("************ fine di ", dir)
 
 
-    """
+    """todo fix documentation
     MSE - sicuramente sbagliato
         per regolarizzazione: aggiungere +lambda*(weights)**2
     """
@@ -705,23 +530,3 @@ class NeuralNetwork:
             inf = "tot layer", ntl," \n- hidden units",nhu," \n- eta", eta, " \n- alfa", alfa," \n- lambda", lambd, " \n- activ func", af
             inf = str(inf)
             info_model.write('%s\n' % inf)
-
-
-"""
-
-    def plotError(self, epochs_plot, errors, ts_error):
-        plt.plot(epochs_plot, errors, color="blue", label="training error")
-        plt.plot(epochs_plot, ts_error, color="red", label="test error", linestyle="-.")
-        plt.xlabel("epochs")
-        plt.ylabel("error")
-        plt.legend(loc='upper left', frameon=False)
-        plt.show()
-
-    def plot_accuracy(self, epochs_plot, accuracy, ts_accuracy):
-        plt.plot(epochs_plot, accuracy, color="blue", label="accuracy TR")
-        plt.plot(epochs_plot, ts_accuracy, color="red", label="accuracy TS", linestyle="-.")
-        plt.xlabel("epochs")
-        plt.ylabel("accuracy")
-        plt.legend(loc='upper left', frameon=False)
-        plt.show()
-"""

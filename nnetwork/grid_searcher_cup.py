@@ -109,6 +109,8 @@ def adv_grid_search(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
                                 }
                                 _backup_grid_search(models, current_par, now)
                             count = count + 1
+    _backup_grid_search(models, current_par, now)
+
 
     executor.close()
     executor.join()
@@ -122,13 +124,15 @@ def _backup_grid_search(models, params, now):
     in un file separato salva l'ultimo valore degli iperparametri testato
     """
     modelli = sorted(list(models), key=lambda k: k['accuracy'], reverse=False)
+    mod_count = len(models)
     directory = 'grid_searches'
     filename = 'grid_sear_' + now + '.txt'
     filename2 = 'last_params_' + now + '.txt'
     with open(os.path.join(directory, filename), mode='w') as models_backup:
         for i in range(1, 11):
-            mod = str(str(modelli[i]))
-            models_backup.write('%s\n' % mod)
+            if i <= (mod_count - 1):
+                mod = str(str(modelli[i]))
+                models_backup.write('%s\n' % mod)
     with open(os.path.join(directory, filename2), mode='w') as par_backup:
         par = str(params)
         par_backup.write('%s\n' % par)
@@ -175,10 +179,8 @@ def test_kfold_plot():
         'loss': 'mean_euclidean'
     }
 
-    k_res = CrossValidator.kfold_grid_adv_plot_info(net_topology, param, tr_input, tr_target, k=10)
-    print(len(k_res[2][0]))
-
-    Plotter.plotError(range(0,50), k_res[2][0], k_res[3][0], 'd')
+    k_res = CrossValidator.kfold_grid_adv_plot_info(net_topology, param, tr_input, tr_target, k=50)
+    Plotter.plot_kfold(k_res)
     input()
 
 
@@ -196,7 +198,7 @@ def test_kfold_plot():
 
 def __main__():
 
-    test_kfold_plot()
+    #test_kfold_plot()
 
     filename = 'ML-CUP17-TR.csv'
     x = ML_CUP_Dataset.load_ML_dataset(filename)[0]
@@ -208,18 +210,22 @@ def __main__():
     ts_input = x[:, 712:]
     ts_target = target_values[:, 712:0]
 
+    eta = [0.01, 0.05, 0.1, 0.2]
+    alfa = [0.7, 0.9]
+    lambds = [0.01, 0.02]
+
 
     params = {
         'units_in': 10, # !!
         'units_out': 2, #!!
         'loss': 'mean_euclidean', #!!
-        'etas': [0.01, 0.02, 0.05,0.1],
-        'alfas': [0.001, 0.01, 0.1],
-        'lambds': [0.01, 0.04, 0.07, 0.1],
-        'tot_lay': [3, 4],
-        'n_hid': list(range(4, 31)),
-        'epochs': 200,
-        'act_func': ['sigmoid','tanh']
+        'etas': [0.05],
+        'alfas': [0.9, 0.85],
+        'lambds': [0.01],
+        'tot_lay': [5],
+        'n_hid': list(range(20, 30)),
+        'epochs': 800,
+        'act_func': ['tanh']
     }
 
     print('Press enter to star grid search')

@@ -1,0 +1,1 @@
+{'eta': 0.1, 'alfa': 0.85, 'lambd': 0.01, 'un_lays': 28, 'units_out': 2, 'tot_lay': 5, 'init': 'def', 'act_func': 'tanh'}

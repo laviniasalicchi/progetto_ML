@@ -1,0 +1,2 @@
+{'id': 0, 'accuracy': (1.2455770087399465, 0.092609289826634439, [], []), 'ntl': 4, 'nhu': 20, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.9, 'lambda': 0.01, 'epochs': 800, 'trshld': 0.0, 'loss': 'mean_euclidean'}
+{'id': 0, 'accuracy': (1.2892953175872859, 0.19006172759564449, [], []), 'ntl': 4, 'nhu': 20, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.85, 'lambda': 0.01, 'epochs': 800, 'trshld': 0.0, 'loss': 'mean_euclidean'}
