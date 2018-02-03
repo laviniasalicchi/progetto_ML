@@ -1,0 +1,8 @@
+312 / 10626 )  ntl: 5 nhu: 12  - af: tanh eta: 0.05 alfa: 0.9 lambda: 0.02 ERROR: 1.3985333369790027
+459 / 10626 )  ntl: 5 nhu: 17  - af: sigmoid eta: 0.1 alfa: 0.9 lambda: 0.01 ERROR: 1.3809928418823687
+471 / 10626 )  ntl: 5 nhu: 17  - af: tanh eta: 0.05 alfa: 0.9 lambda: 0.01 ERROR: 1.3726384456459257
+619 / 10626 )  ntl: 5 nhu: 22  - af: sigmoid eta: 0.1 alfa: 0.9 lambda: 0.01 ERROR: 1.3961196231430626
+631 / 10626 )  ntl: 5 nhu: 22  - af: tanh eta: 0.05 alfa: 0.9 lambda: 0.01 ERROR: 1.3376323683770672
+651 / 10626 )  ntl: 5 nhu: 23  - af: sigmoid eta: 0.1 alfa: 0.9 lambda: 0.01 ERROR: 1.3632739413604287
+
+

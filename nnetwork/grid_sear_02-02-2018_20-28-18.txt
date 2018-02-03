@@ -1,0 +1,5 @@
+{'id': 702, 'error': 1.5216742416698402e+28, 'ntl': 5, 'nhu': 24, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.2, 'alfa': 0.7, 'lambda': 0.02, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_squared_err'}
+{'id': 704, 'error': 3.3497941953409484e+27, 'ntl': 5, 'nhu': 24, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.2, 'alfa': 0.9, 'lambda': 0.02, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_squared_err'}
+{'id': 639, 'error': 7.188964406028201e+23, 'ntl': 5, 'nhu': 22, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.2, 'alfa': 0.9, 'lambda': 0.01, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_squared_err'}
+{'id': 638, 'error': 3.4681937594550236e+23, 'ntl': 5, 'nhu': 22, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.2, 'alfa': 0.7, 'lambda': 0.02, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_squared_err'}
+{'id': 669, 'error': 2.1502577681097445e+20, 'ntl': 5, 'nhu': 23, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.2, 'alfa': 0.7, 'lambda': 0.01, 'epochs': 200, 'trshld': 0.0, 'loss': 'mean_squared_err'}

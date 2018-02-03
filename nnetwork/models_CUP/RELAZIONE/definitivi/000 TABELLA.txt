@@ -1,0 +1,71 @@
+0) eta 0.01 alfa 0.7 lambda 0.01 arr layers [10, 20, 2]
+TR 3.1024791889455163
+TS 3.3810372510609414
+1 )eta 0.01 alfa 0.9 lambda 0.01 arr layers [10, 20, 2]
+['tanh', 'tanh', 'linear']
+TR 1.5896123349131446
+TS 1.7518622881998498
+2 )eta 0.05 alfa 0.7 lambda 0.01 arr layers [10, 20, 2]
+['tanh', 'tanh', 'linear']
+TR 1.45420592061666
+TS 1.5613351086852003
+3 )eta 0.05 alfa 0.9 lambda 0.01 arr layers [10, 20, 2]
+['tanh', 'tanh', 'linear']
+TR 1.2749019228263212
+TS 1.3704226179301746
+4 )eta 0.1 alfa 0.7 lambda 0.01 arr layers [10, 20, 2]
+['tanh', 'tanh', 'linear']
+TR 1.3237390467028942
+TS 1.4354919293182173
+5 )eta 0.1 alfa 0.9 lambda 0.01 arr layers [10, 20, 2]
+['tanh', 'tanh', 'linear']
+TR 1.1734637664751977
+TS 1.3008261915331831
+6 )eta 0.01 alfa 0.7 lambda 0.01 arr layers [10, 20, 20, 2]
+TR 2.5822695412484764
+TS 2.7834556812838036
+7 )eta 0.01 alfa 0.9 lambda 0.01 arr layers [10, 20, 20, 2]
+['tanh', 'tanh', 'tanh', 'linear']
+TR 1.4999183276737842
+TS 1.5601453939306105
+8 )eta 0.05 alfa 0.7 lambda 0.01 arr layers [10, 20, 20, 2]
+['tanh', 'tanh', 'tanh', 'linear']
+TR 1.2840191575189628
+TS 1.360208158549153
+9 )eta 0.05 alfa 0.9 lambda 0.01 arr layers [10, 20, 20, 2]
+['tanh', 'tanh', 'tanh', 'linear']
+TR 1.0846334206040877
+TS 1.2293868448158842
+10 )eta 0.1 alfa 0.7 lambda 0.01 arr layers [10, 20, 20, 2]
+['tanh', 'tanh', 'tanh', 'linear']
+TR 1.3045184874004558
+TS 1.4029027875225428
+11 )eta 0.1 alfa 0.9 lambda 0.01 arr layers [10, 20, 20, 2]
+['tanh', 'tanh', 'tanh', 'linear']
+TR 1.0771076633760037
+TS 1.2350056974914507
+12 )eta 0.01 alfa 0.7 lambda 0.01 arr layers [10, 20, 20, 20, 2]
+['tanh', 'tanh', 'tanh', 'tanh', 'linear']
+TR 2.6093403024245525
+TS 2.815030631714687
+13 )eta 0.01 alfa 0.9 lambda 0.01 arr layers [10, 20, 20, 20, 2]
+['tanh', 'tanh', 'tanh', 'tanh', 'linear']
+TR 1.4129426330268438
+TS 1.539426656678335
+14 )eta 0.05 alfa 0.7 lambda 0.01 arr layers [10, 20, 20, 20, 2]
+['tanh', 'tanh', 'tanh', 'tanh', 'linear']
+TR 1.294736785457316
+TS 1.4583982073715405
+15 )eta 0.05 alfa 0.9 lambda 0.01 arr layers [10, 20, 20, 20, 2]
+['tanh', 'tanh', 'tanh', 'tanh', 'linear']
+TR 1.027320889740656
+TS 1.2526465395578672
+16 )eta 0.1 alfa 0.7 lambda 0.01 arr layers [10, 20, 20, 20, 2]
+['tanh', 'tanh', 'tanh', 'tanh', 'linear']
+TR 1.2837078415641439
+TS 1.4177232414437766
+17 )eta 0.1 alfa 0.9 lambda 0.01 arr layers [10, 20, 20, 20, 2]
+['tanh', 'tanh', 'tanh', 'tanh', 'linear']
+TR 1.074443508697497
+TS 1.2469121214260837
+
