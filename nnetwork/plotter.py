@@ -12,8 +12,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('TkAgg')  # mac osx need this backend
 
-
-
 class Plotter:
 
     @staticmethod

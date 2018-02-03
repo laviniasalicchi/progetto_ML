@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # ==============================================================================
-# E' una hidden layer
+# Classe per effettuare k-fold cross validation
 #
 # © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
@@ -12,6 +12,10 @@ from trainer import NeuralTrainer
 
 
 class CrossValidator:
+    """
+    Oggetto per effettuare k-fold cross validation.
+    neural_trainer = NeuralTrainer. Trainer da utilizzare durante la cross validation.
+    """
 
     def __init__(self, neural_trainer):
         self.trainer = neural_trainer
@@ -19,15 +23,18 @@ class CrossValidator:
 
     def k_fold(self, input_vect, target_vect, k=4):
         trainer = self.trainer
+
         input_size = input_vect.shape[1]
         resto = input_size % k
         fold_size = int(input_size / k)
         start_idx = 0
-        acc_list = []
-        err_list = []
+        tr_acc_list = [] # accuracy su tr
+        vl_acc_list = [] # accuracy su vl
+        tr_err_list = [] # errore per epoch tr
+        vl_err_list = [] # errore per epoch vl
+        err_per_epoch_tr = [] # curva di errore tr per ogni fold (lista di lista di errori)
+        err_per_epoch_vl = [] # curva di errore ts per ogni fold (lista di lista di errori)
 
-        print(fold_size)
-        print(resto)
 
         for index in range(1, k + 1):
             if resto != 0:
@@ -44,20 +51,42 @@ class CrossValidator:
 
             start_idx = end_idx
 
-            #trainer._train_no_test(train_kfold, train_targets)
-            trainer.train_network(train_kfold, train_targets, test_kfold, test_targets)
-            test_res = trainer.net.test_network(test_kfold, test_targets)
+            trainer.train_network(train_kfold, train_targets,test_kfold, test_targets)
+            train_res = trainer.get_training_history()
 
-            err_list.append(test_res[0])
-            acc_list.append(test_res[1])
+            err_per_epoch_tr.append(train_res['tr_err_h'])
+            err_per_epoch_vl.append(train_res['ts_err_h'])
+            tr_acc_list.append(train_res['tr_acc'])
+            vl_acc_list.append(train_res['ts_acc'])
+            tr_err_list.append(train_res['tr_err']) # errore tr per questa fold
+            vl_err_list.append(train_res['ts_err']) # errore vl per fold
 
-        acc_mean = np.mean(acc_list)
-        err_mean = np.mean(err_list)
-        # TODO remove printing
-        #print(acc_list)
-        #print(acc_mean)
-        #print(err_list)
-        return acc_mean
+        # medie
+        tr_mean_err = np.mean(tr_err_list)
+        vl_mean_err = np.mean(vl_err_list)
+        tr_mean_acc = np.mean(tr_acc_list)
+        vl_mean_acc = np.mean(vl_acc_list)
+        # deviazioni standard
+        tr_std_err = np.std(tr_err_list)
+        vl_std_err = np.std(vl_err_list)
+        tr_std_acc = np.std(tr_acc_list)
+        vl_std_acc = np.std(vl_acc_list)
+        # risultato
+        kfold_res = {
+            'tr_mean_err': tr_mean_err,
+            'vl_mean_err': vl_mean_err,
+            'tr_mean_acc': tr_mean_acc,
+            'vl_mean_acc': vl_mean_acc,
+            'tr_folds_err_h': err_per_epoch_tr,
+            'vl_folds_err_h': err_per_epoch_vl,
+            'tr_std_err': tr_std_err,
+            'vl_std_err': vl_std_err,
+            'tr_std_acc': tr_std_acc,
+            'vl_std_acc': vl_std_acc
+        }
+
+        return kfold_res
+
 
     @staticmethod
     def k_fold_grid(net_param, train_param, input_vect, target_vect, k=4, **kwargs):
@@ -71,8 +100,12 @@ class CrossValidator:
         resto = input_size % k
         fold_size = int(input_size / k)
         start_idx = 0
-        acc_list = []
-        err_list = []
+        tr_acc_list = [] # accuracy su tr
+        vl_acc_list = [] # accuracy su vl
+        tr_err_list = []
+        vl_err_list = []
+        err_per_epoch_tr = [] # curva di errore tr per ogni fold (lista di lista di errori)
+        err_per_epoch_vl = [] # curva di errore ts per ogni fold (lista di lista di errori)
 
         #print(fold_size)
         #print(resto)
@@ -95,22 +128,42 @@ class CrossValidator:
 
             start_idx = end_idx
 
-            trainer._train_no_test(train_kfold, train_targets)
+            trainer.train_network(train_kfold, train_targets,test_kfold, test_targets)
+            train_res = trainer.get_training_history()
 
+            err_per_epoch_tr.append(train_res['tr_err_h'])
+            err_per_epoch_vl.append(train_res['ts_err_h'])
+            tr_acc_list.append(train_res['tr_acc'])
+            vl_acc_list.append(train_res['ts_acc'])
+            tr_err_list.append(train_res['tr_err'])
+            vl_err_list.append(train_res['ts_err'])
 
-            test_res = trainer.net.test_network(test_kfold, test_targets)
+        # medie
+        tr_mean_err = np.mean(tr_err_list)
+        vl_mean_err = np.mean(vl_err_list)
+        tr_mean_acc = np.mean(tr_acc_list)
+        vl_mean_acc = np.mean(vl_acc_list)
+        # deviazioni standard
+        tr_std_err = np.std(tr_err_list)
+        vl_std_err = np.std(vl_err_list)
+        tr_std_acc = np.std(tr_acc_list)
+        vl_std_acc = np.std(vl_acc_list)
+        # risultato
+        kfold_res = {
+            'tr_mean_err': tr_mean_err,
+            'vl_mean_err': vl_mean_err,
+            'tr_mean_acc': tr_mean_acc,
+            'vl_mean_acc': vl_mean_acc,
+            'tr_folds_err_h': err_per_epoch_tr,
+            'vl_folds_err_h': err_per_epoch_vl,
+            'tr_std_err': tr_std_err,
+            'vl_std_err': vl_std_err,
+            'tr_std_acc': tr_std_acc,
+            'vl_std_acc': vl_std_acc
+        }
 
+        return kfold_res
 
-            err_list.append(test_res[0])
-            acc_list.append(test_res[1])
-
-        acc_mean = np.mean(acc_list)
-        err_mean = np.mean(err_list)
-        # TODO remove printing
-        #print(acc_list)
-        #print(acc_mean)
-        #print(err_list)
-        return acc_mean
 
     @staticmethod
     def kfold_grid_adv(net_param, train_param, input_vect, target_vect, k=4):
@@ -129,8 +182,6 @@ class CrossValidator:
         err_per_epoch_tr = [] #curva di errore tr per ogni fold
         err_per_epoch_vl = [] #curva di errore ts per ogni fold
 
-        #print(fold_size)
-        #print(resto)
 
         for index in range(1, k + 1):
             if resto != 0:
@@ -153,9 +204,6 @@ class CrossValidator:
             # trainer._train_no_test(train_kfold, train_targets) # true to print
             res = trainer.train_network(train_kfold, train_targets,test_kfold, test_targets)
             test_res = trainer.net.test_network(test_kfold, test_targets)
-
-
-
 
             err_list.append(test_res[0])
             acc_list.append(test_res[1])
@@ -187,9 +235,6 @@ class CrossValidator:
         err_per_epoch_tr = [] # curva di errore tr per ogni fold (lista di lista di errori)
         err_per_epoch_vl = [] # curva di errore ts per ogni fold (lista di lista di errori)
 
-
-        #print(fold_size)
-        #print(resto)
 
         for index in range(1, k + 1):
             if resto != 0:

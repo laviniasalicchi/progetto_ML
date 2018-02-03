@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # ==============================================================================
-# Questa classe ricerca gli iperparametri ottimali per la cup
-# iperparametri nella rete neurale
+# Questa classe effettua grid searches
+#
 #
 # © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
@@ -11,9 +11,6 @@ import random
 import time
 from monk_dataset import *
 from ML_CUP_dataset import ML_CUP_Dataset
-import multiprocessing as mp
-import operator
-import itertools
 from neural_net import NeuralNetwork
 from cross_validator import CrossValidator
 from trainer import NeuralTrainer
@@ -34,6 +31,30 @@ def generate_unit_per_layer(n_in, n_hid, n_out, tot_lay):
     return res
 
 def adv_grid_search_cup(input_vect, target_vect, trshld=0.00, k=4, **kwargs):
+    """
+    Funzione per effettuare una grid search.
+
+    input_vect = matrice di input
+    target_vect = matrice target
+    threshold = soglia di errore sotto la quale fermare il training.
+                Non implementata al momento
+    kwargs = keywords arguments:
+                unit_in = Numero unità input layer. per default numero di righe della
+                          matrice di input
+                unit_out = Numero unità output layer. Per default numero di righe della matrice target
+                epochs = numero di epochs di training
+                etas =  Lista di valori di learning rate da testare.
+                alfas = Lista di valori di momentum da testare
+                lambds = Lista di valori di lamba da testare
+                tot_lay = Lista di valori per il massimo numero totale  di layer della rete
+                act_func = Lista di stringhe. Nomi di funzioni di attivazione da testare per gli hidden layer
+                           Vedere classe layer
+
+                init = Stringa. valori possibili: def = inizializzazione random. xavier = fan in
+                n_hid = Lista di interi. Numero di unità di hidden layer da testare.
+                loss = Stringa. Tipo di loss function della rete. Valori possibili: mean_euclidean, mean_squared_err
+
+    """
     now = date.datetime.now().strftime('%d-%m-%Y_%H:%M:%S')
 
     units_in = kwargs.get('unit_in', input_vect.shape[0])
@@ -227,8 +248,8 @@ def _backup_grid_search(models, params, now, err=True):
     directory = 'grid_searches'
     path = directory + "/"
     if not os.path.exists(path):
+        print(test)
         os.makedirs(path)
-    directory = 'grid_searches'
     filename = 'grid_sear_' + now + '.txt'
     filename2 = 'last_params_' + now + '.txt'
     with open(os.path.join(directory, filename), mode='w') as models_backup:
@@ -241,109 +262,63 @@ def _backup_grid_search(models, params, now, err=True):
         par_backup.write('%s\n' % par)
 
 
-def test_kfold_plot():
-
-    filename = 'ML-CUP17-TR.csv'
-    x = ML_CUP_Dataset.load_ML_dataset(filename)[0]
-    target_values = ML_CUP_Dataset.load_ML_dataset(filename)[1]
-    # development set
-    tr_input = x[:, 0:712]
-    tr_target = target_values[:, 0:712]
-
-    units_in = 10
-    nhu = 10
-    units_out = 2
-    ntl = 3
-    af = 'sigmoid'
-
-    units_per_lay = generate_unit_per_layer(units_in, nhu, units_out, ntl)
-    activ_func = [af] * (ntl - 1)
-    activ_func = activ_func + ['linear']
-
-
-
-    net_topology = {
-        'un_lays': units_per_lay,
-        'units_out': units_out,
-        'tot_lay': ntl,
-        'init': 'xavier',
-        'act_func': activ_func
-    }
-    param = {
-        'eta': 0.1,
-        'alfa': 0.1,
-        'lambd': 0.01,
-        'epochs': 50,
-        'threshold': 0.0,
-        'loss': 'mean_euclidean'
-    }
-
-    k_res = CrossValidator.kfold_grid_adv_plot_info(net_topology, param, tr_input, tr_target, k=50)
-    Plotter.plot_kfold(k_res)
-    input()
-
-def test_cross_validator():
-
-    filename = 'ML-CUP17-TR.csv'
-    x = ML_CUP_Dataset.load_ML_dataset(filename)[0]
-    target_values = ML_CUP_Dataset.load_ML_dataset(filename)[1]
-
-    un_lays = [10, 20, 2]
-    afs = ['sigmoid', 'sigmoid', 'linear']
-    train_params = {
-        'loss': 'mean_euclidean',
-        'eta': 0.1,
-        'alfa': 0.9,
-        'lambds': 0.01,
-        'epochs': 800,
-    }
-
-    net = NeuralNetwork.create_advanced_net(3, un_lays, afs, 'xavier')
-    trainer = NeuralTrainer(net, **train_params)
-    validator = CrossValidator(trainer)
-    res = validator.k_fold(x, target_values, k=7)
-    print(res)
-
-
 
 
 def __main__():
 
-    test_cross_validator()
-    return
 
-    filename = 'ML-CUP17-TR.csv'
-    x = ML_CUP_Dataset.load_ML_dataset(filename)[0]
-    target_values = ML_CUP_Dataset.load_ML_dataset(filename)[1]
-    # development set
-    tr_input = x[:, 0:712]
-    tr_target = target_values[:, 0:712]
-    # test set
-    ts_input = x[:, 712:]
-    ts_target = target_values[:, 712:0]
+    print('Input 1 for a grid search on Monk1, 2 for a grid search on Cup dataset')
+    choice = input()
+    if choice == '1':
+        monk_datas = MonkDataset.load_encode_monk('../datasets/monks-1.train')
+        monk_targets = monk_datas[0]
+        monk_input = monk_datas[1]
 
-    eta = [0.01, 0.05, 0.1, 0.2]
-    alfa = [0.7, 0.9]
-    lambds = [0.01, 0.02]
+        # parametri per la grid search
+        params = {
+            'units_in': 17, # unità di input
+            'units_out': 1, # unità di out
+            'loss': 'mean_euclidean',
+            'etas': [0.1],
+            'alfas': [0.9],
+            'lambds': [0.01],
+            'tot_lay': [4],
+            'n_hid': [26],
+            'epochs': 800,
+            'act_func': ['tanh']
+        }
+        mods = adv_grid_search_cup(monk_input, monk_targets, **params)
+    if choice == '2':
+         filename = 'ML-CUP17-TR.csv'
+         x = ML_CUP_Dataset.load_ML_dataset(filename)[0]
+         target_values = ML_CUP_Dataset.load_ML_dataset(filename)[1]
+         # development set
+         tr_input = x[:, 0:712]
+         tr_target = target_values[:, 0:712]
+         # test set
+         ts_input = x[:, 712:]
+         ts_target = target_values[:, 712:0]
 
-    # parametri per la grid search
-    params = {
-        'units_in': 10, # unità di input
-        'units_out': 2, # unità di out
-        'loss': 'mean_euclidean',
-        'etas': [0.1],
-        'alfas': [0.9],
-        'lambds': [0.01],
-        'tot_lay': [4],
-        'n_hid': [26],
-        'epochs': 800,
-        'act_func': ['tanh']
-    }
+         eta = [0.01, 0.05, 0.1, 0.2]
+         alfa = [0.7, 0.9]
+         lambds = [0.01, 0.02]
 
-    print('Press enter to star grid search')
-    #input()
-    grid_result = {}
+         # parametri per la grid search
+         params = {
+             'units_in': 10, # unità di input
+             'units_out': 2, # unità di out
+             'loss': 'mean_euclidean',
+             'etas': [0.1],
+             'alfas': [0.9],
+             'lambds': [0.01],
+             'tot_lay': [4],
+             'n_hid': [26],
+             'epochs': 800,
+             'act_func': ['tanh']
+         }
+
     mods = adv_grid_search_cup(tr_input, tr_target, **params)
     print(mods)
+
 
 __main__()

@@ -1,0 +1,28 @@
+Run 1:
+
+TR mean err: 0.92881468911
+TR std err: 0.0107443884045
+VL mean err: 1.19730338767
+VL std err: 0.0209884536732
+
+Run 2:
+
+TR mean err: 0.880164273424
+TR std err: 0.0119611769066
+VL mean err: 1.15518626742
+VL std err: 0.00696085237183
+
+
+Run 3:
+
+TR mean err: 0.886756089041
+TR std err: 0.0335672080705
+VL mean err: 1.20153259239
+VL std err: 0.0347193500571
+
+Run 4:
+
+TR mean err: 0.884358300532
+TR std err: 0.0138449886432
+VL mean err: 1.17103380435
+VL std err: 0.0475980168096

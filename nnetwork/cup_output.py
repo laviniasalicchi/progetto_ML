@@ -5,7 +5,6 @@
 #
 # © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
-
 """
 FORMATO:
 
@@ -20,7 +19,6 @@ ID, output_x, output_y
 
 import numpy as np
 
-
 """
 test_matrix = Test set
 out_vect = output della reg_term
@@ -33,7 +31,6 @@ def save_cup_out(test_matrix, out_vect, filename, header):
     cup_out = np.concatenate((ids, out_vect), axis=1)
     np.savetxt(filename, cup_out, header=header, comments='', fmt="%.0d,%.6f,%.6f")
 
-
 """
 Carica i dati della ML cup
 numpy elimina automaticamente l'header
@@ -44,7 +41,6 @@ def preprocess_cup_train(filename):
     tr_set = np.loadtxt(raw_datas, delimiter=',')
     tr_set = np.delete(tr_set, 0, axis=1)  # rimuoviamo colonna degli id
     return tr_set
-
 
 """
 In questa funzione vanno inserite le informazioni
@@ -65,6 +61,5 @@ def __main__():
     save_cup_out(test_matrix, out_vect, filename, header)
 
     # end test save_cup_out function
-
 
 __main__()

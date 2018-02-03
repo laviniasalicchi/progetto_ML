@@ -1,0 +1,1 @@
+{'id': 0, 'err': (1.2890957080475287, 0.16404507825739262, [], []), 'ntl': 4, 'nhu': 26, 'u_in': 10, 'u_out': 2, 'af': 'tanh', 'eta': 0.1, 'alfa': 0.9, 'lambda': 0.01, 'epochs': 800, 'trshld': 0.0, 'loss': 'mean_euclidean'}

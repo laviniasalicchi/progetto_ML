@@ -18,35 +18,12 @@ from cross_validator import CrossValidator
 
 def __main__():
 
-    """logging.basicConfig()
-    logging.getLogger().setLevel(logging.DEBUG)"""
+    activ_funcs = ['tanh', 'tanh','tanh','linear']
+    units = [10, 23, 23, 2]
+    net = NeuralNetwork.create_advanced_net(4, units, activ_funcs, 'xavier')
 
-    unit_lay = [17, 5, 5, 5, 1]
-    af = ['sigmoid', 'sigmoid', 'sigmoid', 'sigmoid', 'sigmoid']
-    #af = ['tanh', 'tanh', 'tanh', 'tanh', 'tanh']
-    #neural_net = NeuralNetwork.create_advanced_net(5, unit_lay, af, "xavier")
+    net.save_net('abbazzia/')
 
-    neural_net = NeuralNetwork.create_network(3, 17, 10, 1, 'tanh', slope=1)
-    args = {
-        "eta": 0.1,
-        'alfa': 0.9,
-        'lambd': 0.01,
-        "epochs": 500
-        }
-    trainer = NeuralTrainer(neural_net, **args)
-
-    monk_datas = MonkDataset.load_encode_monk('/Users/mick/Dati/Università/Pisa/Machine_learning/Prj_info/Progetto_ml/progetto_ML/datasets/monks-3.train')
-    monk_targets = monk_datas[0]
-    monk_input = monk_datas[1]
-
-    monk_test = MonkDataset.load_encode_monk('/Users/mick/Dati/Università/Pisa/Machine_learning/Prj_info/Progetto_ml/progetto_ML/datasets/monks-3.test')
-    monk_test_target = monk_test[0]
-    monk_test_input = monk_test[1]
-
-    trainer.train_network(monk_input, monk_targets, monk_test_input, monk_test_target,'d', True)
-    print(neural_net.output_layer.output)
-    cross = CrossValidator(trainer)
-    cross.k_fold(monk_input, monk_targets)
 
 
 

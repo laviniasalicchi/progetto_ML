@@ -469,7 +469,7 @@ class NeuralNetwork:
 
 
     """todo fix documentation
-    MSE - sicuramente sbagliato
+    MSE - s
         per regolarizzazione: aggiungere +lambda*(weights)**2
     """
     @staticmethod
@@ -500,41 +500,65 @@ class NeuralNetwork:
         return (res / target_value.shape[1])
 
 
-    """
-    TODO decommentare.
-    """
-    @staticmethod
-    def saveModel(weights, eta, alfa, lambd, ntl, nhu, af, u_in, u_out, epochs, threshold, loss, i, final=False):
-        now_m = datetime.now().isoformat()
-        now = (now_m.rpartition(':')[0]).replace(":", "")
-        # print(now)
-        # folder = "models/Model_"+now+"/"
-        i = str(i)
+def saveModel(self, eta, alfa, lambd, epochs, threshold, loss, tot_lay, un_lays, act_func, init, folder):
 
-        if final:
-            folder = "models/finals/Model" + i + "/weights/"
-            if not os.path.exists(folder):
-                os.makedirs(folder)
-            for k in weights:
-                path = folder + k
-                data = weights[k]
-                print(path)
-                np.savez(path, weights=data)
-            folder = "models/finals/Model" + i + "/"
+    weights = {}
+    out_wei = self.output_layer.weights
+    weights.update({'output': out_wei})
+    i = 0
+    for h in self.hidden_layers:
+        print(h)
+        key = "hidden" + str(i)
+        weights.update({key: h.weights})
+        i = i + 1
 
-        else:
-            folder = "models/Model_" + i + "/"
-            if not os.path.exists(folder):
-                os.makedirs(folder)
+    file = folder + "weights.p"
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
-        path = folder + "hyperpar"
-        np.savez(path, eta=eta, alfa=alfa, lambd=lambd, epochs=epochs, threshold=threshold, loss=loss)
+    pickle._dump(weights, open(file, "wb"))
 
-        path = folder + "topology"
-        np.savez(path, ntl=ntl, nhu=nhu, af=af, u_in=u_in, u_out=u_out)
+    path = folder + "hyperpar"
+    np.savez(path, eta=eta, alfa=alfa, lambd=lambd, epochs=epochs, threshold=threshold, loss=loss)
 
-        path = folder + "info.txt"
-        with open(path, mode='w') as info_model:
-            inf = "tot layer", ntl," \n- hidden units",nhu," \n- eta", eta, " \n- alfa", alfa," \n- lambda", lambd, " \n- activ func", af
-            inf = str(inf)
-            info_model.write('%s\n' % inf)
+    path = folder + "topology"
+    np.savez(path, tot_lay=tot_lay, un_lays=un_lays, act_func=act_func, init=init)
+
+    path = folder + "info.txt"
+    with open(path, mode='w') as info_model:
+        inf = "tot layer", tot_lay, " \n- units", un_lays, " \n- eta", eta, " \n- alfa", alfa, " \n- lambda", lambd, " \n- activ func", act_func
+        inf = str(inf)
+        info_model.write('%s\n' % inf)
+
+
+
+def save_net(self, folder):
+
+    tot_lay = len(self.hidden_layers) + 2
+    un_lays = self.hidden_layers[0].weights.shape[0]
+    act_func = self.hidden_layers[0].activation_function
+
+    weights = {}
+    out_wei = self.output_layer.weights
+    weights.update({'output': out_wei})
+    i = 0
+    for h in self.hidden_layers:
+        print(h)
+        key = "hidden" + str(i)
+        weights.update({key: h.weights})
+        i = i + 1
+
+    file = folder + "weights.p"
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    pickle._dump(weights, open(file, "wb"))
+
+    path = folder + "topology"
+    np.savez(path, tot_lay=tot_lay, un_lays=un_lays, act_func=act_func, init=init)
+
+    path = folder + "info.txt"
+    with open(path, mode='w') as info_model:
+        inf = "tot layer", tot_lay, " \n- units", un_lays, " \n- activ func", act_func
+        inf = str(inf)
+        info_model.write('%s\n' % inf)
