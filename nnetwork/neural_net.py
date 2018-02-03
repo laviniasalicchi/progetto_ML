@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # ==============================================================================
-# E' una Rete Neurale di reti neurali neurali anch'esse
+# Classe che implementa una Rete Neurale
 #
 # © 2017 Mick Hardins & Lavinia Salicchi
 # ==============================================================================
@@ -31,6 +31,7 @@ class NeuralNetwork:
         self.input_layer = []
         self.hidden_layers = []
         self.output_layer = []
+        self.loss_function = 'mean_euclidean_err'
         self.logger = logging.getLogger(__name__)
 
     def add_input_layer(self, input_layer):
@@ -237,6 +238,9 @@ class NeuralNetwork:
 
     def backpropagation(self, input_vector, target_value, err_func, eta, alfa, lambd):
         """
+        Backpropagation, il segnale di errore viene propagato all'indietro e
+        i pesi modificati in modo da minimizzare l'errore.
+
         eta = learning rate
         alfa = momentum
         lambda = Tikhonov regularization
@@ -391,8 +395,12 @@ class NeuralNetwork:
     def test_network(self, x, target_value):
         # solo forward + calcolo dell'errore
         NeuralNetwork.forward_propagation(self, x)
-        error = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
-        #   error = NeuralNetwork.mean_squared_err(target_value, self.output_layer.output)
+        error = 1
+        if self.loss_function == 'mean_euclidean':
+            error = NeuralNetwork.mean_euclidean_err(target_value, self.output_layer.output)
+        elif self.loss_function == 'mean_squared_err':
+            error = NeuralNetwork.mean_squared_err(target_value, self.output_layer.output)
+
         accuracy = NeuralNetwork.accuracy(self.output_layer.output, target_value)
         return error, accuracy
 

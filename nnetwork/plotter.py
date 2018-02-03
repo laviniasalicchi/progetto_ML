@@ -18,6 +18,10 @@ class Plotter:
 
     @staticmethod
     def plot_kfold(kfold_res):
+        """
+
+        Plotta i risultati di una kfold in un unico grafico
+        """
 
         tr_folds_err_h = kfold_res['tr_folds_err_h']
         vl_folds_err_h = kfold_res['vl_folds_err_h']
@@ -34,14 +38,12 @@ class Plotter:
             plt.plot(epochs_l, tr_err, color='xkcd:sky')
             plt.plot(epochs_l, vl_err, color='xkcd:peach')
         plt.plot(epochs_l, tr_mean_err, color='xkcd:blue', label='avg training err')
-        plt.plot(epochs_l, vl_mean_err, color='xkcd:red', label='avg test err')
+        plt.plot(epochs_l, vl_mean_err, color='xkcd:red', label='avg val err')
 
         plt.xlabel("epochs")
         plt.ylabel("error")
         plt.legend(loc='upper right', frameon=False)
         plt.show()
-
-
 
 
     @staticmethod

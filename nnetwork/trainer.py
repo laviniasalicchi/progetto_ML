@@ -43,6 +43,9 @@ class NeuralTrainer:
         self.ts_acc_history = [] # ts accuracy per ogni epochs
 
     def train_network(self, input_vector, target_value, input_test, target_test):
+        """
+        Training della rete usando la backpropagation standard
+        """
 
         nn_net = self.net
 
@@ -53,7 +56,7 @@ class NeuralTrainer:
         else:
             loss = NeuralNetwork.mean_squared_err
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
-        nn_net.define_loss(loss)
+        nn_net.define_loss(self.loss)
         tr_errors = [] # training set errors
         tr_accuracy = []
         ts_errors = [] # test set errors
@@ -80,6 +83,10 @@ class NeuralTrainer:
         return tr_errors
 
     def _train_no_test(self, input_vector, target_value):
+        """
+        Training della rete usando la backpropagation standard
+        non effettua calcolo dell'errore su un test set
+        """
 
         nn_net = self.net
 
@@ -90,7 +97,7 @@ class NeuralTrainer:
         else:
             loss = NeuralNetwork.mean_squared_err
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
-        nn_net.define_loss(loss)
+        nn_net.define_loss(self.loss)
 
         tr_errors = [] # training set errors
         tr_accuracy = []
@@ -113,6 +120,9 @@ class NeuralTrainer:
         return ts_errors
 
     def train_rprop(self, input_vector, target_value, input_test, target_test):
+        """
+        Training della rete usando la Rprop (Resilient Backpropagation)
+        """
         nn_net = self.net
 
         if self.loss == 'mean_euclidean':
@@ -123,7 +133,7 @@ class NeuralTrainer:
             loss = NeuralNetwork.mean_squared_err
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
 
-        nn_net.define_loss(loss)
+        nn_net.define_loss(self.loss)
 
         tr_errors = [] # training set errors
 
@@ -147,10 +157,11 @@ class NeuralTrainer:
         self.ts_accuracy_history = ts_accuracy
         self.ts_err_history = ts_errors
 
-        print("TR:", err, " - ", acc)
-        print("TS:", ts_err, " - ", ts_acc)
-
     def train_rprop_no_test(self, input_vector, target_value):
+        """
+        Training della rete usando la Rprop (Resilient Backpropagation)
+        Non effettua calcolo dell'errore sul ts
+        """
         nn_net = self.net
         if self.loss == 'mean_euclidean':
             loss = NeuralNetwork.mean_euclidean_err
@@ -159,7 +170,7 @@ class NeuralTrainer:
         else:
             loss = NeuralNetwork.mean_squared_err
             print('WARNING:\t loss function unkown. Defaulted to mean_euclidean')
-        nn_net.define_loss(loss)
+        nn_net.define_loss(self.loss)
 
         tr_errors = [] # training set errors
         tr_accuracy = []
@@ -178,6 +189,10 @@ class NeuralTrainer:
 
 
     def get_training_history(self):
+        """
+        Restituisce un dizionario contentente la storia del training
+            
+        """
         final_ts_err = 0
         final_ts_acc = 0
         final_tr_err = 0
